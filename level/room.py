@@ -13,7 +13,6 @@ class Room():
         self.exit = None
         self.stair_up = None
         self.stair_down = None
-        self.doors = [self.exit.bounds, self.stair_down.bounds, self.stair_up.bounds]
         self.make_stairs(floor_num, total_floors)
 
     def make_stairs(self, floor_num, total_floors):

@@ -7,6 +7,7 @@ from resources.sprite import Type
 from utilities.input import Input
 from utilities.input import InputType
 from utilities.camera import Camera
+from level.room import Room
 
 
 class Player(Entity):
@@ -48,19 +49,18 @@ class Player(Entity):
                             self.set_location(
                                 Camera.BOUNDS.width / 2 - self.width / 2, Camera.BOUNDS.height - self.height - 16)
         else:
-            "temporary code"
-            door = self.bounds.collidelist(Playfield.CURRENT_ROOM.doors)
-            if door == 0:
+            room = Playfield.CURRENT_ROOM
+            if room.exit != None and self.bounds.colliderect(room.exit.bounds):
                 Playfield.OUTSIDE = True
                 target_building = Playfield.BUILDINGS[Playfield.CURRENT_ROOM.building_id]
                 self.set_location(target_building.x + target_building.bounds.width / 2 - self.width / 2,
                                     target_building.y + target_building.bounds.height)
                 Playfield.CURRENT_ROOM = None
-            elif door == 1:
-                Playfield.CURRENT_ROOM = Playfield.BUILDINGS[Playfield.CURRENT_ROOM.floor_num - 1]
+            elif room.stair_down != None and self.bounds.colliderect(room.stair_down.bounds):
+                Playfield.CURRENT_ROOM = Playfield.BUILDINGS[Playfield.CURRENT_ROOM.building_id].floors[room.floor_num - 1]
                 self.set_location(Camera.BOUNDS.width - 64 - 16, 32)
-            elif door == 2:
-                Playfield.CURRENT_ROOM = Playfield.BUILDINGS[Playfield.CURRENT_ROOM.floor_num + 1]
+            elif room.stair_up != None and self.bounds.colliderect(room.stair_up.bounds):
+                Playfield.CURRENT_ROOM = Playfield.BUILDINGS[Playfield.CURRENT_ROOM.building_id].floors[room.floor_num + 1]
                 self.set_location(64 + 16, 32)
 
     def update(self, delta_time):
