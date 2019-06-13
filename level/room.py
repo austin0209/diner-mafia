@@ -1,0 +1,42 @@
+import pygame
+from utilities.color import Color
+from utilities.camera import Camera
+from entities.geometry.rectangle import Rectangle
+
+class Room():
+
+    def __init__(self, building_id, floor_num, total_floors, color=Color.GREEN):
+        self.color = color
+        self.rect = Rectangle(0, 0, Camera.BOUNDS.width, Camera.BOUNDS.height, 0, self.color)
+        self.building_id = building_id
+        self.floor_num = floor_num
+        self.exit = None
+        self.stair_up = None
+        self.stair_down = None
+        self.doors = [self.exit.bounds, self.stair_down.bounds, self.stair_up.bounds]
+        self.make_stairs(floor_num, total_floors)
+
+    def make_stairs(self, floor_num, total_floors):
+        if total_floors == 1:
+            self.exit = Rectangle(Camera.BOUNDS.width / 2 - 16, Camera.BOUNDS.height - 16, 32, 16, 0, Color.BLACK)
+        else:
+            if total_floors - 1 == floor_num:
+                self.stair_down = Rectangle(32, 32, 32, 64, 0)
+            elif floor_num == 0:
+                self.stair_up = Rectangle(Camera.BOUNDS.width - 64, 32, 32, 64, 0)
+                self.exit = Rectangle(Camera.BOUNDS.width / 2 - 16, Camera.BOUNDS.height - 16, 32, 16, 0, Color.BLACK)
+            else:
+                self.stair_down = Rectangle(32, 32, 32, 64, 0)
+                self.stair_up = Rectangle(Camera.BOUNDS.width - 64, 32, 32, 64, 0)
+
+    def update(self, delta_time):
+        pass
+
+    def draw(self, surface):
+        self.rect.draw(surface)
+        if self.exit != None:
+            self.exit.draw(surface)
+        if self.stair_up != None:
+            self.stair_up.draw(surface)
+        if self.stair_down != None:
+            self.stair_down.draw(surface)

@@ -1,5 +1,7 @@
 from entities.entity import Entity
 from entities.geometry.rectangle import Rectangle
+from entities.world.door import Door
+from entities.world.building import Building
 from resources.sprite import Sprite
 from resources.sprite import Type
 from utilities.input import Input
@@ -34,7 +36,32 @@ class Player(Entity):
             self.set_location(self.x + self.scaled_move_speed, self.y)
 
     def collision(self):
-        pass
+        from level.playfield import Playfield
+        if Playfield.OUTSIDE:
+            for i in range(len(Playfield.ENTITIES)):
+                if Playfield.ENTITIES[i] != self:
+                    if isinstance(Playfield.ENTITIES[i], Building):
+                        if self.bounds.colliderect(Playfield.ENTITIES[i].entrance.bounds):
+                            Playfield.OUTSIDE = False
+                            Playfield.CURRENT_ROOM = Playfield.ENTITIES[i].floors[0]
+                            Playfield.ENTITIES[i].room_index = 0
+                            self.set_location(
+                                Camera.BOUNDS.width / 2 - self.width / 2, Camera.BOUNDS.height - self.height - 16)
+        else:
+            "temporary code"
+            door = self.bounds.collidelist(Playfield.CURRENT_ROOM.doors)
+            if door == 0:
+                Playfield.OUTSIDE = True
+                target_building = Playfield.BUILDINGS[Playfield.CURRENT_ROOM.building_id]
+                self.set_location(target_building.x + target_building.bounds.width / 2 - self.width / 2,
+                                    target_building.y + target_building.bounds.height)
+                Playfield.CURRENT_ROOM = None
+            elif door == 1:
+                Playfield.CURRENT_ROOM = Playfield.BUILDINGS[Playfield.CURRENT_ROOM.floor_num - 1]
+                self.set_location(Camera.BOUNDS.width - 64 - 16, 32)
+            elif door == 2:
+                Playfield.CURRENT_ROOM = Playfield.BUILDINGS[Playfield.CURRENT_ROOM.floor_num + 1]
+                self.set_location(64 + 16, 32)
 
     def update(self, delta_time):
         self.calculate_scaled_move_speed(delta_time)
