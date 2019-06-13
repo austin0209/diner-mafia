@@ -17,6 +17,7 @@ class Player(Entity):
         self.input = Input()
         self.move_speed = 50
         self.scaled_move_speed = 0
+        print("WHJS")
 
     def set_location(self, x, y):
         super(Player, self).set_location(x, y)
