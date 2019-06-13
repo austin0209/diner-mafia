@@ -21,6 +21,7 @@ class Player(Entity):
     def set_location(self, x, y):
         super(Player, self).set_location(x, y)
         self.rectangle.set_location(self.x, self.y)
+        print("hello")
 
     def calculate_scaled_move_speed(self, delta_time):
         self.scaled_move_speed = self.move_speed * delta_time
