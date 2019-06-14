@@ -1,6 +1,7 @@
 from entities.user.player import Player
 from entities.npcs.npc import Npc
 from entities.world.building import Building
+from entities.world.building_type import BuildingType
 from entities.world.resourcehub import ResourceHub
 from utilities.vector import Vector2
 from utilities.color import Color
@@ -9,6 +10,7 @@ from utilities.input import InputType
 from utilities.camera import Camera
 # TEMP IMPORT
 import random
+
 
 class Playfield:
     ENTITIES = []
@@ -27,16 +29,20 @@ class Playfield:
         Playfield.ENTITIES = []
         Playfield.ENTITIES.append(Npc(150, 90))
         for i in range(10):
-            Playfield.ENTITIES.append(Npc(random.randint(0, Camera.BOUNDS.width), random.randint(0, Camera.BOUNDS.height)))
+            Playfield.ENTITIES.append(Npc(random.randint(
+                0, Camera.BOUNDS.width), random.randint(0, Camera.BOUNDS.height)))
         Playfield.ENTITIES.append(ResourceHub(30, 30, 30, 30, 1))
-        Playfield.BUILDINGS.append(Building(200, Camera.BOUNDS.height / 2 - 100, 3, len(Playfield.BUILDINGS)))
+        Playfield.BUILDINGS.append(
+            Building(200, Camera.BOUNDS.height / 2 - 100, 1, len(Playfield.BUILDINGS), BuildingType.SPECIAL))
         for b in Playfield.BUILDINGS:
             Playfield.ENTITIES.append(b)
         self.player = Player(10, 10, 11, 16)
         Playfield.ENTITIES.append(self.player)
 
     def update_camera(self):
-        self.camera.update()
+        center = Vector2(self.player.x - Camera.BOUNDS.width / 2 + self.player.width / 2,
+                         self.player.y - Camera.BOUNDS.height / 2 + self.player.height / 2)
+        self.camera.update(center)
 
     def update_input(self):
         self.input.update()
@@ -56,7 +62,8 @@ class Playfield:
         self.update_camera()
         self.update_input()
         self.update_entities(delta_time)
-        if not Playfield.OUTSIDE: Playfield.CURRENT_ROOM.update(delta_time)
+        if not Playfield.OUTSIDE:
+            Playfield.CURRENT_ROOM.update(delta_time)
 
     def draw(self, surface):
         if Playfield.OUTSIDE:

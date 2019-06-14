@@ -79,7 +79,8 @@ class Player(Entity):
             Playfield.CURRENT_ROOM = building.floors[0]
             building.room_index = 0
             self.set_location(
-                Camera.BOUNDS.width / 2 - self.width / 2, Camera.BOUNDS.height - self.height - 16)
+                Playfield.CURRENT_ROOM.bounds.width / 2 - self.width / 2,
+                Playfield.CURRENT_ROOM.bounds.height - self.height - 16)
 
     def stair_collision(self):
         from level.playfield import Playfield

@@ -5,17 +5,20 @@ from resources.sprite import Sprite
 from resources.sprite import Type
 from level.room import Room
 from utilities.color import Color
+from entities.world.building_type import BuildingType
+
 
 class Building(Entity):
 
-    def __init__(self, x, y, total_floors, id):
+    def __init__(self, x, y, total_floors, id, building_type=BuildingType.NORMAL):
         super(Building, self).__init__(x, y, 48, 64)
         self.floors = []
         self.entrance = Door(x + 18, y + 46, 12, 18, id)
         self.room_index = -1
         self.sprite = Sprite(x, y, Type.HOUSE_0)
+        self.type = building_type
         for i in range(total_floors):
-            self.floors.append(Room(id, i, total_floors, Color.RED if id == 0 else Color.GREEN))
+            self.floors.append(Room(id, i, total_floors, building_type, Color.RED if id == 0 else Color.GREEN))
 
     def update(self, delta_time):
         pass
