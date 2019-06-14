@@ -7,8 +7,7 @@ from entities.world.building_type import BuildingType
 
 class Room():
 
-    def __init__(self, building_id, floor_num, total_floors, building_type=BuildingType.NORMAL, color=Color.GREEN):
-        "When making a NORMAL or special building total floors should not exceed 1"
+    def __init__(self, building_id, floor_num, building_type=BuildingType.NORMAL, color=Color.GREEN):
         self.color = color
         self.bounds = None
         self.create_bounds(building_type)
@@ -17,7 +16,7 @@ class Room():
         self.exit = None
         self.stair_up = None
         self.stair_down = None
-        self.make_stairs(floor_num, total_floors)
+        self.make_exits(floor_num)
 
     def create_bounds(self, type):
         if type == BuildingType.NORMAL:
@@ -27,22 +26,18 @@ class Room():
         elif type == BuildingType.SHOP:
             self.bounds = Rectangle(0, 0, 18 * 16, 6 * 16, color=self.color)
 
-    def make_stairs(self, floor_num, total_floors):
-        if total_floors == 1:
+    def make_exits(self, floor_num):
+        if floor_num == 1:
             self.exit = Rectangle(self.bounds.x + self.bounds.width / 2 - 16,
                                   self.bounds.y + self.bounds.height - 16, 32, 16, color=Color.BLACK)
         else:
-            if total_floors - 1 == floor_num:
+            if floor_num == 1:
                 self.stair_down = Rectangle(32, 32, 32, 64, 0)
             elif floor_num == 0:
                 self.stair_up = Rectangle(
                     self.bounds.width - 64, 32, 32, 64, 0)
                 self.exit = Rectangle(
                     self.bounds.width / 2 - 16, self.bounds.height - 16, 32, 16, 0, Color.BLACK)
-            else:
-                self.stair_down = Rectangle(32, 32, 32, 64, 0)
-                self.stair_up = Rectangle(
-                    self.bounds.width - 64, 32, 32, 64, 0)
 
     def update(self, delta_time):
         pass

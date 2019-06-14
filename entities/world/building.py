@@ -18,7 +18,7 @@ class Building(Entity):
         self.sprite = Sprite(x, y, Type.HOUSE_0)
         self.type = building_type
         for i in range(total_floors):
-            self.floors.append(Room(id, i, total_floors, building_type, Color.RED if id == 0 else Color.GREEN))
+            self.floors.append(Room(id, i, building_type, Color.RED if id == 0 else Color.GREEN))
 
     def update(self, delta_time):
         pass
