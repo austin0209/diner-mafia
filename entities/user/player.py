@@ -11,7 +11,9 @@ from utilities.input import Input
 from utilities.input import InputType
 from utilities.camera import Camera
 from utilities.vector import Vector2
-from level.room import Room
+from level.rooms.normal_room import NormalRoom
+from level.rooms.special_room import SpecialRoom
+from level.rooms.shop_room import ShopRoom
 
 
 class Player(Entity):
@@ -48,7 +50,7 @@ class Player(Entity):
         if Playfield.OUTSIDE:
             self.outside_collision()
         else:
-            self.stair_collision()
+            self.inside_collision()
 
     def distance_from(self, other):
         center = Vector2(self.x + self.width / 2, self.y + self.height / 2)
@@ -61,7 +63,7 @@ class Player(Entity):
         for i in range(len(Playfield.ENTITIES)):
             if Playfield.ENTITIES[i] != self:
                 if isinstance(Playfield.ENTITIES[i], Building):
-                    self.building_collision(Playfield.ENTITIES[i])
+                    self.entrance_collision(Playfield.ENTITIES[i])
                 elif isinstance(Playfield.ENTITIES[i], Npc):
                     Playfield.ENTITIES[i].talking = self.distance_from(
                         Playfield.ENTITIES[i].center()) < Npc.PROXIMITY
@@ -72,7 +74,7 @@ class Player(Entity):
         if self.bounds.colliderect(hub.bounds):
             self.resources[hub.id] += 1
 
-    def building_collision(self, building):
+    def entrance_collision(self, building):
         from level.playfield import Playfield
         if self.bounds.colliderect(building.entrance.bounds):
             Playfield.OUTSIDE = False
@@ -82,23 +84,41 @@ class Player(Entity):
                 Playfield.CURRENT_ROOM.bounds.width / 2 - self.width / 2,
                 Playfield.CURRENT_ROOM.bounds.height - self.height - 16)
 
-    def stair_collision(self):
+    def inside_collision(self):
         from level.playfield import Playfield
         room = Playfield.CURRENT_ROOM
-        if room.exit != None and self.bounds.colliderect(room.exit.bounds):
-            Playfield.OUTSIDE = True
-            target_building = Playfield.BUILDINGS[Playfield.CURRENT_ROOM.building_id]
-            self.set_location(target_building.x + target_building.bounds.width / 2 - self.width / 2,
-                              target_building.y + target_building.bounds.height)
-            Playfield.CURRENT_ROOM = None
-        elif room.stair_down != None and self.bounds.colliderect(room.stair_down.bounds):
-            Playfield.CURRENT_ROOM = Playfield.BUILDINGS[
-                Playfield.CURRENT_ROOM.building_id].floors[room.floor_num - 1]
-            self.set_location(Camera.BOUNDS.width - 64 - 16, 32)
-        elif room.stair_up != None and self.bounds.colliderect(room.stair_up.bounds):
-            Playfield.CURRENT_ROOM = Playfield.BUILDINGS[
-                Playfield.CURRENT_ROOM.building_id].floors[room.floor_num + 1]
-            self.set_location(64 + 16, 32)
+        # Collision with exits
+        for i in range(len(room.exits)):
+            if self.bounds.colliderect(room.exits[i].bounds):
+                if isinstance(room, NormalRoom) or isinstance(room, SpecialRoom):
+                    # Only one exit, go outside
+                    building_to_exit = Playfield.BUILDINGS[room.building_id]
+                    self.exit_room(room, (building_to_exit.x + building_to_exit.bounds.width / 2 - self.width / 2,
+                                          building_to_exit.y + building_to_exit.bounds.height))
+                elif isinstance(room, ShopRoom):
+                    if room.floor_num == 0:
+                        # Two exits, outside exit and stairs
+                        if i == 0:
+                            # Collided with outside exit
+                            # TODO: Player should not be centered on exit
+                            building_to_exit = Playfield.BUILDINGS[room.building_id]
+                            self.exit_room(room, (building_to_exit.x + building_to_exit.bounds.width / 2 - self.width / 2,
+                                                  building_to_exit.y + building_to_exit.bounds.height))
+                        else:
+                            # Collided with stairs, go up
+                            Playfield.CURRENT_ROOM = Playfield.BUILDINGS[
+                                Playfield.CURRENT_ROOM.building_id].floors[1]
+                    else:
+                        # Only one exit, go outside
+                        building_to_exit = Playfield.BUILDINGS[room.building_id]
+                        self.exit_room(room, (building_to_exit.x + building_to_exit.bounds.width / 2 - self.width / 2,
+                                              building_to_exit.y + building_to_exit.bounds.height))
+
+    def exit_room(self, room, exit_pos):
+        # TODO: is this method pointless?
+        from level.playfield import Playfield
+        Playfield.OUTSIDE = True
+        self.set_location(exit_pos[0], exit_pos[1])
 
     def update(self, delta_time):
         self.calculate_scaled_move_speed(delta_time)

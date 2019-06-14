@@ -33,7 +33,7 @@ class Playfield:
                 0, Camera.BOUNDS.width), random.randint(0, Camera.BOUNDS.height)))
         Playfield.ENTITIES.append(ResourceHub(30, 30, 30, 30, 1))
         Playfield.BUILDINGS.append(
-            Building(200, Camera.BOUNDS.height / 2 - 100, 1, len(Playfield.BUILDINGS), BuildingType.SPECIAL))
+            Building(200, Camera.BOUNDS.height / 2 - 100, len(Playfield.BUILDINGS), BuildingType.SPECIAL))
         for b in Playfield.BUILDINGS:
             Playfield.ENTITIES.append(b)
         self.player = Player(10, 10, 11, 16)
