@@ -1,11 +1,14 @@
 from entities.user.player import Player
+from entities.npcs.npc import Npc
 from entities.world.building import Building
+from entities.world.resourcehub import ResourceHub
 from utilities.vector import Vector2
 from utilities.color import Color
 from utilities.input import Input
 from utilities.input import InputType
 from utilities.camera import Camera
-
+# TEMP IMPORT
+import random
 
 class Playfield:
     ENTITIES = []
@@ -17,15 +20,20 @@ class Playfield:
         self.camera = Camera()
         self.camera_location = Vector2(0, 0)
         self.input = Input()
+        self.player = None
         self.reset()
 
     def reset(self):
         Playfield.ENTITIES = []
-        Playfield.ENTITIES.append(Player(10, 10, 10, 10))
-        Playfield.BUILDINGS.append(Building(10, Camera.BOUNDS.height / 2 - 100, 3, len(Playfield.BUILDINGS)))
-        Playfield.BUILDINGS.append(Building(200, Camera.BOUNDS.height / 2 - 100, 1, len(Playfield.BUILDINGS)))
+        Playfield.ENTITIES.append(Npc(150, 90))
+        for i in range(10):
+            Playfield.ENTITIES.append(Npc(random.randint(0, Camera.BOUNDS.width), random.randint(0, Camera.BOUNDS.height)))
+        Playfield.ENTITIES.append(ResourceHub(30, 30, 30, 30, 1))
+        Playfield.BUILDINGS.append(Building(200, Camera.BOUNDS.height / 2 - 100, 3, len(Playfield.BUILDINGS)))
         for b in Playfield.BUILDINGS:
             Playfield.ENTITIES.append(b)
+        self.player = Player(10, 10, 11, 16)
+        Playfield.ENTITIES.append(self.player)
 
     def update_camera(self):
         self.camera.update()
@@ -33,12 +41,16 @@ class Playfield:
     def update_input(self):
         self.input.update()
 
+    def y_key(self, entity):
+        return entity.y + entity.height
+
     def update_entities(self, delta_time):
         if Playfield.OUTSIDE:
             for i in range(len(Playfield.ENTITIES) - 1, -1, -1):
                 Playfield.ENTITIES[i].update(delta_time)
         else:
-            Playfield.ENTITIES[0].update(delta_time)
+            self.player.update(delta_time)
+        Playfield.ENTITIES.sort(key=self.y_key)
 
     def update(self, delta_time):
         self.update_camera()
@@ -52,4 +64,4 @@ class Playfield:
                 Playfield.ENTITIES[i].draw(surface)
         else:
             Playfield.CURRENT_ROOM.draw(surface)
-            Playfield.ENTITIES[0].draw(surface)
+            self.player.draw(surface)

@@ -3,8 +3,8 @@ from entities.entity import Entity
 
 class Door(Entity):
 
-    def __init__(self, x, y, id):
-        super(Door, self).__init__(x, y, 16, 32)
+    def __init__(self, x, y, width, height, id):
+        super(Door, self).__init__(x, y, width, height)
         self.id = id
 
     def draw(self, surface):

@@ -7,6 +7,9 @@ from entities.entity import Entity
 class Type(Enum):
     NONE = 0
     PLAYER = 1
+    NPC = 2
+    BUBBLE = 3
+    HOUSE_0 = 4
 
 
 class Sprite(Entity):
@@ -27,7 +30,13 @@ class Sprite(Entity):
         if self.type == Type.NONE:
             pass
         elif (self.type == Type.PLAYER):
-            self.sprite_setup(0, 0, 32, 48, "sprites.png")
+            self.sprite_setup(2, 176, 11, 16, "sprites.png")
+        elif (self.type == Type.NPC):
+            self.sprite_setup(2, 176, 11, 16, "sprites.png")
+        elif (self.type == Type.BUBBLE):
+            self.sprite_setup(0, 192, 20, 20, "sprites.png")
+        elif (self.type == Type.HOUSE_0):
+            self.sprite_setup(0, 32, 48, 64, "sprites.png")
 
         self.image = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
         self.image.blit(self.sprite_sheet, (0, 0),
