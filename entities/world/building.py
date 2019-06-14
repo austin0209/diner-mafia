@@ -33,6 +33,5 @@ class Building(Entity):
             int(0)
         )
         self.sprite.draw(surface)
-        self.entrance.draw(surface)
 
 
