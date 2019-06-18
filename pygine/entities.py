@@ -1,3 +1,4 @@
+import pygine.globals
 from pygame import Rect
 from pygine.base import PygineObject
 from pygine.draw import draw_rectangle
@@ -162,10 +163,12 @@ class Player(Kinetic):
         self.collision(entities)
 
     def draw(self, surface):
-        self.shadow.draw(surface, CameraType.DYNAMIC)
-        self.sprite.draw(surface, CameraType.DYNAMIC)
-        #self.draw_bounds(surface, CameraType.DYNAMIC)
-        # self.draw_collision_rectangles(surface)
+        if pygine.globals.debug:
+            self.draw_bounds(surface, CameraType.DYNAMIC)
+            self.draw_collision_rectangles(surface)
+        else:
+            self.shadow.draw(surface, CameraType.DYNAMIC)
+            self.sprite.draw(surface, CameraType.DYNAMIC)
 
 
 class NPCType(Enum):
@@ -205,9 +208,11 @@ class NPC(Entity):
         self.update_conversation(entities)
 
     def draw(self, surface):
-        self.shadow.draw(surface, CameraType.DYNAMIC)
-        self.sprite.draw(surface, CameraType.DYNAMIC)
-        #self.draw_bounds(surface, CameraType.DYNAMIC)
+        if pygine.globals.debug:
+            self.draw_bounds(surface, CameraType.DYNAMIC)
+        else:
+            self.shadow.draw(surface, CameraType.DYNAMIC)
+            self.sprite.draw(surface, CameraType.DYNAMIC)
         if self.show_prompt:
             self.speech_bubble.draw(surface, CameraType.DYNAMIC)
 
@@ -222,9 +227,11 @@ class Buidling(Entity):
         pass
 
     def draw(self, surface):
-        self.shadow.draw(surface, CameraType.DYNAMIC)
-        self.sprite.draw(surface, CameraType.DYNAMIC)
-        #self.draw_bounds(surface, CameraType.DYNAMIC)
+        if pygine.globals.debug:
+            self.draw_bounds(surface, CameraType.DYNAMIC)
+        else:
+            self.shadow.draw(surface, CameraType.DYNAMIC)
+            self.sprite.draw(surface, CameraType.DYNAMIC)
 
 
 class SimpleHouse(Buidling):
@@ -254,6 +261,8 @@ class Tree(Entity):
         pass
 
     def draw(self, surface):
-        self.shadow.draw(surface, CameraType.DYNAMIC)
-        self.sprite.draw(surface, CameraType.DYNAMIC)
-        #self.draw_bounds(surface, CameraType.DYNAMIC)
+        if pygine.globals.debug:
+            self.draw_bounds(surface, CameraType.DYNAMIC)
+        else:
+            self.shadow.draw(surface, CameraType.DYNAMIC)
+            self.sprite.draw(surface, CameraType.DYNAMIC)

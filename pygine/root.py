@@ -1,4 +1,5 @@
 import pygame
+import pygine.globals
 from pygine.scenes import SceneManager, SceneType
 from pygine.utilities import Color, Input, InputType, StaticCamera
 from enum import Enum
@@ -17,7 +18,6 @@ class Orientaion(Enum):
 class Game:
     "A modest game engine used to streamline the development of a game made using pygame"
     state = GameState.QUIT
-    debug_mode = False
 
     def __init__(self):
         self.initialize_pygame()
@@ -122,7 +122,7 @@ class Game:
         if self.input.pressing(InputType.TOGGLE_FULLSCREEN):
             self.toggle_fullscreen()
         if self.input.pressing(InputType.TOGGLE_DEBUG):
-            Game.debug_mode = not Game.debug_mode
+            pygine.globals.debug = not pygine.globals.debug
 
     def update_events(self):
         for event in pygame.event.get():
