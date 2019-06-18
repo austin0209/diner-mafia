@@ -1,6 +1,4 @@
 #!/usr/bin/python
-
-from root.game import Game
-
+from pygine.root import Game
 game = Game()
 game.run()

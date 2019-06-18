@@ -1,19 +1,12 @@
 import pygame
+from pygine.scenes import SceneManager, SceneType
+from pygine.utilities import Color, Input, InputType, StaticCamera
 from enum import Enum
-from level.playfield import Playfield
-from ui.menu import Menu
-from utilities.vector import Vector2
-from utilities.color import Color
-from utilities.camera import StaticCamera
-from utilities.camera import Camera
-from utilities.input import Input
-from utilities.input import InputType
 
 
 class GameState(Enum):
-    NONE = 0
-    MENU = 1
-    PLAYFIELD = 2
+    QUIT = 0
+    RUNNING = 1
 
 
 class Orientaion(Enum):
@@ -23,7 +16,8 @@ class Orientaion(Enum):
 
 class Game:
     "A modest game engine used to streamline the development of a game made using pygame"
-    STATE = GameState.NONE
+    state = GameState.QUIT
+    debug_mode = False
 
     def __init__(self):
         self.initialize_pygame()
@@ -32,11 +26,10 @@ class Game:
         self.setup_pixel_scene(320, 180)
         self.setup_cameras()
 
-        Game.STATE = GameState.PLAYFIELD
+        Game.state = GameState.RUNNING
         self.delta_time = 0
         self.ticks = 0
-        self.menu = Menu()
-        self.playfield = Playfield()
+        self.scene_manager = SceneManager(SceneType.VILLAGE)
         self.input = Input()
 
     def initialize_pygame(self):
@@ -104,7 +97,7 @@ class Game:
                     (self.window_height - self.game_height * self.scale) / 2)
 
     def quit_game(self):
-        Game.STATE = GameState.NONE
+        Game.state = GameState.QUIT
 
     def toggle_fullscreen(self):
         self.fullscreen = not self.fullscreen
@@ -128,6 +121,8 @@ class Game:
             self.quit_game()
         if self.input.pressing(InputType.TOGGLE_FULLSCREEN):
             self.toggle_fullscreen()
+        if self.input.pressing(InputType.TOGGLE_DEBUG):
+            Game.debug_mode = not Game.debug_mode
 
     def update_events(self):
         for event in pygame.event.get():
@@ -141,31 +136,21 @@ class Game:
     def update(self):
         self.calculate_delta_time()
         self.update_input()
-
-        if Game.STATE == GameState.MENU:
-            self.menu.update(self.delta_time)
-
-        elif Game.STATE == GameState.PLAYFIELD:
-            self.playfield.update(self.delta_time)
-
+        self.scene_manager.update(self.delta_time)
         self.update_events()
 
     def draw(self):
-        self.clear_screen(
-            Color.SKY_BLUE) if Game.STATE != GameState.NONE else self.clear_screen(Color.BLACK)
-
-        if Game.STATE == GameState.MENU:
-            self.menu.draw(self.window)
-
-        elif Game.STATE == GameState.PLAYFIELD:
-            self.playfield.draw(self.window)
+        if Game.state == GameState.QUIT:
+            self.clear_screen(Color.BLACK)
+        else:
+            self.clear_screen(Color.SKY_BLUE)
+            self.scene_manager.draw(self.window)
 
         self.static_camera.draw(self.window)
-
         pygame.display.update()
 
     def run(self):
-        while Game.STATE != GameState.NONE:
+        while Game.state != GameState.QUIT:
             self.update()
             self.draw()
         pygame.quit()
