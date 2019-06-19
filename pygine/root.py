@@ -31,7 +31,6 @@ class Game:
         self.delta_time = 0
         self.ticks = 0
         self.scene_manager = SceneManager()
-
         self.input = Input()
 
     def initialize_pygame(self):
