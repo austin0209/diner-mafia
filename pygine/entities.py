@@ -1,12 +1,12 @@
 import pygine.globals
+from enum import IntEnum
 from pygame import Rect
 from pygine.base import PygineObject
 from pygine.draw import draw_rectangle
 from pygine.geometry import Rectangle
-from pygine.maths import Vector2, distance_between_points
+from pygine.maths import Vector2, distance_between
 from pygine.resource import Sprite, SpriteType
 from pygine.utilities import CameraType, Color, Input, InputType
-from enum import IntEnum
 
 
 class Entity(PygineObject):
@@ -176,9 +176,9 @@ class NPCType(IntEnum):
     FEMALE = 1
 
 
-class NPC(Entity):
+class NPC(Kinetic):
     def __init__(self, x, y, type):
-        super(NPC, self).__init__(x, y, 10, 10)
+        super(NPC, self).__init__(x, y, 10, 10, 50)
         self.type = type
         if self.type == NPCType.MALE:
             self.sprite = Sprite(self.x - 3, self.y - 22, SpriteType.NPC_M)
@@ -198,9 +198,7 @@ class NPC(Entity):
         self.speech_bubble.set_height(self.x + 8, self.y - 28)
 
     def within_radius(self, e):
-        e_center = Vector2(e.x + e.width / 2, e.y + e.height / 2)
-        center = Vector2(self.x + self.width / 2, self.y + self.height / 2)
-        if distance_between_points(center, e_center) <= self.radius:
+        if distance_between(self.center, e.center) <= self.radius:
             self.show_prompt = True
         else:
             self.show_prompt = False
@@ -210,8 +208,35 @@ class NPC(Entity):
             if isinstance(e, Player):
                 self.within_radius(e)
 
+    def rectanlge_collision_logic(self, entity):
+        # Bottom
+        if self.collision_rectangles[0].colliderect(entity.bounds) and self.velocity.y < 0:
+            self.set_location(self.x, entity.bounds.bottom)
+        # Top
+        elif self.collision_rectangles[1].colliderect(entity.bounds) and self.velocity.y > 0:
+            self.set_location(self.x, entity.bounds.top - self.bounds.height)
+        # Right
+        elif self.collision_rectangles[2].colliderect(entity.bounds) and self.velocity.x < 0:
+            self.set_location(entity.bounds.right, self.y)
+        # Left
+        elif self.collision_rectangles[3].colliderect(entity.bounds) and self.velocity.x > 0:
+            self.set_location(entity.bounds.left - self.bounds.width, self.y)
+
+    def collision(self, entities):
+        for e in entities:
+            if (
+                isinstance(e, Building) or
+                isinstance(e, Tree)
+            ):
+                self.rectanlge_collision_logic(e)
+
     def update(self, delta_time, entities):
         self.update_conversation(entities)
+
+        self.calculate_scaled_speed(delta_time)
+        # update_MASTER_AI_SYSTEM
+        self.update_collision_rectangles()
+        self.collision(entities)
 
     def draw(self, surface):
         if pygine.globals.debug:

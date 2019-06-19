@@ -3,33 +3,26 @@
 from enum import IntEnum
 from pygine.base import PygineObject
 from pygine.draw import draw_rectangle
-from pygine.entities import Building, Player
+from pygine.entities import Building, Direction, Player
 from pygine.utilities import InputType
-
-
-class Direction(IntEnum):
-    NONE = 0,
-    UP = 1,
-    DOWN = 2,
-    LEFT = 3,
-    RIGHT = 4
 
 
 class Trigger(PygineObject):
     def __init__(self, x, y, width, height, end_location, next_scene):
         super(Trigger, self).__init__(x, y, width, height)
-        self.next = next_scene
+        self.next_scene = next_scene
         self.end_location = end_location
 
-    def move_entity_to_next_scene(self, entity, manager):
-        next_scene = manager.get_scene(self.next)
+    def _move_entity_to_next_scene(self, entity, manager):
+        next_scene = manager.get_scene(self.next_scene)
         current_scene = manager.get_current_scene()
-
+    
         if isinstance(entity, Player):
-            manager.change_scene(self.next)
+            manager.queue_next_scene(self.next_scene)
             next_scene.relay_player(entity)
         else:
-            next_scene.entities.append(entity)
+            next_scene.relay_entity(entity)
+
         current_scene.entities.remove(entity)
         entity.set_location(self.end_location.x, self.end_location.y)
 
@@ -48,13 +41,13 @@ class CollisionTrigger(Trigger):
             x, y, width, height, end_location, next_scene)
         self.direction = direction
 
-    def collision(self, entities, manager):
+    def __collision(self, entities, manager):
         for e in entities:
             if e.bounds.colliderect(self.bounds):
-                self.move_entity_to_next_scene(e, manager)
+                self._move_entity_to_next_scene(e, manager)
 
     def update(self, delta_time, entities, manager):
-        self.collision(entities, manager)
+        self.__collision(entities, manager)
 
     def draw(self, surface, camera_type):
         draw_rectangle(
@@ -70,17 +63,17 @@ class ButtonTrigger(Trigger):
             x, y, width, height, end_location, next_scene)
         self.direction = direction
 
-    def collision(self, entities, manager):
+    def __collision(self, entities, manager):
         for e in entities:
             if not isinstance(e, Building) and e.bounds.colliderect(self.bounds):
                 if isinstance(e, Player):
                     if e.input.pressing(InputType.A) and int(e.facing) == int(self.direction):
-                        self.move_entity_to_next_scene(e, manager)
+                        self._move_entity_to_next_scene(e, manager)
                 else:
-                    self.move_entity_to_next_scene(e, manager)
+                    self._move_entity_to_next_scene(e, manager)
 
     def update(self, delta_time, entities, manager):
-        self.collision(entities, manager)
+        self.__collision(entities, manager)
 
     def draw(self, surface, camera_type):
         draw_rectangle(

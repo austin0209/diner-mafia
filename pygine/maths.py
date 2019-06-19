@@ -1,7 +1,7 @@
 import math
 
 
-def distance_between_points(vector_a, vector_b):
+def distance_between(vector_a, vector_b):
     return math.sqrt((vector_a.x - vector_b.x)**2 + (vector_a.y - vector_b.y)**2)
 
 

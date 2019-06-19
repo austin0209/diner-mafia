@@ -1,10 +1,10 @@
 import pygame
+from enum import IntEnum
 from pygine.base import PygineObject
 from pygine.draw import draw_image
-from enum import Enum
 
 
-class SpriteType(Enum):
+class SpriteType(IntEnum):
     NONE = 0
     PLAYER_F = 1
     PLAYER_R = 2
@@ -38,6 +38,7 @@ class Sprite(PygineObject):
         self.set_width(width)
         self.set_height(height)
         self.sprite_sheet = pygame.image.load(
+            # '/home/cpi/games/Python/village-game/pygine/assets/sprites/{}'.format(sprite_sheet_name)
             'pygine/assets/sprites/{}'.format(sprite_sheet_name)
         )
 
