@@ -10,7 +10,6 @@ from enum import IntEnum
 class SceneType(IntEnum):
     VILLAGE = 0
     FOREST = 1
-    ROOM = 2
 
 
 class Scene(object):
@@ -81,7 +80,6 @@ class SceneManager:
         self.__all_scenes = []
         self.add_scene(Village())
         self.add_scene(Forest())
-        self.add_scene(Room())
 
     def set_current_scene(self, scene_type):
         self.__current_scene = None
@@ -98,7 +96,11 @@ class SceneManager:
 
     def change_scene(self, scene_type):
         assert len(self.__all_scenes) != 0
-        self.__current_scene = self.__all_scenes[int(scene_type)]
+        if scene_type == SceneType.VILLAGE:
+            self.__current_scene = self.__all_scenes[int(SceneType.VILLAGE)]
+        elif scene_type == SceneType.FOREST:
+            self.__current_scene = self.__all_scenes[int(SceneType.FOREST)]
+        # self.__current_scene.reset()
         self.__current_scene.transition = Pinhole(PinholeType.OPEN)
 
     def update(self, delta_time):
@@ -120,8 +122,8 @@ class Village(Scene):
         self.triggers = [
             CollisionTrigger(0, 0, 16, Camera.BOUNDS.height, Vector2(
                 Camera.BOUNDS.width - 16 - 16, 0), SceneType.FOREST),
-            ButtonTrigger(16 + 48 * 1 + 16 + 16, 16 + 64, 16, 8, Vector2(
-                64 + 2, 160), SceneType.ROOM)
+            ButtonTrigger(16 + 48 * 1 + 16 + 16, 16 + 40, 16, 8, Vector2(
+                Camera.BOUNDS.width - 16 - 16, 0), SceneType.FOREST)
         ]
 
     def reset(self):
@@ -279,67 +281,6 @@ class Forest(Scene):
     def draw(self, surface):
         for s in self.sprites:
             s.draw(surface, CameraType.DYNAMIC)
-        for e in self.entities:
-            e.draw(surface)
-        for t in self.triggers:
-            t.draw(surface, CameraType.DYNAMIC)
-        self.transition.draw(surface)
-
-class Room(Scene):
-    def __init__(self):
-        super(Room, self).__init__()
-        self.create_triggers()
-        self.reset()
-
-    def create_triggers(self):
-        self.triggers.append(
-            ButtonTrigger(
-                64,
-                160,
-                16,
-                16,
-                Vector2(16 + 48 * 1 + 16 + 16, 16 + 64),
-                SceneType.VILLAGE,
-                Direction.DOWN
-            )
-        )
-
-    def reset(self):
-
-        self.entities = [
-            
-        ]
-        self.shapes = [
-            Rectangle(48, 16, 224, 64, Color.BLUE),
-            Rectangle(48, 80, 224, 80)
-        ] 
-        self.transition = Pinhole(PinholeType.OPEN)
-        self.sprites = []
-
-    def update_camera(self):
-        self.camera_location = Vector2(
-            self.player.x + self.player.width / 2 - self.camera.BOUNDS.width / 2,
-            self.player.y + self.player.height / 2 - self.camera.BOUNDS.height / 2
-        )
-        self.camera.update(self.camera_location)
-
-    def update_entities(self, delta_time):
-        for i in range(len(self.entities)-1, -1, -1):
-            self.entities[i].update(delta_time, self.entities)
-        self.entities.sort(key=lambda e: e.y + e.height)
-
-    def update(self, delta_time):
-        self.update_transition(delta_time)
-        self.update_input()
-        self.update_entities(delta_time)
-        self.update_triggers(delta_time, self.entities, self.manager)
-        self.update_camera()
-
-    def draw(self, surface):
-        for s in self.sprites:
-            s.draw(surface, CameraType.DYNAMIC)
-        for sh in self.shapes:
-            sh.draw(surface, CameraType.DYNAMIC)
         for e in self.entities:
             e.draw(surface)
         for t in self.triggers:

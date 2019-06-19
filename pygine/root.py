@@ -145,7 +145,7 @@ class Game:
         if Game.state == GameState.QUIT:
             self.clear_screen(Color.BLACK)
         else:
-            self.clear_screen(Color.SKY_BLUE)
+            self.clear_screen(Color.BLACK)
             self.scene_manager.draw(self.window)
 
         self.static_camera.draw(self.window)

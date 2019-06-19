@@ -6,7 +6,7 @@ from pygine.geometry import Rectangle
 from pygine.maths import Vector2, distance_between_points
 from pygine.resource import Sprite, SpriteType
 from pygine.utilities import CameraType, Color, Input, InputType
-from enum import Enum
+from enum import IntEnum
 
 
 class Entity(PygineObject):
@@ -38,7 +38,7 @@ class Entity(PygineObject):
             "A class that inherits Entity did not implement the draw(surface) method")
 
 
-class Direction(Enum):
+class Direction(IntEnum):
     NONE = 0,
     UP = 1,
     DOWN = 2,
@@ -150,7 +150,7 @@ class Player(Kinetic):
     def collision(self, entities):
         for e in entities:
             if (
-                isinstance(e, Buidling) or
+                isinstance(e, Building) or
                 isinstance(e, Tree) or
                 isinstance(e, NPC)
             ):
@@ -171,7 +171,7 @@ class Player(Kinetic):
             self.sprite.draw(surface, CameraType.DYNAMIC)
 
 
-class NPCType(Enum):
+class NPCType(IntEnum):
     MALE = 0
     FEMALE = 1
 
@@ -223,9 +223,9 @@ class NPC(Entity):
             self.speech_bubble.draw(surface, CameraType.DYNAMIC)
 
 
-class Buidling(Entity):
+class Building(Entity):
     def __init__(self, x, y, width, height):
-        super(Buidling, self).__init__(x, y, width, height)
+        super(Building, self).__init__(x, y, width, height)
         self.sprite = None
         self.shadow = None
 
@@ -240,14 +240,14 @@ class Buidling(Entity):
             self.sprite.draw(surface, CameraType.DYNAMIC)
 
 
-class SimpleHouse(Buidling):
+class SimpleHouse(Building):
     def __init__(self, x, y):
         super(SimpleHouse, self).__init__(x + 4, y + 24, 40, 40)
         self.sprite = Sprite(self.x - 4, self.y - 24, SpriteType.SIMPLE_HOUSE)
         self.set_color(Color.RED)
 
 
-class SpecialHouse(Buidling):
+class SpecialHouse(Building):
     def __init__(self, x, y):
         super(SpecialHouse, self).__init__(x + 4, y + 24, 72, 40)
         self.sprite = Sprite(self.x - 4, self.y - 24, SpriteType.SPECIAL_HOUSE)
