@@ -38,6 +38,7 @@ class Sprite(PygineObject):
         self.set_width(width)
         self.set_height(height)
         self.sprite_sheet = pygame.image.load(
+            #'/home/cpi/games/Python/village-game/pygine/assets/sprites/{}'.format(sprite_sheet_name)
             'pygine/assets/sprites/{}'.format(sprite_sheet_name)
         )
 
