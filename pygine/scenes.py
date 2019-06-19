@@ -2,7 +2,7 @@ from enum import IntEnum
 from pygame import Rect
 from pygine.entities import *
 from pygine.maths import Vector2
-from pygine.transitions import Pinhole, PinholeType
+from pygine.transitions import Pinhole, TransitionType
 from pygine.triggers import *
 from pygine.utilities import Camera, Input, InputType
 
@@ -15,27 +15,16 @@ class SceneType(IntEnum):
 
 class SceneManager:
     def __init__(self):
-        self.initialize_scenes()
-        self.set_starting_scene(SceneType.VILLAGE)
-
-    def initialize_scenes(self):
         self.__all_scenes = []
-        self.__add_scene(Village())
-        self.__add_scene(Forest())
-        self.__add_scene(Room())
+        self.__current_scene = None
+        self.__previous_scene = None
+        self.__next_scene = None
+        self.leave_transition = None
+        self.enter_transition = None
+        self.start_transition = False
 
-    def set_starting_scene(self, scene_type):
-        self.change_scene(scene_type)
-        self.__current_scene.relay_player(
-            Player(
-                Camera.BOUNDS.width / 2 - 3,
-                Camera.BOUNDS.height / 2 - 8
-            )
-        )
-
-    def __add_scene(self, scene):
-        self.__all_scenes.append(scene)
-        scene.manager = self
+        self.__initialize_scenes()
+        self.__set_starting_scene(SceneType.VILLAGE)
 
     def get_scene(self, scene_type):
         return self.__all_scenes[int(scene_type)]
@@ -43,18 +32,73 @@ class SceneManager:
     def get_current_scene(self):
         return self.__current_scene
 
-    def change_scene(self, scene_type):
-        assert len(self.__all_scenes) != 0
-        self.__current_scene = self.__all_scenes[int(scene_type)]
-        self.__current_scene.transition = Pinhole(PinholeType.OPEN)
+    def __add_scene(self, scene):
+        self.__all_scenes.append(scene)
+        scene.manager = self
+
+    def __initialize_scenes(self):
+        self.__add_scene(Village())
+        self.__add_scene(Forest())
+        self.__add_scene(Room())
+
+    def __set_starting_scene(self, starting_scene_type):
+        assert (len(self.__all_scenes) > 0), \
+            "It looks like you never initialized all the scenes! Make sure to setup and call __initialize_scenes()"
+
+        self.__current_scene = self.__all_scenes[int(starting_scene_type)]
+        self.__current_scene.relay_player(
+            Player(
+                Camera.BOUNDS.width / 2 - 3,
+                Camera.BOUNDS.height / 2 - 8
+            )
+        )
+
+    def __setup_transition(self):
+        if self.__previous_scene.leave_transition_type == TransitionType.PINHOLE_CLOSE:
+            self.leave_transition = Pinhole(TransitionType.PINHOLE_CLOSE)
+
+        if self.__next_scene.enter_transition_type == TransitionType.PINHOLE_OPEN:
+            self.enter_transition = Pinhole(TransitionType.PINHOLE_OPEN)
+
+        self.start_transition = True
+
+    def queue_next_scene(self, scene_type):
+        self.__previous_scene = self.__current_scene
+        self.__next_scene = self.__all_scenes[int(scene_type)]
+        self.__setup_transition()
+
+    def __change_scenes(self):
+        self.__current_scene = self.__next_scene
+
+    def __update_transition(self, delta_time):
+        if self.start_transition:
+            self.leave_transition.update(delta_time)
+            if self.leave_transition.done:
+                self.enter_transition.update(delta_time)
+                self.__change_scenes()
 
     def update(self, delta_time):
-        assert self.__current_scene != None
+        assert (self.__current_scene != None), \
+            "It looks like you never set a starting scene! Make sure to call __set_starting_scene(starting_scene_type)"
+
+        self.__update_transition(delta_time)
         self.__current_scene.update(delta_time)
 
+    def __draw_transitions(self, surface):
+        if self.start_transition:
+            if self.leave_transition != None and not self.leave_transition.done:
+                self.leave_transition.draw(surface)
+                if self.leave_transition.done:
+                    self.enter_transition.draw(surface)
+            else:
+                self.enter_transition.draw(surface)
+
     def draw(self, surface):
-        assert self.__current_scene != None
+        assert (self.__current_scene != None), \
+            "It looks like you never set a starting scene! Make sure to call __set_starting_scene(starting_scene_type)"
+
         self.__current_scene.draw(surface)
+        self.__draw_transitions(surface)
 
 
 class Scene(object):
@@ -66,15 +110,18 @@ class Scene(object):
         self.shapes = []
         self.triggers = []
         self.input = Input()
-        self.transition = None
+
+        self.leave_transition_type = TransitionType.PINHOLE_CLOSE
+        self.enter_transition_type = TransitionType.PINHOLE_OPEN
+
         self.manager = None
         self.player = None
 
-    def reset(self):
+    def __reset(self):
         raise NotImplementedError(
             "A class that inherits Scene did not implement the reset() method")
 
-    def create_triggers(self):
+    def __create_triggers(self):
         raise NotImplementedError(
             "A class that inherits Scene did not implement the create_triggers() method")
 
@@ -82,24 +129,21 @@ class Scene(object):
         self.player = player
         self.entities.append(self.player)
 
-    def update_transition(self, delta_time):
-        self.transition.update(delta_time)
-
-    def update_input(self):
+    def __update_input(self):
         self.input.update()
         if self.input.pressing(InputType.RESET):
             self.reset()
 
-    def update_entities(self, delta_time):
+    def __update_entities(self, delta_time):
         for i in range(len(self.entities)-1, -1, -1):
             self.entities[i].update(delta_time, self.entities)
         self.entities.sort(key=lambda e: e.y + e.height)
 
-    def update_triggers(self, delta_time, entities, manager):
+    def __update_triggers(self, delta_time, entities, manager):
         for t in self.triggers:
             t.update(delta_time, entities, manager)
 
-    def update_camera(self):
+    def __update_camera(self):
         self.camera_location = Vector2(
             self.player.x + self.player.width / 2 - self.camera.BOUNDS.width / 2,
             self.player.y + self.player.height / 2 - self.camera.BOUNDS.height / 2
@@ -107,11 +151,10 @@ class Scene(object):
         self.camera.update(self.camera_location)
 
     def update(self, delta_time):
-        self.update_transition(delta_time)
-        self.update_input()
-        self.update_entities(delta_time)
-        self.update_triggers(delta_time, self.entities, self.manager)
-        self.update_camera()
+        self.__update_input()
+        self.__update_entities(delta_time)
+        self.__update_triggers(delta_time, self.entities, self.manager)
+        self.__update_camera()
 
     def draw(self, surface):
         for s in self.shapes:
@@ -123,17 +166,15 @@ class Scene(object):
         if pygine.globals.debug:
             for t in self.triggers:
                 t.draw(surface, CameraType.DYNAMIC)
-        self.transition.draw(surface)
 
 
 class Village(Scene):
     def __init__(self):
         super(Village, self).__init__()
-        self.create_triggers()
-        self.reset()
+        self.__reset()
+        self.__create_triggers()
 
-    def reset(self):
-        self.transition = Pinhole(PinholeType.OPEN)
+    def __reset(self):
         self.shapes = []
         self.sprites = []
         for y in range(int(Camera.BOUNDS.height * 2 / 32)):
@@ -171,7 +212,7 @@ class Village(Scene):
             Tree(48 + 16 * 15, 48 + 16 * 2),
         ]
 
-    def create_triggers(self):
+    def __create_triggers(self):
         self.triggers = [
             CollisionTrigger(
                 0, 0,
@@ -195,11 +236,10 @@ class Village(Scene):
 class Forest(Scene):
     def __init__(self):
         super(Forest, self).__init__()
-        self.create_triggers()
-        self.reset()
+        self.__reset()
+        self.__create_triggers()
 
-    def reset(self):
-        self.transition = Pinhole(PinholeType.OPEN)
+    def __reset(self):
         self.shapes = []
         self.sprites = []
         for y in range(int(Camera.BOUNDS.height * 2 / 32)):
@@ -244,7 +284,7 @@ class Forest(Scene):
             Tree(48 + 16 * 15, 48 + 16 * 2),
         ]
 
-    def create_triggers(self):
+    def __create_triggers(self):
         self.triggers.append(
             CollisionTrigger(
                 Camera.BOUNDS.width - 8, 0,
@@ -258,12 +298,10 @@ class Forest(Scene):
 class Room(Scene):
     def __init__(self):
         super(Room, self).__init__()
-        self.reset()
-        self.create_triggers()
+        self.__reset()
+        self.__create_triggers()
 
-    def reset(self):
-        self.transition = Pinhole(PinholeType.OPEN)
-
+    def __reset(self):
         self.shapes = [
             Rectangle(48, 16, 224, 64, Color.BLUE),
             Rectangle(48, 80, 224, 80)
@@ -271,7 +309,7 @@ class Room(Scene):
         self.sprites = []
         self.entities = []
 
-    def create_triggers(self):
+    def __create_triggers(self):
         self.triggers.append(
             CollisionTrigger(
                 64, 160,
