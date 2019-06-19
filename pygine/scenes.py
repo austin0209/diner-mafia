@@ -117,11 +117,11 @@ class Scene(object):
         self.manager = None
         self.player = None
 
-    def __reset(self):
+    def _reset(self):
         raise NotImplementedError(
             "A class that inherits Scene did not implement the reset() method")
 
-    def __create_triggers(self):
+    def _create_triggers(self):
         raise NotImplementedError(
             "A class that inherits Scene did not implement the create_triggers() method")
 
@@ -171,10 +171,10 @@ class Scene(object):
 class Village(Scene):
     def __init__(self):
         super(Village, self).__init__()
-        self.__reset()
-        self.__create_triggers()
+        self._reset()
+        self._create_triggers()
 
-    def __reset(self):
+    def _reset(self):
         self.shapes = []
         self.sprites = []
         for y in range(int(Camera.BOUNDS.height * 2 / 32)):
@@ -212,7 +212,7 @@ class Village(Scene):
             Tree(48 + 16 * 15, 48 + 16 * 2),
         ]
 
-    def __create_triggers(self):
+    def _create_triggers(self):
         self.triggers = [
             CollisionTrigger(
                 0, 0,
@@ -236,10 +236,10 @@ class Village(Scene):
 class Forest(Scene):
     def __init__(self):
         super(Forest, self).__init__()
-        self.__reset()
-        self.__create_triggers()
+        self._reset()
+        self._create_triggers()
 
-    def __reset(self):
+    def _reset(self):
         self.shapes = []
         self.sprites = []
         for y in range(int(Camera.BOUNDS.height * 2 / 32)):
@@ -284,7 +284,7 @@ class Forest(Scene):
             Tree(48 + 16 * 15, 48 + 16 * 2),
         ]
 
-    def __create_triggers(self):
+    def _create_triggers(self):
         self.triggers.append(
             CollisionTrigger(
                 Camera.BOUNDS.width - 8, 0,
@@ -298,10 +298,10 @@ class Forest(Scene):
 class Room(Scene):
     def __init__(self):
         super(Room, self).__init__()
-        self.__reset()
-        self.__create_triggers()
+        self._reset()
+        self._create_triggers()
 
-    def __reset(self):
+    def _reset(self):
         self.shapes = [
             Rectangle(48, 16, 224, 64, Color.BLUE),
             Rectangle(48, 80, 224, 80)
@@ -309,7 +309,7 @@ class Room(Scene):
         self.sprites = []
         self.entities = []
 
-    def __create_triggers(self):
+    def _create_triggers(self):
         self.triggers.append(
             CollisionTrigger(
                 64, 160,
