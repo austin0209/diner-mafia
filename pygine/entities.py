@@ -3,7 +3,7 @@ from pygame import Rect
 from pygine.base import PygineObject
 from pygine.draw import draw_rectangle
 from pygine.geometry import Rectangle
-from pygine.math import Vector2, distance_between_points
+from pygine.maths import Vector2, distance_between_points
 from pygine.resource import Sprite, SpriteType
 from pygine.utilities import CameraType, Color, Input, InputType
 from enum import Enum

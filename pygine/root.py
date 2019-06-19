@@ -1,6 +1,6 @@
 import pygame
 import pygine.globals
-from pygine.scenes import SceneManager, SceneType
+from pygine.scenes import *
 from pygine.utilities import Color, Input, InputType, StaticCamera
 from enum import Enum
 
@@ -22,16 +22,23 @@ class Game:
     def __init__(self):
         self.initialize_pygame()
 
-        self.setup_window(320, 240, 60, False, Orientaion.LANDSCAPE, "Village Game")
+        self.setup_window(320, 240, 60, False,
+                          Orientaion.LANDSCAPE, "Village Game")
         self.setup_pixel_scene(320, 180)
         self.setup_cameras()
 
         Game.state = GameState.RUNNING
         self.delta_time = 0
         self.ticks = 0
-        self.scene_manager = SceneManager(SceneType.VILLAGE)
+        self.scene_manager = SceneManager()
+        self.init_scenes()
+        self.scene_manager.change_scene(SceneType.FOREST)
         self.input = Input()
 
+    def init_scenes(self):
+        self.scene_manager.add_scene(Village())
+        self.scene_manager.add_scene(Forest())
+        
     def initialize_pygame(self):
         pygame.init()
 

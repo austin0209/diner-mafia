@@ -1,5 +1,5 @@
 import pygame
-from pygine.math import Vector2
+from pygine.maths import Vector2
 from enum import Enum
 
 
