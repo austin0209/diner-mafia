@@ -106,6 +106,7 @@ class Scene(object):
         self.camera = Camera()
         self.camera_location = Vector2(0, 0)
         self.bounds = Rect(0, 0, Camera.BOUNDS.width, Camera.BOUNDS.height)
+        self.sprites = []
         self.entities = []
         self.shapes = []
         self.triggers = []
@@ -136,7 +137,7 @@ class Scene(object):
     def __update_input(self):
         self.input.update()
         if self.input.pressing(InputType.RESET):
-            self.reset()
+            self._reset()
 
     def __update_entities(self, delta_time):
         for i in range(len(self.entities)-1, -1, -1):
