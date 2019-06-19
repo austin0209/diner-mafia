@@ -17,14 +17,15 @@ class Trigger(PygineObject):
         next_scene = manager.get_scene(self.next_scene)
         current_scene = manager.get_current_scene()
 
+        entity.set_location(self.end_location.x, self.end_location.y)
+
         if isinstance(entity, Player):
             manager.queue_next_scene(self.next_scene)
             next_scene.relay_player(entity)
         else:
-            next_scene.entities.append(entity)
+            next_scene.relay_entity(entity)
 
         current_scene.entities.remove(entity)
-        entity.set_location(self.end_location.x, self.end_location.y)
 
     def update(self, delta_time, entities, manager):
         raise NotImplementedError(

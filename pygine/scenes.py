@@ -129,6 +129,10 @@ class Scene(object):
         self.player = player
         self.entities.append(self.player)
 
+    def relay_entity(self, player):
+        self.entities.append(self.player)
+        # We can potentially add aditional logic for certain entites. For example, if the entity is a NPC then spawn it at (x, y)
+
     def __update_input(self):
         self.input.update()
         if self.input.pressing(InputType.RESET):
