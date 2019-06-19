@@ -1,10 +1,10 @@
+from enum import IntEnum
 from pygame import Rect
 from pygine.entities import *
 from pygine.maths import Vector2
 from pygine.transitions import Pinhole, PinholeType
 from pygine.triggers import *
 from pygine.utilities import Camera, Input, InputType
-from enum import IntEnum
 
 
 class SceneType(IntEnum):
@@ -285,6 +285,7 @@ class Forest(Scene):
             t.draw(surface, CameraType.DYNAMIC)
         self.transition.draw(surface)
 
+
 class Room(Scene):
     def __init__(self):
         super(Room, self).__init__()
@@ -307,12 +308,12 @@ class Room(Scene):
     def reset(self):
 
         self.entities = [
-            
+
         ]
         self.shapes = [
             Rectangle(48, 16, 224, 64, Color.BLUE),
             Rectangle(48, 80, 224, 80)
-        ] 
+        ]
         self.transition = Pinhole(PinholeType.OPEN)
         self.sprites = []
 

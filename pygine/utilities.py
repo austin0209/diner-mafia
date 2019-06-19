@@ -1,6 +1,6 @@
 import pygame
+from enum import IntEnum
 from pygine.maths import Vector2
-from enum import Enum
 
 
 class Color:
@@ -36,7 +36,7 @@ class Timer:
                 self.done = True
 
 
-class InputType(Enum):
+class InputType(IntEnum):
     NONE = 0
 
     UP = 1
@@ -113,7 +113,7 @@ class Input:
             self.timer.reset()
 
 
-class CameraType(Enum):
+class CameraType(IntEnum):
     DYNAMIC = 0
     STATIC = 1
 
@@ -186,7 +186,8 @@ class StaticCamera:
             surface,
             Color.BLACK,
             (
-                StaticCamera.horizontal_letterbox + StaticCamera.BOUNDS.width * StaticCamera.scale + 1,
+                StaticCamera.horizontal_letterbox +
+                StaticCamera.BOUNDS.width * StaticCamera.scale + 1,
                 -32 * StaticCamera.scale,
                 StaticCamera.horizontal_letterbox,
                 StaticCamera.BOUNDS.height * StaticCamera.scale + 64 * StaticCamera.scale
