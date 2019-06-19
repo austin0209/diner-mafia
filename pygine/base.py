@@ -1,5 +1,5 @@
 from pygame import Rect
-from pygine.math import Vector2
+from pygine.maths import Vector2
 
 
 class PygineObject(object):

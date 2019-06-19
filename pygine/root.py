@@ -1,5 +1,6 @@
 import pygame
-from pygine.scenes import SceneManager, SceneType
+import pygine.globals
+from pygine.scenes import *
 from pygine.utilities import Color, Input, InputType, StaticCamera
 from enum import Enum
 
@@ -17,21 +18,22 @@ class Orientaion(Enum):
 class Game:
     "A modest game engine used to streamline the development of a game made using pygame"
     state = GameState.QUIT
-    debug_mode = False
 
     def __init__(self):
         self.initialize_pygame()
 
-        self.setup_window(320, 240, 60, False, Orientaion.LANDSCAPE, "Village Game")
+        self.setup_window(320, 240, 60, False,
+                          Orientaion.LANDSCAPE, "Village Game")
         self.setup_pixel_scene(320, 180)
         self.setup_cameras()
 
         Game.state = GameState.RUNNING
         self.delta_time = 0
         self.ticks = 0
-        self.scene_manager = SceneManager(SceneType.VILLAGE)
-        self.input = Input()
+        self.scene_manager = SceneManager()
 
+        self.input = Input()
+        
     def initialize_pygame(self):
         pygame.init()
 
@@ -122,7 +124,7 @@ class Game:
         if self.input.pressing(InputType.TOGGLE_FULLSCREEN):
             self.toggle_fullscreen()
         if self.input.pressing(InputType.TOGGLE_DEBUG):
-            Game.debug_mode = not Game.debug_mode
+            pygine.globals.debug = not pygine.globals.debug
 
     def update_events(self):
         for event in pygame.event.get():
@@ -143,7 +145,7 @@ class Game:
         if Game.state == GameState.QUIT:
             self.clear_screen(Color.BLACK)
         else:
-            self.clear_screen(Color.SKY_BLUE)
+            self.clear_screen(Color.BLACK)
             self.scene_manager.draw(self.window)
 
         self.static_camera.draw(self.window)

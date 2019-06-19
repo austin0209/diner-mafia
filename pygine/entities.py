@@ -1,11 +1,12 @@
+import pygine.globals
 from pygame import Rect
 from pygine.base import PygineObject
 from pygine.draw import draw_rectangle
 from pygine.geometry import Rectangle
-from pygine.math import Vector2, distance_between_points
+from pygine.maths import Vector2, distance_between_points
 from pygine.resource import Sprite, SpriteType
 from pygine.utilities import CameraType, Color, Input, InputType
-from enum import Enum
+from enum import IntEnum
 
 
 class Entity(PygineObject):
@@ -37,7 +38,7 @@ class Entity(PygineObject):
             "A class that inherits Entity did not implement the draw(surface) method")
 
 
-class Direction(Enum):
+class Direction(IntEnum):
     NONE = 0,
     UP = 1,
     DOWN = 2,
@@ -149,7 +150,7 @@ class Player(Kinetic):
     def collision(self, entities):
         for e in entities:
             if (
-                isinstance(e, Buidling) or
+                isinstance(e, Building) or
                 isinstance(e, Tree) or
                 isinstance(e, NPC)
             ):
@@ -162,13 +163,15 @@ class Player(Kinetic):
         self.collision(entities)
 
     def draw(self, surface):
-        self.shadow.draw(surface, CameraType.DYNAMIC)
-        self.sprite.draw(surface, CameraType.DYNAMIC)
-        #self.draw_bounds(surface, CameraType.DYNAMIC)
-        # self.draw_collision_rectangles(surface)
+        if pygine.globals.debug:
+            self.draw_bounds(surface, CameraType.DYNAMIC)
+            self.draw_collision_rectangles(surface)
+        else:
+            self.shadow.draw(surface, CameraType.DYNAMIC)
+            self.sprite.draw(surface, CameraType.DYNAMIC)
 
 
-class NPCType(Enum):
+class NPCType(IntEnum):
     MALE = 0
     FEMALE = 1
 
@@ -188,6 +191,12 @@ class NPC(Entity):
         self.show_prompt = False
         self.set_color(Color.RED)
 
+    def set_location(self, x, y):
+        super(NPC, self).set_location(x, y)
+        self.sprite.set_location(self.x - 3, self.y - 22)
+        self.shadow.set_location(self.x - 3, self.y - 21)
+        self.speech_bubble.set_height(self.x + 8, self.y - 28)
+
     def within_radius(self, e):
         e_center = Vector2(e.x + e.width / 2, e.y + e.height / 2)
         center = Vector2(self.x + self.width / 2, self.y + self.height / 2)
@@ -205,16 +214,18 @@ class NPC(Entity):
         self.update_conversation(entities)
 
     def draw(self, surface):
-        self.shadow.draw(surface, CameraType.DYNAMIC)
-        self.sprite.draw(surface, CameraType.DYNAMIC)
-        #self.draw_bounds(surface, CameraType.DYNAMIC)
+        if pygine.globals.debug:
+            self.draw_bounds(surface, CameraType.DYNAMIC)
+        else:
+            self.shadow.draw(surface, CameraType.DYNAMIC)
+            self.sprite.draw(surface, CameraType.DYNAMIC)
         if self.show_prompt:
             self.speech_bubble.draw(surface, CameraType.DYNAMIC)
 
 
-class Buidling(Entity):
+class Building(Entity):
     def __init__(self, x, y, width, height):
-        super(Buidling, self).__init__(x, y, width, height)
+        super(Building, self).__init__(x, y, width, height)
         self.sprite = None
         self.shadow = None
 
@@ -222,19 +233,21 @@ class Buidling(Entity):
         pass
 
     def draw(self, surface):
-        self.shadow.draw(surface, CameraType.DYNAMIC)
-        self.sprite.draw(surface, CameraType.DYNAMIC)
-        #self.draw_bounds(surface, CameraType.DYNAMIC)
+        if pygine.globals.debug:
+            self.draw_bounds(surface, CameraType.DYNAMIC)
+        else:
+            self.shadow.draw(surface, CameraType.DYNAMIC)
+            self.sprite.draw(surface, CameraType.DYNAMIC)
 
 
-class SimpleHouse(Buidling):
+class SimpleHouse(Building):
     def __init__(self, x, y):
         super(SimpleHouse, self).__init__(x + 4, y + 24, 40, 40)
         self.sprite = Sprite(self.x - 4, self.y - 24, SpriteType.SIMPLE_HOUSE)
         self.set_color(Color.RED)
 
 
-class SpecialHouse(Buidling):
+class SpecialHouse(Building):
     def __init__(self, x, y):
         super(SpecialHouse, self).__init__(x + 4, y + 24, 72, 40)
         self.sprite = Sprite(self.x - 4, self.y - 24, SpriteType.SPECIAL_HOUSE)
@@ -254,6 +267,8 @@ class Tree(Entity):
         pass
 
     def draw(self, surface):
-        self.shadow.draw(surface, CameraType.DYNAMIC)
-        self.sprite.draw(surface, CameraType.DYNAMIC)
-        #self.draw_bounds(surface, CameraType.DYNAMIC)
+        if pygine.globals.debug:
+            self.draw_bounds(surface, CameraType.DYNAMIC)
+        else:
+            self.shadow.draw(surface, CameraType.DYNAMIC)
+            self.sprite.draw(surface, CameraType.DYNAMIC)
