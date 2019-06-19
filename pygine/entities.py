@@ -4,7 +4,7 @@ from pygame import Rect
 from pygine.base import PygineObject
 from pygine.draw import draw_rectangle
 from pygine.geometry import Rectangle
-from pygine.maths import Vector2, distance_between_points
+from pygine.maths import Vector2, distance_between
 from pygine.resource import Sprite, SpriteType
 from pygine.utilities import CameraType, Color, Input, InputType
 
@@ -198,9 +198,7 @@ class NPC(Entity):
         self.speech_bubble.set_height(self.x + 8, self.y - 28)
 
     def within_radius(self, e):
-        e_center = Vector2(e.x + e.width / 2, e.y + e.height / 2)
-        center = Vector2(self.x + self.width / 2, self.y + self.height / 2)
-        if distance_between_points(center, e_center) <= self.radius:
+        if distance_between(self.center, e.center) <= self.radius:
             self.show_prompt = True
         else:
             self.show_prompt = False
