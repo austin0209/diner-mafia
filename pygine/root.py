@@ -31,13 +31,8 @@ class Game:
         self.delta_time = 0
         self.ticks = 0
         self.scene_manager = SceneManager()
-        self.init_scenes()
-        self.scene_manager.change_scene(SceneType.FOREST)
-        self.input = Input()
 
-    def init_scenes(self):
-        self.scene_manager.add_scene(Village())
-        self.scene_manager.add_scene(Forest())
+        self.input = Input()
         
     def initialize_pygame(self):
         pygame.init()

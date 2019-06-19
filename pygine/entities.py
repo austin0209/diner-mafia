@@ -191,6 +191,12 @@ class NPC(Entity):
         self.show_prompt = False
         self.set_color(Color.RED)
 
+    def set_location(self, x, y):
+        super(NPC, self).set_location(x, y)
+        self.sprite.set_location(self.x - 3, self.y - 22)
+        self.shadow.set_location(self.x - 3, self.y - 21)
+        self.speech_bubble.set_height(self.x + 8, self.y - 28)
+
     def within_radius(self, e):
         e_center = Vector2(e.x + e.width / 2, e.y + e.height / 2)
         center = Vector2(self.x + self.width / 2, self.y + self.height / 2)
