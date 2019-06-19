@@ -13,12 +13,57 @@ class SceneType(IntEnum):
     ROOM = 2
 
 
+class SceneManager:
+    def __init__(self):
+        self.initialize_scenes()
+        self.set_starting_scene(SceneType.VILLAGE)
+
+    def initialize_scenes(self):
+        self.__all_scenes = []
+        self.__add_scene(Village())
+        self.__add_scene(Forest())
+        self.__add_scene(Room())
+
+    def set_starting_scene(self, scene_type):
+        self.change_scene(scene_type)
+        self.__current_scene.relay_player(
+            Player(
+                Camera.BOUNDS.width / 2 - 3,
+                Camera.BOUNDS.height / 2 - 8
+            )
+        )
+
+    def __add_scene(self, scene):
+        self.__all_scenes.append(scene)
+        scene.manager = self
+
+    def get_scene(self, scene_type):
+        return self.__all_scenes[int(scene_type)]
+
+    def get_current_scene(self):
+        return self.__current_scene
+
+    def change_scene(self, scene_type):
+        assert len(self.__all_scenes) != 0
+        self.__current_scene = self.__all_scenes[int(scene_type)]
+        self.__current_scene.transition = Pinhole(PinholeType.OPEN)
+
+    def update(self, delta_time):
+        assert self.__current_scene != None
+        self.__current_scene.update(delta_time)
+
+    def draw(self, surface):
+        assert self.__current_scene != None
+        self.__current_scene.draw(surface)
+
+
 class Scene(object):
     def __init__(self):
         self.camera = Camera()
         self.camera_location = Vector2(0, 0)
         self.bounds = Rect(0, 0, Camera.BOUNDS.width, Camera.BOUNDS.height)
         self.entities = []
+        self.shapes = []
         self.triggers = []
         self.input = Input()
         self.transition = None
@@ -46,68 +91,39 @@ class Scene(object):
             self.reset()
 
     def update_entities(self, delta_time):
-        raise NotImplementedError(
-            "A class that inherits Scene did not implement the update_entities(delta_time) method")
+        for i in range(len(self.entities)-1, -1, -1):
+            self.entities[i].update(delta_time, self.entities)
+        self.entities.sort(key=lambda e: e.y + e.height)
 
     def update_triggers(self, delta_time, entities, manager):
         for t in self.triggers:
             t.update(delta_time, entities, manager)
 
     def update_camera(self):
-        raise NotImplementedError(
-            "A class that inherits Scene did not implement the update_camera() method")
-
-    def update(self, delta_time):
-        raise NotImplementedError(
-            "A class that inherits Scene did not implement the update(delta_time) method")
-
-    def draw(self, surface):
-        raise NotImplementedError(
-            "A class that inherits Scene did not implement the draw(surface) method")
-
-
-class SceneManager:
-    def __init__(self):
-        self.initialize_scenes()
-        self.change_scene(SceneType.VILLAGE)
-        self.__current_scene.relay_player(
-            Player(
-                Camera.BOUNDS.width / 2 - 3,
-                Camera.BOUNDS.height / 2 - 8
-            )
+        self.camera_location = Vector2(
+            self.player.x + self.player.width / 2 - self.camera.BOUNDS.width / 2,
+            self.player.y + self.player.height / 2 - self.camera.BOUNDS.height / 2
         )
-
-    def initialize_scenes(self):
-        self.__all_scenes = []
-        self.add_scene(Village())
-        self.add_scene(Forest())
-        self.add_scene(Room())
-
-    def set_current_scene(self, scene_type):
-        self.__current_scene = None
-
-    def add_scene(self, scene):
-        self.__all_scenes.append(scene)
-        scene.manager = self
-
-    def get_scene(self, scene_type):
-        return self.__all_scenes[int(scene_type)]
-
-    def get_current_scene(self):
-        return self.__current_scene
-
-    def change_scene(self, scene_type):
-        assert len(self.__all_scenes) != 0
-        self.__current_scene = self.__all_scenes[int(scene_type)]
-        self.__current_scene.transition = Pinhole(PinholeType.OPEN)
+        self.camera.update(self.camera_location)
 
     def update(self, delta_time):
-        assert self.__current_scene != None
-        self.__current_scene.update(delta_time)
+        self.update_transition(delta_time)
+        self.update_input()
+        self.update_entities(delta_time)
+        self.update_triggers(delta_time, self.entities, self.manager)
+        self.update_camera()
 
     def draw(self, surface):
-        assert self.__current_scene != None
-        self.__current_scene.draw(surface)
+        for s in self.shapes:
+            s.draw(surface, CameraType.DYNAMIC)
+        for s in self.sprites:
+            s.draw(surface, CameraType.DYNAMIC)
+        for e in self.entities:
+            e.draw(surface)
+        if pygine.globals.debug:
+            for t in self.triggers:
+                t.draw(surface, CameraType.DYNAMIC)
+        self.transition.draw(surface)
 
 
 class Village(Scene):
@@ -116,19 +132,16 @@ class Village(Scene):
         self.create_triggers()
         self.reset()
 
-    def create_triggers(self):
-        self.triggers = [
-            CollisionTrigger(0, 0, 16, Camera.BOUNDS.height, Vector2(
-                Camera.BOUNDS.width - 16 - 16, 0), SceneType.FOREST),
-            ButtonTrigger(16 + 48 * 1 + 16 + 16, 16 + 64, 16, 8, Vector2(
-                64 + 2, 160), SceneType.ROOM)
-        ]
-
     def reset(self):
-        self.player = None
+        self.transition = Pinhole(PinholeType.OPEN)
+        self.shapes = []
+        self.sprites = []
+        for y in range(int(Camera.BOUNDS.height * 2 / 32)):
+            for x in range(int(Camera.BOUNDS.width * 2 / 32)):
+                self.sprites.append(Sprite(x * 32, y * 32, SpriteType.GRASS))
         self.entities = [
-            # self.player,
             SpecialHouse(16 + 48 * 1 + 16, 16),
+
             NPC(16 * 8, 16 * 6, NPCType.MALE),
             NPC(16 * 12, 16 * 3, NPCType.FEMALE),
             NPC(16 * 18, 16 * 9, NPCType.FEMALE),
@@ -157,39 +170,26 @@ class Village(Scene):
             Tree(32 + 16 * 15, 32 + 16 * 2),
             Tree(48 + 16 * 15, 48 + 16 * 2),
         ]
-        self.transition = Pinhole(PinholeType.OPEN)
-        self.sprites = []
-        for y in range(int(Camera.BOUNDS.height * 2 / 32)):
-            for x in range(int(Camera.BOUNDS.width * 2 / 32)):
-                self.sprites.append(Sprite(x * 32, y * 32, SpriteType.GRASS))
 
-    def update_camera(self):
-        self.camera_location = Vector2(
-            self.player.x + self.player.width / 2 - self.camera.BOUNDS.width / 2,
-            self.player.y + self.player.height / 2 - self.camera.BOUNDS.height / 2
-        )
-        self.camera.update(self.camera_location)
-
-    def update_entities(self, delta_time):
-        for i in range(len(self.entities)-1, -1, -1):
-            self.entities[i].update(delta_time, self.entities)
-        self.entities.sort(key=lambda e: e.y + e.height)
-
-    def update(self, delta_time):
-        self.update_transition(delta_time)
-        self.update_input()
-        self.update_entities(delta_time)
-        self.update_triggers(delta_time, self.entities, self.manager)
-        self.update_camera()
-
-    def draw(self, surface):
-        for s in self.sprites:
-            s.draw(surface, CameraType.DYNAMIC)
-        for e in self.entities:
-            e.draw(surface)
-        for t in self.triggers:
-            t.draw(surface, CameraType.DYNAMIC)
-        self.transition.draw(surface)
+    def create_triggers(self):
+        self.triggers = [
+            CollisionTrigger(
+                0, 0,
+                8, Camera.BOUNDS.height,
+                Vector2(
+                    Camera.BOUNDS.width - 16 - 16, Camera.BOUNDS.height / 2
+                ),
+                SceneType.FOREST
+            ),
+            ButtonTrigger(
+                16 + 48 * 1 + 16 + 16, 16 + 64,
+                16, 8,
+                Vector2(
+                    64 + 2, 160 - 16
+                ),
+                SceneType.ROOM
+            )
+        ]
 
 
 class Forest(Scene):
@@ -198,23 +198,15 @@ class Forest(Scene):
         self.create_triggers()
         self.reset()
 
-    def create_triggers(self):
-        self.triggers.append(
-            CollisionTrigger(
-                Camera.BOUNDS.width - 16,
-                0,
-                16,
-                Camera.BOUNDS.height,
-                Vector2(16, 0),
-                SceneType.VILLAGE
-            )
-        )
-
     def reset(self):
+        self.transition = Pinhole(PinholeType.OPEN)
+        self.shapes = []
+        self.sprites = []
+        for y in range(int(Camera.BOUNDS.height * 2 / 32)):
+            for x in range(int(Camera.BOUNDS.width * 2 / 32)):
+                self.sprites.append(Sprite(x * 32, y * 32, SpriteType.GRASS))
 
         self.entities = [
-            # self.player,
-
             Tree(16 + 16 * 0, 16 + 16 * 0),
             Tree(32 + 16 * 0, 16 + 16 * 0),
             Tree(64 + 16 * 0, 16 + 16 * 0),
@@ -251,98 +243,40 @@ class Forest(Scene):
             Tree(32 + 16 * 15, 32 + 16 * 2),
             Tree(48 + 16 * 15, 48 + 16 * 2),
         ]
-        self.transition = Pinhole(PinholeType.OPEN)
-        self.sprites = []
-        for y in range(int(Camera.BOUNDS.height * 2 / 32)):
-            for x in range(int(Camera.BOUNDS.width * 2 / 32)):
-                self.sprites.append(Sprite(x * 32, y * 32, SpriteType.GRASS))
 
-    def update_camera(self):
-        self.camera_location = Vector2(
-            self.player.x + self.player.width / 2 - self.camera.BOUNDS.width / 2,
-            self.player.y + self.player.height / 2 - self.camera.BOUNDS.height / 2
+    def create_triggers(self):
+        self.triggers.append(
+            CollisionTrigger(
+                Camera.BOUNDS.width - 8, 0,
+                8, Camera.BOUNDS.height,
+                Vector2(16, Camera.BOUNDS.height / 2),
+                SceneType.VILLAGE
+            )
         )
-        self.camera.update(self.camera_location)
-
-    def update_entities(self, delta_time):
-        for i in range(len(self.entities)-1, -1, -1):
-            self.entities[i].update(delta_time, self.entities)
-        self.entities.sort(key=lambda e: e.y + e.height)
-
-    def update(self, delta_time):
-        self.update_transition(delta_time)
-        self.update_input()
-        self.update_entities(delta_time)
-        self.update_triggers(delta_time, self.entities, self.manager)
-        self.update_camera()
-
-    def draw(self, surface):
-        for s in self.sprites:
-            s.draw(surface, CameraType.DYNAMIC)
-        for e in self.entities:
-            e.draw(surface)
-        for t in self.triggers:
-            t.draw(surface, CameraType.DYNAMIC)
-        self.transition.draw(surface)
 
 
 class Room(Scene):
     def __init__(self):
         super(Room, self).__init__()
-        self.create_triggers()
         self.reset()
-
-    def create_triggers(self):
-        self.triggers.append(
-            ButtonTrigger(
-                64,
-                160,
-                16,
-                16,
-                Vector2(16 + 48 * 1 + 16 + 16, 16 + 64),
-                SceneType.VILLAGE,
-                Direction.DOWN
-            )
-        )
+        self.create_triggers()
 
     def reset(self):
+        self.transition = Pinhole(PinholeType.OPEN)
 
-        self.entities = [
-
-        ]
         self.shapes = [
             Rectangle(48, 16, 224, 64, Color.BLUE),
             Rectangle(48, 80, 224, 80)
         ]
-        self.transition = Pinhole(PinholeType.OPEN)
         self.sprites = []
+        self.entities = []
 
-    def update_camera(self):
-        self.camera_location = Vector2(
-            self.player.x + self.player.width / 2 - self.camera.BOUNDS.width / 2,
-            self.player.y + self.player.height / 2 - self.camera.BOUNDS.height / 2
+    def create_triggers(self):
+        self.triggers.append(
+            CollisionTrigger(
+                64, 160,
+                16, 16,
+                Vector2(16 + 48 * 1 + 16 + 16, 16 + 64),
+                SceneType.VILLAGE
+            )
         )
-        self.camera.update(self.camera_location)
-
-    def update_entities(self, delta_time):
-        for i in range(len(self.entities)-1, -1, -1):
-            self.entities[i].update(delta_time, self.entities)
-        self.entities.sort(key=lambda e: e.y + e.height)
-
-    def update(self, delta_time):
-        self.update_transition(delta_time)
-        self.update_input()
-        self.update_entities(delta_time)
-        self.update_triggers(delta_time, self.entities, self.manager)
-        self.update_camera()
-
-    def draw(self, surface):
-        for s in self.sprites:
-            s.draw(surface, CameraType.DYNAMIC)
-        for sh in self.shapes:
-            sh.draw(surface, CameraType.DYNAMIC)
-        for e in self.entities:
-            e.draw(surface)
-        for t in self.triggers:
-            t.draw(surface, CameraType.DYNAMIC)
-        self.transition.draw(surface)
