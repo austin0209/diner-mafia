@@ -3,16 +3,8 @@
 from enum import IntEnum
 from pygine.base import PygineObject
 from pygine.draw import draw_rectangle
-from pygine.entities import Building, Player
+from pygine.entities import Building, Direction, Player
 from pygine.utilities import InputType
-
-
-class Direction(IntEnum):
-    NONE = 0,
-    UP = 1,
-    DOWN = 2,
-    LEFT = 3,
-    RIGHT = 4
 
 
 class Trigger(PygineObject):
@@ -30,6 +22,7 @@ class Trigger(PygineObject):
             next_scene.relay_player(entity)
         else:
             next_scene.entities.append(entity)
+
         current_scene.entities.remove(entity)
         entity.set_location(self.end_location.x, self.end_location.y)
 
