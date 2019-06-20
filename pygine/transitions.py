@@ -18,15 +18,15 @@ class Transition(PygineObject):
         self.speed = self.default_speed
         self.acceleration = acceleration
 
-    def reset(self):
+    def _reset(self):
         raise NotImplementedError(
             "A class that inherits Transition did not implement the reset() method")
 
-    def update(self, delta_time):
+    def _update(self, delta_time):
         raise NotImplementedError(
             "A class that inherits Transition did not implement the update(delta_time) method")
 
-    def draw(self, surface):
+    def _draw(self, surface):
         raise NotImplementedError(
             "A class that inherits Transition did not implement the draw(surface) method")
 
@@ -35,9 +35,9 @@ class Pinhole(Transition):
     def __init__(self, type):
         super(Pinhole, self).__init__(100, 250)
         self.type = type
-        self.reset()
+        self._reset()
 
-    def reset(self):
+    def _reset(self):
         self.speed = self.default_speed
         self.done = False
         greater_camera_dimesion = Camera.BOUNDS.width if Camera.BOUNDS.width > Camera.BOUNDS.height else Camera.BOUNDS.height

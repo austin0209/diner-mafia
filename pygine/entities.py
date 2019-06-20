@@ -30,7 +30,7 @@ class Entity(PygineObject):
         raise NotImplementedError(
             "A class that inherits Entity did not implement the update(delta_time, entities) method")
 
-    def draw_bounds(self, surface, camera_type):
+    def _draw_bounds(self, surface, camera_type):
         self.__bounds_that_actually_draw_correctly.draw(surface, camera_type)
 
     def draw(self, surface):
@@ -56,7 +56,7 @@ class Kinetic(Entity):
         self.collision_rectangles = []
         self.collision_width = 0
 
-    def update_collision_rectangles(self):
+    def _update_collision_rectangles(self):
         self.collision_width = self.move_speed + 1
         self.collision_rectangles = [
             Rect(self.x + self.collision_width, self.y - self.collision_width,
@@ -69,10 +69,10 @@ class Kinetic(Entity):
                  self.collision_width, self.height - self.collision_width * 2)
         ]
 
-    def calculate_scaled_speed(self, delta_time):
+    def _calculate_scaled_speed(self, delta_time):
         self.move_speed = self.default_move_speed * delta_time
 
-    def collision(self, entities):
+    def _collision(self, entities):
         raise NotImplementedError(
             "A class that inherits Kinetic did not implement the collision(surface) method")
 
@@ -80,7 +80,7 @@ class Kinetic(Entity):
         raise NotImplementedError(
             "A class that inherits Kinetic did not implement the update(delta_time, entities) method")
 
-    def draw_collision_rectangles(self, surface):
+    def _draw_collision_rectangles(self, surface):
         for r in self.collision_rectangles:
             draw_rectangle(
                 surface,
@@ -103,7 +103,7 @@ class Player(Kinetic):
         self.sprite.set_location(self.x - 3, self.y - 22)
         self.shadow.set_location(self.x - 3, self.y - 21)
 
-    def move(self, direction=Direction.NONE):
+    def _move(self, direction=Direction.NONE):
         self.facing = direction
         if self.facing == Direction.UP:
             self.sprite.set_sprite(SpriteType.PLAYER_B)
@@ -122,18 +122,18 @@ class Player(Kinetic):
             self.set_location(self.x + self.move_speed, self.y)
             self.velocity.x = 1
 
-    def update_input(self):
+    def _update_input(self):
         self.input.update()
         if self.input.pressing(InputType.UP):
-            self.move(Direction.UP)
+            self._move(Direction.UP)
         if self.input.pressing(InputType.DOWN):
-            self.move(Direction.DOWN)
+            self._move(Direction.DOWN)
         if self.input.pressing(InputType.LEFT):
-            self.move(Direction.LEFT)
+            self._move(Direction.LEFT)
         if self.input.pressing(InputType.RIGHT):
-            self.move(Direction.RIGHT)
+            self._move(Direction.RIGHT)
 
-    def rectanlge_collision_logic(self, entity):
+    def _rectanlge_collision_logic(self, entity):
         # Bottom
         if self.collision_rectangles[0].colliderect(entity.bounds) and self.velocity.y < 0:
             self.set_location(self.x, entity.bounds.bottom)
@@ -147,25 +147,25 @@ class Player(Kinetic):
         elif self.collision_rectangles[3].colliderect(entity.bounds) and self.velocity.x > 0:
             self.set_location(entity.bounds.left - self.bounds.width, self.y)
 
-    def collision(self, entities):
+    def _collision(self, entities):
         for e in entities:
             if (
                 isinstance(e, Building) or
                 isinstance(e, Tree) or
                 isinstance(e, NPC)
             ):
-                self.rectanlge_collision_logic(e)
+                self._rectanlge_collision_logic(e)
 
     def update(self, delta_time, entities):
-        self.calculate_scaled_speed(delta_time)
-        self.update_input()
-        self.update_collision_rectangles()
-        self.collision(entities)
+        self._calculate_scaled_speed(delta_time)
+        self._update_input()
+        self._update_collision_rectangles()
+        self._collision(entities)
 
     def draw(self, surface):
         if pygine.globals.debug:
-            self.draw_bounds(surface, CameraType.DYNAMIC)
-            self.draw_collision_rectangles(surface)
+            self._draw_bounds(surface, CameraType.DYNAMIC)
+            self._draw_collision_rectangles(surface)
         else:
             self.shadow.draw(surface, CameraType.DYNAMIC)
             self.sprite.draw(surface, CameraType.DYNAMIC)
@@ -197,18 +197,18 @@ class NPC(Kinetic):
         self.shadow.set_location(self.x - 3, self.y - 21)
         self.speech_bubble.set_height(self.x + 8, self.y - 28)
 
-    def within_radius(self, e):
+    def _within_radius(self, e):
         if distance_between(self.center, e.center) <= self.radius:
             self.show_prompt = True
         else:
             self.show_prompt = False
 
-    def update_conversation(self, entities):
+    def _update_conversation(self, entities):
         for e in entities:
             if isinstance(e, Player):
-                self.within_radius(e)
+                self._within_radius(e)
 
-    def rectanlge_collision_logic(self, entity):
+    def _rectanlge_collision_logic(self, entity):
         # Bottom
         if self.collision_rectangles[0].colliderect(entity.bounds) and self.velocity.y < 0:
             self.set_location(self.x, entity.bounds.bottom)
@@ -222,25 +222,25 @@ class NPC(Kinetic):
         elif self.collision_rectangles[3].colliderect(entity.bounds) and self.velocity.x > 0:
             self.set_location(entity.bounds.left - self.bounds.width, self.y)
 
-    def collision(self, entities):
+    def _collision(self, entities):
         for e in entities:
             if (
                 isinstance(e, Building) or
                 isinstance(e, Tree)
             ):
-                self.rectanlge_collision_logic(e)
+                self._rectanlge_collision_logic(e)
 
     def update(self, delta_time, entities):
-        self.update_conversation(entities)
+        self._update_conversation(entities)
 
-        self.calculate_scaled_speed(delta_time)
+        self._calculate_scaled_speed(delta_time)
         # update_MASTER_AI_SYSTEM
-        self.update_collision_rectangles()
-        self.collision(entities)
+        self._update_collision_rectangles()
+        self._collision(entities)
 
     def draw(self, surface):
         if pygine.globals.debug:
-            self.draw_bounds(surface, CameraType.DYNAMIC)
+            self._draw_bounds(surface, CameraType.DYNAMIC)
         else:
             self.shadow.draw(surface, CameraType.DYNAMIC)
             self.sprite.draw(surface, CameraType.DYNAMIC)
@@ -259,7 +259,7 @@ class Building(Entity):
 
     def draw(self, surface):
         if pygine.globals.debug:
-            self.draw_bounds(surface, CameraType.DYNAMIC)
+            self._draw_bounds(surface, CameraType.DYNAMIC)
         else:
             self.shadow.draw(surface, CameraType.DYNAMIC)
             self.sprite.draw(surface, CameraType.DYNAMIC)
@@ -293,7 +293,7 @@ class Tree(Entity):
 
     def draw(self, surface):
         if pygine.globals.debug:
-            self.draw_bounds(surface, CameraType.DYNAMIC)
+            self._draw_bounds(surface, CameraType.DYNAMIC)
         else:
             self.shadow.draw(surface, CameraType.DYNAMIC)
             self.sprite.draw(surface, CameraType.DYNAMIC)

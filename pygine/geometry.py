@@ -23,9 +23,9 @@ class Rectangle(Shape):
     def __init__(self, x, y, width, height, color=Color.WHITE, thickness=0):
         super(Rectangle, self).__init__(x, y, width, height, color)
         self.set_thickness(thickness)
-        self.reset()
+        self._reset()
 
-    def reset(self):
+    def _reset(self):
         if self.thickness == 0:
             self.rectangles = [self.bounds]
         else:
@@ -62,7 +62,7 @@ class Rectangle(Shape):
 
     def set_location(self, x, y):
         super(Rectangle, self).set_location(x, y)
-        self.reset()
+        self._reset()
 
     def set_thickness(self, thickness):
         self.thickness = thickness
