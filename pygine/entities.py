@@ -97,6 +97,7 @@ class Player(Kinetic):
         self.sprite = Sprite(self.x - 3, self.y - 22, SpriteType.PLAYER_F)
         self.shadow = Sprite(self.x - 3, self.y - 21, SpriteType.PLAYER_SHADOW)
         self.set_color(Color.RED)
+        self.item_carrying = Coffee(x, self.sprite.y + 12)
 
     def set_location(self, x, y):
         super(Player, self).set_location(x, y)
@@ -133,7 +134,7 @@ class Player(Kinetic):
         if self.input.pressing(InputType.RIGHT):
             self._move(Direction.RIGHT)
 
-    def _rectanlge_collision_logic(self, entity):
+    def _rectangle_collision_logic(self, entity):
         # Bottom
         if self.collision_rectangles[0].colliderect(entity.bounds) and self.velocity.y < 0:
             self.set_location(self.x, entity.bounds.bottom)
@@ -154,13 +155,18 @@ class Player(Kinetic):
                 isinstance(e, Tree) or
                 isinstance(e, NPC)
             ):
-                self._rectanlge_collision_logic(e)
+                self._rectangle_collision_logic(e)
+
+    def _move_item(self):
+        if self.item_carrying != None:
+            self.item_carrying.set_location(self.x, self.sprite.y - 12)
 
     def update(self, delta_time, entities):
         self._calculate_scaled_speed(delta_time)
         self._update_input()
         self._update_collision_rectangles()
         self._collision(entities)
+        self._move_item()
 
     def draw(self, surface):
         if pygine.globals.debug:
@@ -169,6 +175,8 @@ class Player(Kinetic):
         else:
             self.shadow.draw(surface, CameraType.DYNAMIC)
             self.sprite.draw(surface, CameraType.DYNAMIC)
+            if (self.item_carrying != None):
+                self.item_carrying.draw(surface)
 
 
 class NPCType(IntEnum):
@@ -208,7 +216,7 @@ class NPC(Kinetic):
             if isinstance(e, Player):
                 self._within_radius(e)
 
-    def _rectanlge_collision_logic(self, entity):
+    def _rectangle_collision_logic(self, entity):
         # Bottom
         if self.collision_rectangles[0].colliderect(entity.bounds) and self.velocity.y < 0:
             self.set_location(self.x, entity.bounds.bottom)
@@ -228,7 +236,7 @@ class NPC(Kinetic):
                 isinstance(e, Building) or
                 isinstance(e, Tree)
             ):
-                self._rectanlge_collision_logic(e)
+                self._rectangle_collision_logic(e)
 
     def update(self, delta_time, entities):
         self._update_conversation(entities)
@@ -297,3 +305,56 @@ class Tree(Entity):
         else:
             self.shadow.draw(surface, CameraType.DYNAMIC)
             self.sprite.draw(surface, CameraType.DYNAMIC)
+
+
+class ItemType(IntEnum):
+    COFFEE = 0
+    FISH = 1
+    CROP = 2
+    EGGS = 3
+
+
+class Item(Entity):
+    def __init__(self, x, y):
+        super(Item, self).__init__(x, y, 16, 16)
+        self._processed = False
+        self._type = None
+        self._sprite = None
+
+    def set_location(self, x, y):
+        super(Item, self).set_location(x, y)
+        self._sprite.set_location(self.x, self.y)
+
+    def update(self, delta_time, entities):
+        pass
+
+    def draw(self, surface):
+        self._sprite.draw(surface, CameraType.DYNAMIC)
+
+
+class Coffee(Item):
+    def __init__(self, x, y):
+        super(Coffee, self).__init__(x, y)
+        self._type = ItemType.COFFEE
+        self._sprite = Sprite(x, y, SpriteType.COFFEE)
+
+
+class Fish(Item):
+    def __init__(self, x, y):
+        super(Fish, self).__init__(x, y)
+        self._type = ItemType.FISH
+        self._sprite = Sprite(x, y, SpriteType.FISH)
+
+
+class Crop(Item):
+    def __init__(self, x, y):
+        super(Crop, self).__init__(x, y)
+        self._type = ItemType.CROP
+        self._sprite = Sprite(x, y, SpriteType.CROP)
+
+
+class Eggs(Item):
+    def __init__(self, x, y):
+        super(Eggs, self).__init__(x, y)
+        self._type = ItemType.EGGS
+        self._sprite = Sprite(x, y, SpriteType.EGGS)

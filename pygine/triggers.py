@@ -3,7 +3,7 @@
 from enum import IntEnum
 from pygine.base import PygineObject
 from pygine.draw import draw_rectangle
-from pygine.entities import Building, Direction, Player
+from pygine.entities import Building, Direction, Player, NPC
 from pygine.utilities import InputType
 
 
@@ -26,6 +26,9 @@ class Trigger(PygineObject):
         current_scene.entities.remove(entity)
         entity.set_location(self.end_location.x, self.end_location.y)
 
+    def _valid_entity(self, entity):
+        return isinstance(entity, Player) or isinstance(entity, NPC)
+
     def update(self, delta_time, entities, manager):
         raise NotImplementedError(
             "A class that inherits Trigger did not implement the update(delta_time, entities) method")
@@ -43,7 +46,7 @@ class CollisionTrigger(Trigger):
 
     def __collision(self, entities, manager):
         for e in entities:
-            if e.bounds.colliderect(self.bounds):
+            if self._valid_entity(e) and e.bounds.colliderect(self.bounds):
                 self._move_entity_to_next_scene(e, manager)
 
     def update(self, delta_time, entities, manager):
@@ -65,11 +68,11 @@ class ButtonTrigger(Trigger):
 
     def __collision(self, entities, manager):
         for e in entities:
-            if not isinstance(e, Building) and e.bounds.colliderect(self.bounds):
+            if self._valid_entity(e) and e.bounds.colliderect(self.bounds):
                 if isinstance(e, Player):
                     if e.input.pressing(InputType.A) and int(e.facing) == int(self.direction):
                         self._move_entity_to_next_scene(e, manager)
-                else:
+                elif isinstance(e, NPC):
                     self._move_entity_to_next_scene(e, manager)
 
     def update(self, delta_time, entities, manager):
