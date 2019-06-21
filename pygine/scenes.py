@@ -15,6 +15,16 @@ class SceneType(IntEnum):
 
 class SceneManager:
     def __init__(self):
+        self.input = Input()
+        self.__reset()
+
+    def get_scene(self, scene_type):
+        return self.__all_scenes[int(scene_type)]
+
+    def get_current_scene(self):
+        return self.__current_scene
+
+    def __reset(self):
         self.__all_scenes = []
         self.__current_scene = None
         self.__previous_scene = None
@@ -26,17 +36,12 @@ class SceneManager:
         self.__initialize_scenes()
         self.__set_starting_scene(SceneType.VILLAGE)
 
-    def get_scene(self, scene_type):
-        return self.__all_scenes[int(scene_type)]
-
-    def get_current_scene(self):
-        return self.__current_scene
-
     def __add_scene(self, scene):
         self.__all_scenes.append(scene)
         scene.manager = self
 
     def __initialize_scenes(self):
+        self.__all_scenes = []
         self.__add_scene(Village())
         self.__add_scene(Forest())
         self.__add_scene(Room())
@@ -70,6 +75,11 @@ class SceneManager:
     def __change_scenes(self):
         self.__current_scene = self.__next_scene
 
+    def __update_input(self):
+        self.input.update()
+        if self.input.pressing(InputType.RESET):
+            self.__reset()
+
     def __update_transition(self, delta_time):
         if self.start_transition:
             self.leave_transition.update(delta_time)
@@ -81,6 +91,7 @@ class SceneManager:
         assert (self.__current_scene != None), \
             "It looks like you never set a starting scene! Make sure to call __set_starting_scene(starting_scene_type)"
 
+        self.__update_input()
         self.__update_transition(delta_time)
         self.__current_scene.update(delta_time)
 
@@ -110,7 +121,6 @@ class Scene(object):
         self.entities = []
         self.shapes = []
         self.triggers = []
-        self.input = Input()
 
         self.leave_transition_type = TransitionType.PINHOLE_CLOSE
         self.enter_transition_type = TransitionType.PINHOLE_OPEN
@@ -134,11 +144,6 @@ class Scene(object):
         self.entities.append(entity)
         # We can potentially add aditional logic for certain entites. For example, if the entity is a NPC then spawn it at (x, y)
 
-    def __update_input(self):
-        self.input.update()
-        if self.input.pressing(InputType.RESET):
-            self._reset()
-
     def __update_entities(self, delta_time):
         for i in range(len(self.entities)-1, -1, -1):
             self.entities[i].update(delta_time, self.entities)
@@ -156,7 +161,6 @@ class Scene(object):
         self.camera.update(self.camera_location)
 
     def update(self, delta_time):
-        self.__update_input()
         self.__update_entities(delta_time)
         self.__update_triggers(delta_time, self.entities, self.manager)
         self.__update_camera()
