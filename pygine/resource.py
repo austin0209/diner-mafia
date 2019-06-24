@@ -21,6 +21,10 @@ class SpriteType(IntEnum):
     SPEECH_BUBBLE = 13
     NPC_M = 14
     NPC_F = 15
+    COFFEE = 16
+    FISH = 17
+    CROP = 18
+    EGGS = 19
 
 
 class Sprite(PygineObject):
@@ -33,8 +37,8 @@ class Sprite(PygineObject):
         self._load_sprite()
 
     def _sprite_setup(self, sprite_x=0, sprite_y=0, width=0, height=0, sprite_sheet_name=""):
-        self.sprite_x = sprite_x
-        self.sprite_y = sprite_y
+        self.__sprite_x = sprite_x
+        self.__sprite_y = sprite_y
         self.set_width(width)
         self.set_height(height)
         self.sprite_sheet = pygame.image.load(
@@ -78,10 +82,18 @@ class Sprite(PygineObject):
             self._sprite_setup(80, 160, 16, 32, "sprites.png")
         elif (self.type == SpriteType.NPC_F):
             self._sprite_setup(96, 160, 16, 32, "sprites.png")
+        elif (self.type == SpriteType.COFFEE):
+            self._sprite_setup(0, 224, 16, 16, "sprites.png")
+        elif (self.type == SpriteType.FISH):
+            self._sprite_setup(16, 224, 16, 16, "sprites.png")
+        elif (self.type == SpriteType.CROP):
+            self._sprite_setup(32, 224, 16, 16, "sprites.png")
+        elif (self.type == SpriteType.EGGS):
+            self._sprite_setup(48, 224, 16, 16, "sprites.png")
 
         self.image = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
         self.image.blit(self.sprite_sheet, (0, 0),
-                        (self.sprite_x, self.sprite_y, self.width, self.height))
+                        (self.__sprite_x, self.__sprite_y, self.width, self.height))
 
     def draw(self, surface, camera_type):
         draw_image(surface, self.image, self.bounds, camera_type)
