@@ -327,3 +327,17 @@ class Room(Scene):
                 SceneType.VILLAGE
             )
         )
+
+class CoffeeMinigame(Scene):
+    def __init__(self):
+        super(CoffeeMinigame, self).__init__()
+        self._reset()
+        self._create_triggers()
+
+    def _reset(self):
+        self.shapes = []
+        self.sprites = []
+        self.entities = []
+
+    def _create_triggers(self):
+        

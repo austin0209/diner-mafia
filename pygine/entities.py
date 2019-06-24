@@ -6,7 +6,7 @@ from pygine.draw import draw_rectangle
 from pygine.geometry import Rectangle
 from pygine.maths import Vector2, distance_between
 from pygine.resource import Sprite, SpriteType
-from pygine.utilities import CameraType, Color, Input, InputType
+from pygine.utilities import Camera, CameraType, Color, Input, InputType
 
 
 class Entity(PygineObject):
@@ -358,3 +358,38 @@ class Eggs(Item):
         super(Eggs, self).__init__(x, y)
         self._type = ItemType.EGGS
         self._sprite = Sprite(x, y, SpriteType.EGGS)
+
+
+###################################################################
+#
+#   Coffee minigame stuff starts here!
+#
+###################################################################
+
+class Boat(Player):
+    def __init__(self, x, y, beans=30):
+        super(Boat, self).__init__(x, y)
+        self.beans = beans
+        self.__playbounds = Rectangle(
+            0, 0, Camera.BOUNDS.width / 2, Camera.BOUNDS.height)
+
+    def __bounds_collision(self):
+        if self.x < self.__playbounds.x:
+            self.x = self.__playbounds.x
+        elif self.x + self.width > self.__playbounds.x + self.__playbounds.width:
+            self.x = self.__playbounds.x + self.__playbounds.width - self.width
+
+        if self.y < self.__playbounds.y:
+            self.y = self.__playbounds.y
+        elif self.y + self.height > self.__playbounds.y + self.__playbounds.height:
+            self.y = self.__playbounds.y + self.__playbounds.height - self.height
+
+    def _collision(self, entities):
+        for e in entities:
+            if (
+                isinstance(e, Building) or
+                isinstance(e, Tree) or
+                isinstance(e, NPC)
+            ):
+                self._rectangle_collision_logic(e)
+        self.__bounds_collision()
