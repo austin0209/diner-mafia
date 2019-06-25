@@ -11,6 +11,7 @@ class SceneType(IntEnum):
     VILLAGE = 0
     FOREST = 1
     ROOM = 2
+    COFFEE_MINIGAME = 3
 
 
 class SceneManager:
@@ -34,17 +35,19 @@ class SceneManager:
         self.start_transition = False
 
         self.__initialize_scenes()
-        self.__set_starting_scene(SceneType.VILLAGE)
+        self.__set_starting_scene(SceneType.COFFEE_MINIGAME)
 
     def __add_scene(self, scene):
         self.__all_scenes.append(scene)
         scene.manager = self
 
     def __initialize_scenes(self):
+        # Scenes must be added in the same order as declared in the IntEnum
         self.__all_scenes = []
         self.__add_scene(Village())
         self.__add_scene(Forest())
         self.__add_scene(Room())
+        self.__add_scene(CoffeeMinigame())
 
     def __set_starting_scene(self, starting_scene_type):
         assert (len(self.__all_scenes) > 0), \
@@ -52,7 +55,8 @@ class SceneManager:
 
         self.__current_scene = self.__all_scenes[int(starting_scene_type)]
         self.__current_scene.relay_player(
-            Player(
+            # Temporarily set this to a boat
+            Boat(
                 Camera.BOUNDS.width / 2 - 3,
                 Camera.BOUNDS.height / 2 - 8
             )
@@ -340,4 +344,6 @@ class CoffeeMinigame(Scene):
         self.entities = []
 
     def _create_triggers(self):
-        
+        pass
+    
+

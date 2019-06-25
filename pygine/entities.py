@@ -6,7 +6,7 @@ from pygine.draw import draw_rectangle
 from pygine.geometry import Rectangle
 from pygine.maths import Vector2, distance_between
 from pygine.resource import Sprite, SpriteType
-from pygine.utilities import Camera, CameraType, Color, Input, InputType
+from pygine.utilities import Camera, CameraType, Color, Input, InputType, Timer
 
 
 class Entity(PygineObject):
@@ -371,7 +371,7 @@ class Boat(Player):
         super(Boat, self).__init__(x, y)
         self.beans = beans
         self.__playbounds = Rectangle(
-            0, 0, Camera.BOUNDS.width / 2, Camera.BOUNDS.height)
+            0, Camera.BOUNDS.height / 2, Camera.BOUNDS.width / 2, Camera.BOUNDS.height / 2)
 
     def __bounds_collision(self):
         if self.x < self.__playbounds.x:
@@ -393,3 +393,26 @@ class Boat(Player):
             ):
                 self._rectangle_collision_logic(e)
         self.__bounds_collision()
+
+    def draw(self, surface):
+        # Temporary code
+        draw_rectangle(surface, self.__playbounds, CameraType.DYNAMIC)
+        super(Boat, self).draw(surface)
+
+class Octopus(Kinetic):
+    def __init__(self, x, y, speed=2):
+        super(Octopus, self).__init__(self, x, y, 10, 10, speed)
+        self.timer = Timer(1500, True)
+
+class Bullet(Kinetic):
+    def __init__(self, x, y, speed=1):
+        super(Bullet, self).__init__(self, x, y, 5, 5, speed)
+
+    def _collision(self, entities):
+        for e in entities:
+            if isinstance(Boat, e) and e.bounds.colliderect(self.bounds):
+                e.beans -= 5 # Maybe make this random in the future?
+                
+
+
+    
