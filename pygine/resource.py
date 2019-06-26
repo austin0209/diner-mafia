@@ -15,16 +15,30 @@ class SpriteType(IntEnum):
     SIMPLE_HOUSE_SHADOW = 7
     SPECIAL_HOUSE = 8
     SPECIAL_HOUSE_SHADOW = 9
-    GRASS = 10
-    TREE_THING = 11
-    TREE_THING_SHADOW = 12
-    SPEECH_BUBBLE = 13
-    NPC_M = 14
-    NPC_F = 15
-    COFFEE = 16
-    FISH = 17
-    CROP = 18
-    EGGS = 19
+    SHOP = 10
+    SHOP_SHADOW = 11
+    DINER = 12
+    DINER_SHADOW = 13
+    GRASS = 14
+    TREE_THING = 15
+    TREE_THING_SHADOW = 16
+    SPEECH_BUBBLE = 17
+    NPC_M_F = 18
+    NPC_M_R = 19
+    NPC_M_B = 20
+    NPC_M_L = 21
+    NPC_F_F = 22
+    NPC_F_R = 23
+    NPC_F_B = 24
+    NPC_F_L = 25
+    COFFEE_RAW = 26
+    COFFEE_PRO = 27
+    FISH_RAW = 28
+    FISH_PRO = 29
+    CROP_RAW = 30
+    CROP_PRO = 31
+    EGGS_RAW = 32
+    EGGS_PRO = 33
 
 
 class Sprite(PygineObject):
@@ -49,47 +63,82 @@ class Sprite(PygineObject):
     def _load_sprite(self):
         if self.type == SpriteType.NONE:
             pass
+
         elif (self.type == SpriteType.PLAYER_F):
-            self._sprite_setup(0, 160, 16, 32, "sprites.png")
-        elif (self.type == SpriteType.PLAYER_R):
-            self._sprite_setup(16, 160, 16, 32, "sprites.png")
-        elif (self.type == SpriteType.PLAYER_B):
-            self._sprite_setup(32, 160, 16, 32, "sprites.png")
+            self._sprite_setup(0, 288, 16, 32, "sprites.png")
         elif (self.type == SpriteType.PLAYER_L):
-            self._sprite_setup(48, 160, 16, 32, "sprites.png")
+            self._sprite_setup(0, 320, 16, 32, "sprites.png")
+        elif (self.type == SpriteType.PLAYER_B):
+            self._sprite_setup(0, 352, 16, 32, "sprites.png")
+        elif (self.type == SpriteType.PLAYER_R):
+            self._sprite_setup(0, 384, 16, 32, "sprites.png")
+
         elif (self.type == SpriteType.PLAYER_SHADOW):
-            self._sprite_setup(64, 160, 16, 32, "sprites.png")
+            self._sprite_setup(0, 240, 16, 32, "sprites.png")
+
+
+        elif (self.type == SpriteType.NPC_M_F):
+            self._sprite_setup(112, 288, 16, 32, "sprites.png")
+        elif (self.type == SpriteType.NPC_M_L):
+            self._sprite_setup(112, 320, 16, 32, "sprites.png")
+        elif (self.type == SpriteType.NPC_M_B):
+            self._sprite_setup(112, 352, 16, 32, "sprites.png")
+        elif (self.type == SpriteType.NPC_M_R):
+            self._sprite_setup(112, 384, 16, 32, "sprites.png")
+
+
+        elif (self.type == SpriteType.NPC_F_F):
+            self._sprite_setup(224, 288, 16, 32, "sprites.png")
+        elif (self.type == SpriteType.NPC_F_L):
+            self._sprite_setup(224, 320, 16, 32, "sprites.png")
+        elif (self.type == SpriteType.NPC_F_B):
+            self._sprite_setup(224, 352, 16, 32, "sprites.png")
+        elif (self.type == SpriteType.NPC_F_R):
+            self._sprite_setup(224, 384, 16, 32, "sprites.png")
+
+        elif (self.type == SpriteType.SPEECH_BUBBLE):
+            self._sprite_setup(16, 240, 32, 32, "sprites.png")
 
         elif (self.type == SpriteType.SIMPLE_HOUSE):
-            self._sprite_setup(0, 32, 48, 64, "sprites.png")
+            self._sprite_setup(0, 64, 48, 64, "sprites.png")
         elif (self.type == SpriteType.SIMPLE_HOUSE_SHADOW):
-            self._sprite_setup(0, 96, 48, 64, "sprites.png")
+            self._sprite_setup(0, 128, 48, 64, "sprites.png")
         elif (self.type == SpriteType.SPECIAL_HOUSE):
-            self._sprite_setup(48, 32, 80, 64, "sprites.png")
+            self._sprite_setup(48, 64, 80, 64, "sprites.png")
         elif (self.type == SpriteType.SPECIAL_HOUSE_SHADOW):
-            self._sprite_setup(48, 96, 80, 64, "sprites.png")
+            self._sprite_setup(48, 128, 80, 64, "sprites.png")
+        elif (self.type == SpriteType.SHOP):
+            self._sprite_setup(128, 32, 80, 96, "sprites.png")
+        elif (self.type == SpriteType.SHOP_SHADOW):
+            self._sprite_setup(128, 128, 80, 96, "sprites.png")
+        elif (self.type == SpriteType.DINER):
+            self._sprite_setup(208, 64, 128, 64, "sprites.png")
+        elif (self.type == SpriteType.DINER_SHADOW):
+            self._sprite_setup(208, 128, 128, 64, "sprites.png")
 
         elif (self.type == SpriteType.GRASS):
             self._sprite_setup(0, 0, 32, 32, "sprites.png")
         elif (self.type == SpriteType.TREE_THING):
-            self._sprite_setup(128, 32, 32, 32, "sprites.png")
+            self._sprite_setup(336, 96, 32, 32, "sprites.png")
         elif (self.type == SpriteType.TREE_THING_SHADOW):
-            self._sprite_setup(128, 64, 32, 32, "sprites.png")
-
-        elif (self.type == SpriteType.SPEECH_BUBBLE):
-            self._sprite_setup(0, 192, 22, 22, "sprites.png")
-        elif (self.type == SpriteType.NPC_M):
-            self._sprite_setup(80, 160, 16, 32, "sprites.png")
-        elif (self.type == SpriteType.NPC_F):
-            self._sprite_setup(96, 160, 16, 32, "sprites.png")
-        elif (self.type == SpriteType.COFFEE):
-            self._sprite_setup(0, 224, 16, 16, "sprites.png")
-        elif (self.type == SpriteType.FISH):
-            self._sprite_setup(16, 224, 16, 16, "sprites.png")
-        elif (self.type == SpriteType.CROP):
-            self._sprite_setup(32, 224, 16, 16, "sprites.png")
-        elif (self.type == SpriteType.EGGS):
-            self._sprite_setup(48, 224, 16, 16, "sprites.png")
+            self._sprite_setup(336, 128, 32, 32, "sprites.png")
+       
+        elif (self.type == SpriteType.COFFEE_RAW):
+            self._sprite_setup(0, 448, 16, 16, "sprites.png")
+        elif (self.type == SpriteType.COFFEE_PRO):
+            self._sprite_setup(0, 432, 16, 16, "sprites.png")
+        elif (self.type == SpriteType.FISH_RAW):
+            self._sprite_setup(16, 448, 16, 16, "sprites.png")
+        elif (self.type == SpriteType.FISH_PRO):
+            self._sprite_setup(16, 432, 16, 16, "sprites.png")
+        elif (self.type == SpriteType.CROP_RAW):
+            self._sprite_setup(32, 448, 16, 16, "sprites.png")
+        elif (self.type == SpriteType.CROP_PRO):
+            self._sprite_setup(32, 432, 16, 16, "sprites.png")
+        elif (self.type == SpriteType.EGGS_RAW):
+            self._sprite_setup(48, 448, 16, 16, "sprites.png")
+        elif (self.type == SpriteType.EGGS_PRO):
+            self._sprite_setup(48, 432, 16, 16, "sprites.png")
 
         self.image = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
         self.image.blit(self.sprite_sheet, (0, 0),
