@@ -1,4 +1,5 @@
 from enum import IntEnum
+from random import randint
 from pygame import Rect
 from pygine.entities import *
 from pygine.maths import Vector2
@@ -332,11 +333,13 @@ class Room(Scene):
             )
         )
 
+
 class CoffeeMinigame(Scene):
     def __init__(self):
         super(CoffeeMinigame, self).__init__()
         self._reset()
         self._create_triggers()
+        self.__spawn_timer = Timer(3000, True)
 
     def _reset(self):
         self.shapes = []
@@ -345,5 +348,22 @@ class CoffeeMinigame(Scene):
 
     def _create_triggers(self):
         pass
-    
 
+    def __spawn_random(self):
+        grid_unit_size = self.player.playbounds.height / 5
+        rand_x = randint(0, 4) * grid_unit_size + Camera.BOUNDS.width - grid_unit_size * 5 + 5
+        rand_y = randint(0, 4) * grid_unit_size + self.player.playbounds.y + 5
+        self.entities.append(Octopus(rand_x, rand_y))
+
+    def update(self, delta_time):
+        self.__spawn_timer.update()
+        if self.__spawn_timer.done:
+            self.__spawn_random()
+            self.__spawn_timer.reset()
+            self.__spawn_timer.start()
+        super(CoffeeMinigame, self).update(delta_time)
+
+    def draw(self, surface):
+        draw_rectangle(surface, self.player.playbounds,
+                       CameraType.DYNAMIC, Color.SKY_BLUE)
+        super(CoffeeMinigame, self).draw(surface)

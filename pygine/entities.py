@@ -370,49 +370,83 @@ class Boat(Player):
     def __init__(self, x, y, beans=30):
         super(Boat, self).__init__(x, y)
         self.beans = beans
-        self.__playbounds = Rectangle(
+        self.playbounds = Rectangle(
             0, Camera.BOUNDS.height / 2, Camera.BOUNDS.width / 2, Camera.BOUNDS.height / 2)
 
     def __bounds_collision(self):
-        if self.x < self.__playbounds.x:
-            self.x = self.__playbounds.x
-        elif self.x + self.width > self.__playbounds.x + self.__playbounds.width:
-            self.x = self.__playbounds.x + self.__playbounds.width - self.width
+        if self.x < self.playbounds.x:
+            self.x = self.playbounds.x
+        elif self.x + self.width > self.playbounds.x + self.playbounds.width:
+            self.x = self.playbounds.x + self.playbounds.width - self.width
 
-        if self.y < self.__playbounds.y:
-            self.y = self.__playbounds.y
-        elif self.y + self.height > self.__playbounds.y + self.__playbounds.height:
-            self.y = self.__playbounds.y + self.__playbounds.height - self.height
+        if self.y < self.playbounds.y:
+            self.y = self.playbounds.y
+        elif self.y + self.height > self.playbounds.y + self.playbounds.height:
+            self.y = self.playbounds.y + self.playbounds.height - self.height
 
     def _collision(self, entities):
-        for e in entities:
-            if (
-                isinstance(e, Building) or
-                isinstance(e, Tree) or
-                isinstance(e, NPC)
-            ):
-                self._rectangle_collision_logic(e)
+        super(Boat, self)._collision(entities)
         self.__bounds_collision()
+    
+    def __check_death(self):
+        if self.beans <= 0:
+            # TODO: death logic here, maybe display transition and change scene?
+            pass
+    
+    def update(self, delta_time, entities):
+        super(Boat, self).update(delta_time, entities)
+        self.__check_death()
 
     def draw(self, surface):
         # Temporary code
-        draw_rectangle(surface, self.__playbounds, CameraType.DYNAMIC)
-        super(Boat, self).draw(surface)
+        draw_rectangle(surface, self.bounds, CameraType.DYNAMIC, Color.BLUE)
 
 class Octopus(Kinetic):
-    def __init__(self, x, y, speed=2):
-        super(Octopus, self).__init__(self, x, y, 10, 10, speed)
+    def __init__(self, x, y, speed=25):
+        super(Octopus, self).__init__(x, y, 10, 10, speed)
         self.timer = Timer(1500, True)
+        self.bullets = []
+
+    def __shoot(self):
+        self.bullets.append(Bullet(self.x, self.y + self.height / 2))
+
+    def update(self, delta_time, entities):
+        self._calculate_scaled_speed(delta_time)
+        self.set_location(self.x - self.move_speed, self.y)
+        self.timer.update()
+        if self.timer.done:
+            self.__shoot()
+            self.timer.reset()
+            self.timer.start()
+        for b in self.bullets:
+            b.update(delta_time, entities)
+
+    def draw(self, surface):
+        # Temporary:
+        for b in self.bullets:
+            b.draw(surface)
+            if b.dead:
+                self.bullets.remove(b)
+        draw_rectangle(surface, self.bounds, CameraType.DYNAMIC)
+            
 
 class Bullet(Kinetic):
-    def __init__(self, x, y, speed=1):
-        super(Bullet, self).__init__(self, x, y, 5, 5, speed)
+    def __init__(self, x, y, speed=50):
+        super(Bullet, self).__init__(x, y, 5, 5, speed)
+        self.dead = False
 
     def _collision(self, entities):
         for e in entities:
-            if isinstance(Boat, e) and e.bounds.colliderect(self.bounds):
+            if isinstance(e, Boat) and self.bounds.colliderect(e.bounds):
                 e.beans -= 5 # Maybe make this random in the future?
-                
+                self.dead = True
 
-
+    def update(self, delta_time, entities):
+        self._calculate_scaled_speed(delta_time)
+        self.set_location(self.x - self.move_speed, self.y)
+        self._collision(entities)
+        if self.x + self.width < Camera.BOUNDS.x:
+            self.dead = True
     
+    def draw(self, surface):
+        draw_rectangle(surface, self.bounds, CameraType.DYNAMIC, Color.RED)
