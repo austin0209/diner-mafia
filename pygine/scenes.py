@@ -1,4 +1,5 @@
 from enum import IntEnum
+from random import randint
 from pygame import Rect
 from pygine.entities import *
 from pygine.maths import Vector2
@@ -11,6 +12,7 @@ class SceneType(IntEnum):
     VILLAGE = 0
     FOREST = 1
     ROOM = 2
+    COFFEE_MINIGAME = 3
 
 
 class SceneManager:
@@ -34,23 +36,25 @@ class SceneManager:
         self.start_transition = False
 
         self.__initialize_scenes()
-        self.__set_starting_scene(SceneType.VILLAGE)
+        self.__set_starting_scene(SceneType.COFFEE_MINIGAME)
 
     def __add_scene(self, scene):
         self.__all_scenes.append(scene)
         scene.manager = self
 
     def __initialize_scenes(self):
+        # Scenes must be added in the same order as declared in the IntEnum
         self.__all_scenes = []
         self.__add_scene(Village())
         self.__add_scene(Forest())
         self.__add_scene(Room())
+        self.__add_scene(CoffeeMinigame())
 
     def __set_starting_scene(self, starting_scene_type):
         assert (len(self.__all_scenes) > 0), \
             "It looks like you never initialized all the scenes! Make sure to setup and call __initialize_scenes()"
 
-        self.__current_scene = self.__all_scenes[int(starting_scene_type)]
+        self.__current_scene = self.__all_scenes[0]
         self.__current_scene.relay_player(
             Player(
                 Camera.BOUNDS.width / 2 - 3,
@@ -184,11 +188,11 @@ class Village(Scene):
         self._create_triggers()
 
     def _reset(self):
-        self.shapes = []
+        self.shapes = [Rectangle(0, 0, 320, 180, Color.GRASS_GREEN)]
         self.sprites = []
-        for y in range(int(Camera.BOUNDS.height * 2 / 32)):
-            for x in range(int(Camera.BOUNDS.width * 2 / 32)):
-                self.sprites.append(Sprite(x * 32, y * 32, SpriteType.GRASS))
+        #for y in range(int(Camera.BOUNDS.height * 2 / 32)):
+        #    for x in range(int(Camera.BOUNDS.width * 2 / 32)):
+        #        self.sprites.append(Sprite(x * 32, y * 32, SpriteType.GRASS))
         self.entities = [
             SpecialHouse(16 + 48 * 1 + 16, 16),
 
@@ -327,3 +331,38 @@ class Room(Scene):
                 SceneType.VILLAGE
             )
         )
+
+
+class CoffeeMinigame(Scene):
+    def __init__(self):
+        super(CoffeeMinigame, self).__init__()
+        self._reset()
+        self._create_triggers()
+        self.__spawn_timer = Timer(3000, True)
+
+    def _reset(self):
+        self.shapes = []
+        self.sprites = []
+        self.entities = []
+
+    def _create_triggers(self):
+        pass
+
+    def __spawn_random(self):
+        grid_unit_size = self.player.playbounds.height / 5
+        rand_x = randint(0, 4) * grid_unit_size + Camera.BOUNDS.width - grid_unit_size * 5 + 5
+        rand_y = randint(0, 4) * grid_unit_size + self.player.playbounds.y + 5 
+        self.entities.append(Octopus(rand_x, rand_y))
+
+    def update(self, delta_time):
+        self.__spawn_timer.update()
+        if self.__spawn_timer.done:
+            self.__spawn_random()
+            self.__spawn_timer.reset()
+            self.__spawn_timer.start()
+        super(CoffeeMinigame, self).update(delta_time)
+
+    def draw(self, surface):
+        draw_rectangle(surface, self.player.playbounds,
+                       CameraType.DYNAMIC, Color.SKY_BLUE)
+        super(CoffeeMinigame, self).draw(surface)
