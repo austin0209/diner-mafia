@@ -157,6 +157,8 @@ class Player(Kinetic):
         for e in entities:
             if (
                 isinstance(e, Building) or
+                isinstance(e, Furniture) or
+                isinstance(e, Wall) or
                 isinstance(e, Tree) or
                 isinstance(e, NPC)
             ):
@@ -280,17 +282,37 @@ class Building(Entity):
 
 class SimpleHouse(Building):
     def __init__(self, x, y):
-        super(SimpleHouse, self).__init__(x + 4, y + 24, 40, 40)
+        super(SimpleHouse, self).__init__(x + 4, y + 24 + 10, 40, 40)
         self.sprite = Sprite(self.x - 4, self.y - 24, SpriteType.SIMPLE_HOUSE)
+        self.shadow = Sprite(self.x - 4 - 16, self.y - 24,
+                             SpriteType.SIMPLE_HOUSE_SHADOW)
         self.set_color(Color.RED)
 
 
 class SpecialHouse(Building):
     def __init__(self, x, y):
-        super(SpecialHouse, self).__init__(x + 4, y + 24, 72, 40)
+        super(SpecialHouse, self).__init__(x + 4, y + 24 + 10, 72, 40)
         self.sprite = Sprite(self.x - 4, self.y - 24, SpriteType.SPECIAL_HOUSE)
         self.shadow = Sprite(self.x - 4 - 16, self.y - 24,
                              SpriteType.SPECIAL_HOUSE_SHADOW)
+        self.set_color(Color.RED)
+
+
+class Shop(Building):
+    def __init__(self, x, y):
+        super(Shop, self).__init__(x, y + 64 + 10, 80, 32)
+        self.sprite = Sprite(self.x, self.y - 64, SpriteType.SHOP)
+        self.shadow = Sprite(self.x - 16, self.y - 64,
+                             SpriteType.SHOP_SHADOW)
+        self.set_color(Color.RED)
+
+
+class Diner(Building):
+    def __init__(self, x, y):
+        super(Diner, self).__init__(x, y + 32, 128, 32)
+        self.sprite = Sprite(self.x, self.y - 32, SpriteType.DINER)
+        self.shadow = Sprite(self.x - 16, self.y - 32,
+                             SpriteType.DINER_SHADOW)
         self.set_color(Color.RED)
 
 
@@ -310,6 +332,92 @@ class Tree(Entity):
         else:
             self.shadow.draw(surface, CameraType.DYNAMIC)
             self.sprite.draw(surface, CameraType.DYNAMIC)
+
+
+class Furniture(Entity):
+    def __init__(self, x, y, width, height):
+        super(Furniture, self).__init__(x, y, width, height)
+        self.sprite = None
+
+    def update(self, delta_time, entities):
+        pass
+
+    def draw(self, surface):
+        if pygine.globals.debug:
+            self._draw_bounds(surface, CameraType.DYNAMIC)
+        else:
+            self.sprite.draw(surface, CameraType.DYNAMIC)
+
+
+class FlowerPot(Furniture):
+    def __init__(self, x, y):
+        super(FlowerPot, self).__init__(x, y + 10, 16, 16)
+        self.sprite = Sprite(self.x, self.y - 32, SpriteType.FLOWER_POT)
+
+
+class Sofa(Furniture):
+    def __init__(self, x, y):
+        super(Sofa, self).__init__(x + 4, y + 10, 56, 16)
+        self.sprite = Sprite(self.x - 4, self.y - 16, SpriteType.SOFA)
+
+
+class Bed(Furniture):
+    def __init__(self, x, y):
+        super(Bed, self).__init__(x, y + 10, 32, 48)
+        self.sprite = Sprite(self.x, self.y - 16, SpriteType.BED)
+
+
+class Shelf(Furniture):
+    def __init__(self, x, y, empty=True):
+        super(Shelf, self).__init__(x, y + 10, 32, 16)
+        if empty:
+            self.sprite = Sprite(self.x, self.y - 48, SpriteType.SHELF_EMPTY)
+        else:
+            self.sprite = Sprite(self.x, self.y - 48, SpriteType.SHELF_FULL)
+
+
+class CounterShop(Furniture):
+    def __init__(self, x, y):
+        super(CounterShop, self).__init__(x, y + 10, 112, 16)
+        self.sprite = Sprite(self.x, self.y - 32, SpriteType.SHOP_COUNTER)
+
+
+class CounterDiner(Furniture):
+    def __init__(self, x, y):
+        super(CounterDiner, self).__init__(x, y + 10 + 4, 240, 12)
+        self.sprite = Sprite(self.x, self.y - 80 + 12,
+                             SpriteType.DINER_COUNTER)
+
+
+class StoolTall(Furniture):
+    def __init__(self, x, y):
+        super(StoolTall, self).__init__(x, y + 10 + 6, 16, 6)
+        self.sprite = Sprite(self.x, self.y - 16 - 6, SpriteType.STOOL_TALL)
+
+
+class StoolShort(Furniture):
+    def __init__(self, x, y):
+        super(StoolShort, self).__init__(x, y + 10 + 4, 16, 6)
+        self.sprite = Sprite(self.x, self.y - 16 - 4, SpriteType.STOOL_SHORT)
+
+
+class Table(Furniture):
+    def __init__(self, x, y):
+        super(Table, self).__init__(x, y + 10, 32, 12)
+        self.sprite = Sprite(self.x, self.y - 16, SpriteType.TABLE)
+
+
+class Wall(Entity):
+    def __init__(self, x, y, width, height):
+        super(Wall, self).__init__(x * 16, y * 16 + 10, width * 16, height * 16)
+        self.set_color(Color.BLUE)
+
+    def update(self, delta_time, entities):
+        pass
+
+    def draw(self, surface):
+        if pygine.globals.debug:
+            self._draw_bounds(surface, CameraType.DYNAMIC)
 
 
 class ItemType(IntEnum):
@@ -466,6 +574,7 @@ class Bullet(Kinetic):
 
 class Mole(Entity):
     pass
+
 
 class Mallet(Entity):
     pass
