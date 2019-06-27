@@ -132,6 +132,7 @@ class Player(Actor):
             self.sprite.set_sprite(SpriteType.PLAYER_R)
             self.set_location(self.x + self.move_speed, self.y)
             self.velocity.x = 1
+        #TEST
 
     def _update_input(self):
         self.input.update()
