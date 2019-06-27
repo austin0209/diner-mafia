@@ -218,15 +218,15 @@ class Sprite(PygineObject):
             self._sprite_setup(0, 480, 256, 80)
 
         elif (self.type == SpriteType.OCTOPUS):
-            self._sprite_setup(176, 784, 16 * 3, 16 * 3)
+            self._sprite_setup(112, 816, 16 * 3, 16 * 3)
         elif (self.type == SpriteType.INK_BULLET):
-            self._sprite_setup(160, 784, 16, 16)
+            self._sprite_setup(160, 848, 16, 16)
         elif (self.type == SpriteType.BOAT):
-            self._sprite_setup(176, 896, 16 * 7, 16 * 4)
+            self._sprite_setup(112, 896, 16 * 7, 16 * 4)
         elif (self.type == SpriteType.WAVE):
-            self._sprite_setup(224, 846, 16, 16)
+            self._sprite_setup(176, 880, 16, 16)
         elif (self.type == SpriteType.ROCK):
-            self._sprite_setup(176, 846, 16 * 2, 16 * 2)
+            self._sprite_setup(144, 864, 16 * 2, 16 * 2)
 
         self.image = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
         self.image.blit(SPRITE_SHEET, (0, 0),
