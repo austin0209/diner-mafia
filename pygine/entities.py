@@ -7,6 +7,7 @@ from pygine.geometry import Rectangle
 from pygine.maths import Vector2, distance_between
 from pygine.resource import Sprite, SpriteType
 from pygine.utilities import Camera, CameraType, Color, Input, InputType, Timer
+from random import randint, random
 
 
 class Entity(PygineObject):
@@ -90,15 +91,19 @@ class Kinetic(Entity):
             )
 
 
-class Actor(Entity):
-    def __init__(self, x, y):
-        pass
-
-
-class Player(Kinetic):
-    def __init__(self, x, y):
-        super(Player, self).__init__(x, y, 10, 10, 50)
+class Actor(Kinetic):
+    def __init__(self, x, y, width, height, speed):
+        super(Actor, self).__init__(x, y, width, height, speed)
         self.input = Input()
+
+    def _update_input(self):
+        raise NotImplementedError(
+            "A class that inherits Actor did not implement the _update_input() method")
+
+
+class Player(Actor):
+    def __init__(self, x, y, width=10, height=10, speed=50):
+        super(Player, self).__init__(x, y, width, height, speed)
         self.sprite = Sprite(self.x - 3, self.y - 22, SpriteType.PLAYER_F)
         self.shadow = Sprite(self.x - 3, self.y - 21, SpriteType.PLAYER_SHADOW)
         self.set_color(Color.RED)
@@ -409,7 +414,8 @@ class Table(Furniture):
 
 class Wall(Entity):
     def __init__(self, x, y, width, height):
-        super(Wall, self).__init__(x * 16, y * 16 + 10, width * 16, height * 16)
+        super(Wall, self).__init__(
+            x * 16, y * 16 + 10, width * 16, height * 16)
         self.set_color(Color.BLUE)
 
     def update(self, delta_time, entities):
@@ -479,12 +485,52 @@ class Eggs(Item):
 #
 ###################################################################
 
-class Boat(Player):
+class Boat(Actor):
     def __init__(self, x, y, beans=30):
-        super(Boat, self).__init__(x, y)
+        super(Boat, self).__init__(x, y, 83, 16, 50)
         self.beans = beans
         self.playbounds = Rectangle(
-            0, Camera.BOUNDS.height / 2, Camera.BOUNDS.width / 2, Camera.BOUNDS.height / 2)
+            0, 16 * 4, Camera.BOUNDS.width * .6, 16 * 6 + 20)
+        self.sprite = Sprite(x - 16, y - 32, SpriteType.BOAT)
+
+    def set_location(self, x, y):
+        super(Boat, self).set_location(x, y)
+        self.sprite.set_location(self.x - 16, self.y - 32)
+
+    def _collision(self, entities):
+        for e in entities:
+            if isinstance(e, Octopus):
+                for b in e.bullets:
+                    if self.bounds.colliderect(b.bounds):
+                        b.dead = True
+                        self.beans -= 5
+        self.__bounds_collision()
+
+    def _move(self, direction=Direction.NONE):
+        self.facing = direction
+        if self.facing == Direction.UP:
+            self.set_location(self.x, self.y - self.move_speed)
+            self.velocity.y = -1
+        if self.facing == Direction.DOWN:
+            self.set_location(self.x, self.y + self.move_speed)
+            self.velocity.y = 1
+        if self.facing == Direction.LEFT:
+            self.set_location(self.x - self.move_speed, self.y)
+            self.velocity.x = -1
+        if self.facing == Direction.RIGHT:
+            self.set_location(self.x + self.move_speed, self.y)
+            self.velocity.x = 1
+
+    def _update_input(self):
+        self.input.update()
+        if self.input.pressing(InputType.UP):
+            self._move(Direction.UP)
+        if self.input.pressing(InputType.DOWN):
+            self._move(Direction.DOWN)
+        if self.input.pressing(InputType.LEFT):
+            self._move(Direction.LEFT)
+        if self.input.pressing(InputType.RIGHT):
+            self._move(Direction.RIGHT)
 
     def __bounds_collision(self):
         if self.x < self.playbounds.x:
@@ -497,73 +543,102 @@ class Boat(Player):
         elif self.y + self.height > self.playbounds.y + self.playbounds.height:
             self.y = self.playbounds.y + self.playbounds.height - self.height
 
-    def _collision(self, entities):
-        super(Boat, self)._collision(entities)
-        self.__bounds_collision()
-
     def __check_death(self):
         if self.beans <= 0:
             # TODO: death logic here, maybe display transition and change scene?
             pass
 
     def update(self, delta_time, entities):
-        super(Boat, self).update(delta_time, entities)
+        self._calculate_scaled_speed(delta_time)
+        self._update_input()
+        self._collision(entities)
         self.__check_death()
 
     def draw(self, surface):
-        # Temporary code
-        draw_rectangle(surface, self.bounds, CameraType.DYNAMIC, Color.BLUE)
+        if pygine.globals.debug:
+            self._draw_bounds(surface, CameraType.DYNAMIC)
+        else:
+            # self.shadow.draw(surface, CameraType.DYNAMIC)
+            self.sprite.draw(surface, CameraType.DYNAMIC)
 
 
 class Octopus(Kinetic):
-    def __init__(self, x, y, speed=25):
-        super(Octopus, self).__init__(x, y, 10, 10, speed)
-        self.timer = Timer(1500, True)
+    def __init__(self, x, y):
+        super(Octopus, self).__init__(x, y, 10, 10, randint(10, 30))
+        self.timer = Timer(randint(1500, 3000), True)
+        self.sprite = Sprite(x - 16, y - 16, SpriteType.OCTOPUS)
         self.bullets = []
+
+    def set_location(self, x, y):
+        super(Octopus, self).set_location(x, y)
+        self.sprite.set_location(self.x - 16, self.y - 16)
 
     def __shoot(self):
         self.bullets.append(Bullet(self.x, self.y + self.height / 2))
 
+    def __move(self, entities):
+        self.set_location(self.x - self.move_speed, self.y)
+        for e in entities:
+            if isinstance(e, Boat):
+                if self.x < Camera.BOUNDS.width * .6 and self.x > e.x:
+                    if self.y < e.y:
+                        self.set_location(self.x, self.y + self.move_speed / 4)
+                    elif self.y > e.y:
+                        self.set_location(self.x, self.y - self.move_speed / 4)
+
     def update(self, delta_time, entities):
         self._calculate_scaled_speed(delta_time)
-        self.set_location(self.x - self.move_speed, self.y)
+        self.__move(entities)
         self.timer.update()
         if self.timer.done:
-            self.__shoot()
+            if random() < 0.25:
+                self.__shoot()
             self.timer.reset()
             self.timer.start()
         for b in self.bullets:
             b.update(delta_time, entities)
+            if b.dead:
+                self.bullets.remove(b)
 
     def draw(self, surface):
         # Temporary:
         for b in self.bullets:
             b.draw(surface)
-            if b.dead:
-                self.bullets.remove(b)
-        draw_rectangle(surface, self.bounds, CameraType.DYNAMIC)
+        if pygine.globals.debug:
+            self._draw_bounds(surface, CameraType.DYNAMIC)
+        else:
+            # self.shadow.draw(surface, CameraType.DYNAMIC)
+            self.sprite.draw(surface, CameraType.DYNAMIC)
 
 
 class Bullet(Kinetic):
     def __init__(self, x, y, speed=50):
-        super(Bullet, self).__init__(x, y, 5, 5, speed)
+        super(Bullet, self).__init__(x, y, 11, 12, speed)
+        self.sprite = Sprite(x, y - 2, SpriteType.INK_BULLET)
         self.dead = False
 
-    def _collision(self, entities):
-        for e in entities:
-            if isinstance(e, Boat) and self.bounds.colliderect(e.bounds):
-                e.beans -= 5  # Maybe make this random in the future?
-                self.dead = True
+    def set_location(self, x, y):
+        super(Bullet, self).set_location(x, y)
+        self.sprite.set_location(self.x, self.y - 2)
 
     def update(self, delta_time, entities):
         self._calculate_scaled_speed(delta_time)
         self.set_location(self.x - self.move_speed, self.y)
-        self._collision(entities)
         if self.x + self.width < Camera.BOUNDS.x:
             self.dead = True
 
     def draw(self, surface):
-        draw_rectangle(surface, self.bounds, CameraType.DYNAMIC, Color.RED)
+        if pygine.globals.debug:
+            self._draw_bounds(surface, CameraType.DYNAMIC)
+        else:
+            self.sprite.draw(surface, CameraType.DYNAMIC)
+
+
+class Rock(Kinetic):
+    def __init__(self, x, y, speed=75):
+        super(Rock, self).__init__(x, y, 32, 14, speed)
+        self.sprite = Sprite(x, y - 16, SpriteType.ROCK)
+        
 
 
 ###################################################################
