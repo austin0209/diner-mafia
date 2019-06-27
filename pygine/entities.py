@@ -102,7 +102,7 @@ class Player(Kinetic):
         self.sprite = Sprite(self.x - 3, self.y - 22, SpriteType.PLAYER_F)
         self.shadow = Sprite(self.x - 3, self.y - 21, SpriteType.PLAYER_SHADOW)
         self.set_color(Color.RED)
-        self.item_carrying = Coffee(x, self.sprite.y + 12)
+        self.item_carrying = Coffee(self.x - 3, self.sprite.y + 8)
 
     def set_location(self, x, y):
         super(Player, self).set_location(x, y)
@@ -164,7 +164,7 @@ class Player(Kinetic):
 
     def _move_item(self):
         if self.item_carrying != None:
-            self.item_carrying.set_location(self.x, self.sprite.y - 12)
+            self.item_carrying.set_location(self.x - 3, self.sprite.y - 8)
 
     def update(self, delta_time, entities):
         self._calculate_scaled_speed(delta_time)
@@ -194,12 +194,12 @@ class NPC(Kinetic):
         super(NPC, self).__init__(x, y, 10, 10, 50)
         self.type = type
         if self.type == NPCType.MALE:
-            self.sprite = Sprite(self.x - 3, self.y - 22, SpriteType.NPC_M)
+            self.sprite = Sprite(self.x - 3, self.y - 22, SpriteType.NPC_M_F)
         if self.type == NPCType.FEMALE:
-            self.sprite = Sprite(self.x - 3, self.y - 22, SpriteType.NPC_F)
+            self.sprite = Sprite(self.x - 3, self.y - 22, SpriteType.NPC_F_F)
         self.shadow = Sprite(self.x - 3, self.y - 21, SpriteType.PLAYER_SHADOW)
         self.speech_bubble = Sprite(
-            self.x + 8, self.y - 28, SpriteType.SPEECH_BUBBLE)
+            self.x - 11, self.y - 32 - 11, SpriteType.SPEECH_BUBBLE)
         self.radius = 32
         self.show_prompt = False
         self.set_color(Color.RED)
@@ -341,28 +341,28 @@ class Coffee(Item):
     def __init__(self, x, y):
         super(Coffee, self).__init__(x, y)
         self._type = ItemType.COFFEE
-        self._sprite = Sprite(x, y, SpriteType.COFFEE)
+        self._sprite = Sprite(x, y, SpriteType.COFFEE_RAW)
 
 
 class Fish(Item):
     def __init__(self, x, y):
         super(Fish, self).__init__(x, y)
         self._type = ItemType.FISH
-        self._sprite = Sprite(x, y, SpriteType.FISH)
+        self._sprite = Sprite(x, y, SpriteType.FISH_RAW)
 
 
 class Crop(Item):
     def __init__(self, x, y):
         super(Crop, self).__init__(x, y)
         self._type = ItemType.CROP
-        self._sprite = Sprite(x, y, SpriteType.CROP)
+        self._sprite = Sprite(x, y, SpriteType.COFFEE_RAW)
 
 
 class Eggs(Item):
     def __init__(self, x, y):
         super(Eggs, self).__init__(x, y)
         self._type = ItemType.EGGS
-        self._sprite = Sprite(x, y, SpriteType.EGGS)
+        self._sprite = Sprite(x, y, SpriteType.EGGS_RAW)
 
 
 ###################################################################
