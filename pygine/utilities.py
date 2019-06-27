@@ -11,6 +11,7 @@ class Color:
     GREEN = (0, 255, 0)
     BLUE = (0, 0, 255)
     SKY_BLUE = (41, 173, 255)
+    GRASS_GREEN = (0, 168, 68)
 
 
 class Timer:

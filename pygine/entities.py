@@ -90,6 +90,11 @@ class Kinetic(Entity):
             )
 
 
+class Actor(Entity):
+    def __init__(self, x, y):
+        pass
+
+
 class Player(Kinetic):
     def __init__(self, x, y):
         super(Player, self).__init__(x, y, 10, 10, 50)
@@ -387,12 +392,12 @@ class Boat(Player):
     def _collision(self, entities):
         super(Boat, self)._collision(entities)
         self.__bounds_collision()
-    
+
     def __check_death(self):
         if self.beans <= 0:
             # TODO: death logic here, maybe display transition and change scene?
             pass
-    
+
     def update(self, delta_time, entities):
         super(Boat, self).update(delta_time, entities)
         self.__check_death()
@@ -400,6 +405,7 @@ class Boat(Player):
     def draw(self, surface):
         # Temporary code
         draw_rectangle(surface, self.bounds, CameraType.DYNAMIC, Color.BLUE)
+
 
 class Octopus(Kinetic):
     def __init__(self, x, y, speed=25):
@@ -428,7 +434,7 @@ class Octopus(Kinetic):
             if b.dead:
                 self.bullets.remove(b)
         draw_rectangle(surface, self.bounds, CameraType.DYNAMIC)
-            
+
 
 class Bullet(Kinetic):
     def __init__(self, x, y, speed=50):
@@ -438,7 +444,7 @@ class Bullet(Kinetic):
     def _collision(self, entities):
         for e in entities:
             if isinstance(e, Boat) and self.bounds.colliderect(e.bounds):
-                e.beans -= 5 # Maybe make this random in the future?
+                e.beans -= 5  # Maybe make this random in the future?
                 self.dead = True
 
     def update(self, delta_time, entities):
@@ -447,6 +453,19 @@ class Bullet(Kinetic):
         self._collision(entities)
         if self.x + self.width < Camera.BOUNDS.x:
             self.dead = True
-    
+
     def draw(self, surface):
         draw_rectangle(surface, self.bounds, CameraType.DYNAMIC, Color.RED)
+
+
+###################################################################
+#
+#   Crop minigame stuff starts here!
+#
+###################################################################
+
+class Mole(Entity):
+    pass
+
+class Mallet(Entity):
+    pass

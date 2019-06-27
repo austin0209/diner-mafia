@@ -54,10 +54,9 @@ class SceneManager:
         assert (len(self.__all_scenes) > 0), \
             "It looks like you never initialized all the scenes! Make sure to setup and call __initialize_scenes()"
 
-        self.__current_scene = self.__all_scenes[int(starting_scene_type)]
+        self.__current_scene = self.__all_scenes[0]
         self.__current_scene.relay_player(
-            # Temporarily set this to a boat
-            Boat(
+            Player(
                 Camera.BOUNDS.width / 2 - 3,
                 Camera.BOUNDS.height / 2 - 8
             )
@@ -189,11 +188,11 @@ class Village(Scene):
         self._create_triggers()
 
     def _reset(self):
-        self.shapes = []
+        self.shapes = [Rectangle(0, 0, 320, 180, Color.GRASS_GREEN)]
         self.sprites = []
-        for y in range(int(Camera.BOUNDS.height * 2 / 32)):
-            for x in range(int(Camera.BOUNDS.width * 2 / 32)):
-                self.sprites.append(Sprite(x * 32, y * 32, SpriteType.GRASS))
+        #for y in range(int(Camera.BOUNDS.height * 2 / 32)):
+        #    for x in range(int(Camera.BOUNDS.width * 2 / 32)):
+        #        self.sprites.append(Sprite(x * 32, y * 32, SpriteType.GRASS))
         self.entities = [
             SpecialHouse(16 + 48 * 1 + 16, 16),
 
@@ -352,7 +351,7 @@ class CoffeeMinigame(Scene):
     def __spawn_random(self):
         grid_unit_size = self.player.playbounds.height / 5
         rand_x = randint(0, 4) * grid_unit_size + Camera.BOUNDS.width - grid_unit_size * 5 + 5
-        rand_y = randint(0, 4) * grid_unit_size + self.player.playbounds.y + 5
+        rand_y = randint(0, 4) * grid_unit_size + self.player.playbounds.y + 5 
         self.entities.append(Octopus(rand_x, rand_y))
 
     def update(self, delta_time):
