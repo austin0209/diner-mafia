@@ -10,35 +10,58 @@ class SpriteType(IntEnum):
     PLAYER_R = 2
     PLAYER_B = 3
     PLAYER_L = 4
-    PLAYER_SHADOW = 5
-    SIMPLE_HOUSE = 6
-    SIMPLE_HOUSE_SHADOW = 7
-    SPECIAL_HOUSE = 8
-    SPECIAL_HOUSE_SHADOW = 9
-    SHOP = 10
-    SHOP_SHADOW = 11
-    DINER = 12
-    DINER_SHADOW = 13
-    GRASS = 14
-    TREE_THING = 15
-    TREE_THING_SHADOW = 16
-    SPEECH_BUBBLE = 17
-    NPC_M_F = 18
-    NPC_M_R = 19
-    NPC_M_B = 20
-    NPC_M_L = 21
-    NPC_F_F = 22
-    NPC_F_R = 23
-    NPC_F_B = 24
-    NPC_F_L = 25
-    COFFEE_RAW = 26
-    COFFEE_PRO = 27
-    FISH_RAW = 28
-    FISH_PRO = 29
-    CROP_RAW = 30
-    CROP_PRO = 31
-    EGGS_RAW = 32
-    EGGS_PRO = 33
+    PLAYER_ARM_SIDE_F = 5
+    PLAYER_ARM_SIDE_R = 6
+    PLAYER_ARM_SIDE_B = 7
+    PLAYER_ARM_SIDE_L = 8
+    PLAYER_ARM_ABOVE_F = 9
+    PLAYER_ARM_ABOVE_R = 10
+    PLAYER_ARM_ABOVE_B = 11
+    PLAYER_ARM_ABOVE_L = 12
+    PLAYER_SHADOW = 13
+    SIMPLE_HOUSE = 14
+    SIMPLE_HOUSE_SHADOW = 15
+    SPECIAL_HOUSE = 16
+    SPECIAL_HOUSE_SHADOW = 17
+    SHOP = 18
+    SHOP_SHADOW = 19
+    DINER = 20
+    DINER_SHADOW = 21
+    GRASS = 22
+    TREE_THING = 23
+    TREE_THING_SHADOW = 24
+    SPEECH_BUBBLE = 25
+    NPC_M_F = 26
+    NPC_M_R = 27
+    NPC_M_B = 28
+    NPC_M_L = 29
+    NPC_F_F = 30
+    NPC_F_R = 31
+    NPC_F_B = 32
+    NPC_F_L = 33
+    COFFEE_RAW = 34
+    COFFEE_PRO = 35
+    FISH_RAW = 36
+    FISH_PRO = 37
+    CROP_RAW = 38
+    CROP_PRO = 39
+    EGGS_RAW = 40
+    EGGS_PRO = 41
+    SIMPLE_HOUSE_INSIDE = 42
+    SPECIAL_HOUSE_INSIDE = 43
+    SHOP_INSIDE = 44
+    DINER_INSIDE = 45
+    FLOWER_POT = 46
+    SOFA = 47
+    BED = 56
+    SHELF_EMPTY = 48
+    SHELF_FULL = 49
+    SHOP_COUNTER = 50
+    STOOL_TALL = 51
+    STOOL_SHORT = 52
+    TABLE = 53
+    PLATE = 54
+    DINER_COUNTER = 55
 
 
 SPRITE_SHEET = pygame.image.load(
@@ -67,37 +90,53 @@ class Sprite(PygineObject):
             pass
 
         elif (self.type == SpriteType.PLAYER_F):
-            self._sprite_setup(0, 288, 16, 32)
+            self._sprite_setup(0, 624, 16, 32)
         elif (self.type == SpriteType.PLAYER_L):
-            self._sprite_setup(0, 320, 16, 32)
+            self._sprite_setup(0, 720, 16, 32)
         elif (self.type == SpriteType.PLAYER_B):
-            self._sprite_setup(0, 352, 16, 32)
+            self._sprite_setup(0, 688, 16, 32)
         elif (self.type == SpriteType.PLAYER_R):
-            self._sprite_setup(0, 384, 16, 32)
+            self._sprite_setup(0, 656, 16, 32)
+        elif (self.type == SpriteType.PLAYER_ARM_SIDE_F):
+            self._sprite_setup(96, 624, 16, 32)
+        elif (self.type == SpriteType.PLAYER_ARM_SIDE_L):
+            self._sprite_setup(96, 720, 16, 32)
+        elif (self.type == SpriteType.PLAYER_ARM_SIDE_B):
+            self._sprite_setup(96, 688, 16, 32)
+        elif (self.type == SpriteType.PLAYER_ARM_SIDE_R):
+            self._sprite_setup(96, 656, 16, 32)
+        elif (self.type == SpriteType.PLAYER_ARM_ABOVE_F):
+            self._sprite_setup(192, 624, 16, 32)
+        elif (self.type == SpriteType.PLAYER_ARM_ABOVE_L):
+            self._sprite_setup(192, 720, 16, 32)
+        elif (self.type == SpriteType.PLAYER_ARM_ABOVE_B):
+            self._sprite_setup(192, 688, 16, 32)
+        elif (self.type == SpriteType.PLAYER_ARM_ABOVE_R):
+            self._sprite_setup(192, 656, 16, 32)
 
         elif (self.type == SpriteType.PLAYER_SHADOW):
-            self._sprite_setup(0, 240, 16, 32)
+            self._sprite_setup(96, 752, 16, 32)
 
         elif (self.type == SpriteType.NPC_M_F):
-            self._sprite_setup(112, 288, 16, 32)
+            self._sprite_setup(0, 752, 16, 32)
         elif (self.type == SpriteType.NPC_M_L):
-            self._sprite_setup(112, 320, 16, 32)
+            self._sprite_setup(0, 784, 16, 32)
         elif (self.type == SpriteType.NPC_M_B):
-            self._sprite_setup(112, 352, 16, 32)
+            self._sprite_setup(0, 816, 16, 32)
         elif (self.type == SpriteType.NPC_M_R):
-            self._sprite_setup(112, 384, 16, 32)
+            self._sprite_setup(0, 848, 16, 32)
 
         elif (self.type == SpriteType.NPC_F_F):
-            self._sprite_setup(224, 288, 16, 32)
+            self._sprite_setup(0, 880, 16, 32)
         elif (self.type == SpriteType.NPC_F_L):
-            self._sprite_setup(224, 320, 16, 32)
+            self._sprite_setup(0, 912, 16, 32)
         elif (self.type == SpriteType.NPC_F_B):
-            self._sprite_setup(224, 352, 16, 32)
+            self._sprite_setup(0, 944, 16, 32)
         elif (self.type == SpriteType.NPC_F_R):
-            self._sprite_setup(224, 384, 16, 32)
+            self._sprite_setup(0, 976, 16, 32)
 
         elif (self.type == SpriteType.SPEECH_BUBBLE):
-            self._sprite_setup(16, 240, 32, 32)
+            self._sprite_setup(112, 752, 32, 32)
 
         elif (self.type == SpriteType.SIMPLE_HOUSE):
             self._sprite_setup(0, 64, 48, 64)
@@ -124,21 +163,53 @@ class Sprite(PygineObject):
             self._sprite_setup(336, 128, 32, 32)
 
         elif (self.type == SpriteType.COFFEE_RAW):
-            self._sprite_setup(0, 448, 16, 16)
+            self._sprite_setup(0, 576, 16, 16)
         elif (self.type == SpriteType.COFFEE_PRO):
-            self._sprite_setup(0, 432, 16, 16)
+            self._sprite_setup(0, 592, 16, 16)
         elif (self.type == SpriteType.FISH_RAW):
-            self._sprite_setup(16, 448, 16, 16)
+            self._sprite_setup(16, 576, 16, 16)
         elif (self.type == SpriteType.FISH_PRO):
-            self._sprite_setup(16, 432, 16, 16)
+            self._sprite_setup(16, 592, 16, 16)
         elif (self.type == SpriteType.CROP_RAW):
-            self._sprite_setup(32, 448, 16, 16)
+            self._sprite_setup(32, 576, 16, 16)
         elif (self.type == SpriteType.CROP_PRO):
-            self._sprite_setup(32, 432, 16, 16)
+            self._sprite_setup(32, 592, 16, 16)
         elif (self.type == SpriteType.EGGS_RAW):
-            self._sprite_setup(48, 448, 16, 16)
+            self._sprite_setup(48, 576, 16, 16)
         elif (self.type == SpriteType.EGGS_PRO):
-            self._sprite_setup(48, 432, 16, 16)
+            self._sprite_setup(48, 592, 16, 16)
+
+        elif (self.type == SpriteType.SIMPLE_HOUSE_INSIDE):
+            self._sprite_setup(0, 224, 160, 160)
+        elif (self.type == SpriteType.SPECIAL_HOUSE_INSIDE):
+            self._sprite_setup(160, 224, 288, 160)
+        elif (self.type == SpriteType.SHOP_INSIDE):
+            self._sprite_setup(448, 224, 288, 160)
+        elif (self.type == SpriteType.DINER_INSIDE):
+            self._sprite_setup(736, 592, 288, 160)
+
+        elif (self.type == SpriteType.FLOWER_POT):
+            self._sprite_setup(0, 416, 16, 32)
+        elif (self.type == SpriteType.SOFA):
+            self._sprite_setup(16, 432, 64, 32)
+        elif (self.type == SpriteType.BED):
+            self._sprite_setup(80, 400, 32, 64)
+        elif (self.type == SpriteType.SHELF_EMPTY):
+            self._sprite_setup(112, 400, 32, 64)
+        elif (self.type == SpriteType.SHELF_FULL):
+            self._sprite_setup(144, 400, 32, 64)
+        elif (self.type == SpriteType.SHOP_COUNTER):
+            self._sprite_setup(176, 416, 112, 48)
+        elif (self.type == SpriteType.STOOL_TALL):
+            self._sprite_setup(288, 432, 16, 32)
+        elif (self.type == SpriteType.STOOL_SHORT):
+            self._sprite_setup(304, 432, 16, 32)
+        elif (self.type == SpriteType.TABLE):
+            self._sprite_setup(320, 432, 32, 32)
+        elif (self.type == SpriteType.SHELF_EMPTY):
+            self._sprite_setup(352, 432, 32, 16)
+        elif (self.type == SpriteType.DINER_COUNTER):
+            self._sprite_setup(0, 480, 256, 80)
 
         self.image = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
         self.image.blit(SPRITE_SHEET, (0, 0),
