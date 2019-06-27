@@ -186,10 +186,10 @@ class Sprite(PygineObject):
         elif (self.type == SpriteType.SHOP_INSIDE):
             self._sprite_setup(448, 224, 288, 160)
         elif (self.type == SpriteType.DINER_INSIDE):
-            self._sprite_setup(736, 592, 288, 160)
+            self._sprite_setup(736, 224, 288, 160)
 
         elif (self.type == SpriteType.FLOWER_POT):
-            self._sprite_setup(0, 416, 16, 32)
+            self._sprite_setup(0, 416, 16, 48)
         elif (self.type == SpriteType.SOFA):
             self._sprite_setup(16, 432, 64, 32)
         elif (self.type == SpriteType.BED):
