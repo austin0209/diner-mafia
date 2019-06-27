@@ -91,7 +91,7 @@ class Input:
                 self.timer.start()
                 return True
         if type == InputType.TOGGLE_FULLSCREEN:
-            if self.key_state[pygame.K_F10] and self.no_spam:
+            if self.key_state[pygame.K_F11] and self.no_spam:
                 self.no_spam = False
                 self.timer.start()
                 return True
