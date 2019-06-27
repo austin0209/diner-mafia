@@ -540,7 +540,7 @@ class CoffeeMinigame(Scene):
             self.__spawn_timer.reset()
             self.__spawn_timer.start()
         super(CoffeeMinigame, self).update(delta_time)
-
+    
     def draw(self, surface):
         draw_rectangle(surface, self.player.playbounds,
                        CameraType.DYNAMIC, Color.SKY_BLUE)

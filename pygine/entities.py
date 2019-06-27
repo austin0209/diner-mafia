@@ -634,6 +634,13 @@ class Bullet(Kinetic):
             self.sprite.draw(surface, CameraType.DYNAMIC)
 
 
+class Rock(Kinetic):
+    def __init__(self, x, y, speed=75):
+        super(Rock, self).__init__(x, y, 32, 14, speed)
+        self.sprite = Sprite(x, y - 16, SpriteType.ROCK)
+        
+
+
 ###################################################################
 #
 #   Crop minigame stuff starts here!
