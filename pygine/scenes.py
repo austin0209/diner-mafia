@@ -1,5 +1,5 @@
 from enum import IntEnum
-from random import randint
+from random import randint, random
 from pygame import Rect
 from pygine.entities import *
 from pygine.maths import Vector2
@@ -70,11 +70,11 @@ class SceneManager:
         assert (len(self.__all_scenes) > 0), \
             "It looks like you never initialized all the scenes! Make sure to setup and call __initialize_scenes()"
 
-        self.__current_scene = self.__all_scenes[0]
+        self.__current_scene = self.__all_scenes[int(starting_scene_type)]
         self.__current_scene.relay_player(
-            Player(
-                Camera.BOUNDS.width / 2 - 3,
-                Camera.BOUNDS.height / 2 - 8
+            Boat(
+                0,
+                16 * 6
             )
         )
 
@@ -213,7 +213,7 @@ class Village(Scene):
             SimpleHouse(7 * 16, 1 * 16),
             SpecialHouse(14 * 16, 0 * 16),
             Shop(1 * 16, 0 * 16),
-            Diner(11 * 16,6 * 16),
+            Diner(11 * 16, 6 * 16),
         ]
 
     def _create_triggers(self):
@@ -404,9 +404,9 @@ class RoomSpecial(Scene):
         self.entities = [
             Shelf(3 * 16, 5 * 16),
             FlowerPot(5 * 16, 5 * 16),
-            Sofa(8*16,6*16),
-            Bed(13*16,5*16),
-            Bed(15*16,5*16),
+            Sofa(8*16, 6*16),
+            Bed(13*16, 5*16),
+            Bed(15*16, 5*16),
 
             Wall(2, 4, 16, 1),
             Wall(1, 5, 1, 4),
@@ -480,15 +480,15 @@ class DinerScene(Scene):
         ]
         self.entities = [
             CounterDiner(2 * 16, 5 * 16),
-            StoolTall(2 * 16,6 * 16),
-            StoolTall(3 * 16,6 * 16),
-            StoolTall(4 * 16,6 * 16),
-            StoolTall(5 * 16,6 * 16),
-            StoolShort(12*16,8*16),
-            StoolShort(14*16,7*16),
-            Table(13*16,8*16),
-            Table(15*16,8*16),
-            Table(15*16,7*16),
+            StoolTall(2 * 16, 6 * 16),
+            StoolTall(3 * 16, 6 * 16),
+            StoolTall(4 * 16, 6 * 16),
+            StoolTall(5 * 16, 6 * 16),
+            StoolShort(12*16, 8*16),
+            StoolShort(14*16, 7*16),
+            Table(13*16, 8*16),
+            Table(15*16, 8*16),
+            Table(15*16, 7*16),
             Wall(2, 3, 16, 1),
             Wall(1, 4, 1, 5),
             Wall(2, 9, 3, 1),
@@ -507,6 +507,7 @@ class DinerScene(Scene):
             )
         )
 
+
 class CoffeeMinigame(Scene):
     def __init__(self):
         super(CoffeeMinigame, self).__init__()
@@ -515,7 +516,10 @@ class CoffeeMinigame(Scene):
         self.__spawn_timer = Timer(3000, True)
 
     def _reset(self):
-        self.shapes = []
+        self.shapes = [
+            Rectangle(0, 0, 320, 16 * 4, Color.BLUE),
+            Rectangle(0, 16 * 4, 320, 16 * 6 + 20, Color.SKY_BLUE)
+        ]
         self.sprites = []
         self.entities = []
 
@@ -524,15 +528,15 @@ class CoffeeMinigame(Scene):
 
     def __spawn_random(self):
         grid_unit_size = self.player.playbounds.height / 5
-        rand_x = randint(0, 4) * grid_unit_size + \
-            Camera.BOUNDS.width - grid_unit_size * 5 + 5
+        rand_x = randint(0, 4) * grid_unit_size + Camera.BOUNDS.width
         rand_y = randint(0, 4) * grid_unit_size + self.player.playbounds.y + 5
         self.entities.append(Octopus(rand_x, rand_y))
 
     def update(self, delta_time):
         self.__spawn_timer.update()
         if self.__spawn_timer.done:
-            self.__spawn_random()
+            if (random() < 0.5):
+                self.__spawn_random()
             self.__spawn_timer.reset()
             self.__spawn_timer.start()
         super(CoffeeMinigame, self).update(delta_time)

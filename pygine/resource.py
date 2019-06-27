@@ -53,15 +53,21 @@ class SpriteType(IntEnum):
     DINER_INSIDE = 45
     FLOWER_POT = 46
     SOFA = 47
-    BED = 56
-    SHELF_EMPTY = 48
-    SHELF_FULL = 49
-    SHOP_COUNTER = 50
-    STOOL_TALL = 51
-    STOOL_SHORT = 52
-    TABLE = 53
-    PLATE = 54
-    DINER_COUNTER = 55
+    BED = 48
+    SHELF_EMPTY = 49
+    SHELF_FULL = 50
+    SHOP_COUNTER = 51
+    STOOL_TALL = 52
+    STOOL_SHORT = 53
+    TABLE = 54
+    PLATE = 55
+    DINER_COUNTER = 56
+
+    OCTOPUS = 57
+    INK_BULLET = 58
+    BOAT = 59
+    WAVE = 60
+    ROCK = 61
 
 
 SPRITE_SHEET = pygame.image.load(
@@ -210,6 +216,17 @@ class Sprite(PygineObject):
             self._sprite_setup(352, 432, 32, 16)
         elif (self.type == SpriteType.DINER_COUNTER):
             self._sprite_setup(0, 480, 256, 80)
+
+        elif (self.type == SpriteType.OCTOPUS):
+            self._sprite_setup(176, 784, 16 * 3, 16 * 3)
+        elif (self.type == SpriteType.INK_BULLET):
+            self._sprite_setup(160, 784, 16, 16)
+        elif (self.type == SpriteType.BOAT):
+            self._sprite_setup(176, 896, 16 * 7, 16 * 4)
+        elif (self.type == SpriteType.WAVE):
+            self._sprite_setup(224, 846, 16, 16)
+        elif (self.type == SpriteType.ROCK):
+            self._sprite_setup(176, 846, 16 * 2, 16 * 2)
 
         self.image = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
         self.image.blit(SPRITE_SHEET, (0, 0),
