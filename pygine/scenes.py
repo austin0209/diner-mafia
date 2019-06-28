@@ -546,13 +546,29 @@ class DinerScene(Scene):
         )
 
 
-class CoffeeMinigame(Scene):
+class Minigame(Scene):
+    def __init__(self):
+        super(Minigame, self).__init__()
+
+    def start_game(self):
+        raise NotImplementedError(
+            "A class that inherits Minigame did not implement the start_game() method")
+
+    def _exit_game(self, end_x, end_y, item, new_scene):
+        self.manager.queue_next_scene(new_scene)  # TODO: should take you to dock scene later
+        new_player = Player(end_x, end_y)
+        new_player.item_carrying = item
+        self.manager.get_scene(new_scene).relay_player(new_player)
+
+
+class CoffeeMinigame(Minigame):
     def __init__(self):
         super(CoffeeMinigame, self).__init__()
         self._reset()
         self._create_triggers()
-        self.__game_timer = Timer(30_000, True)
-        self.__spawn_timer = Timer(1500, True)
+
+    def start_game(self):
+        self.__game_timer.start()
 
     def _reset(self):
         self.shapes = [
@@ -567,6 +583,8 @@ class CoffeeMinigame(Scene):
                 16 * 9
             )
         )
+        self.__game_timer = Timer(10_000)
+        self.__spawn_timer = Timer(1500, True)
 
     def _create_triggers(self):
         pass
@@ -589,11 +607,8 @@ class CoffeeMinigame(Scene):
         self.__game_timer.update()
         if self.__game_timer.done:
             # Game is over, change scene
-            print("DONE")
-            self.manager.queue_next_scene(SceneType.VILLAGE)  # TODO: should take you to dock scene later
-            new_player = Player(16 * 4, 16 * 9)
-            new_player.item_carrying = Coffee(0, 0)
-            self.manager.get_scene(SceneType.VILLAGE).relay_player(new_player)
+            self._exit_game(16 * 4, 16 * 9, Coffee(0, 0), SceneType.VILLAGE)  # TODO: should be dock later
+            self._reset()
             self.__game_timer.reset()
         else:
             self.__spawn_timer.update()

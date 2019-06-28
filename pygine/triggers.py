@@ -76,6 +76,7 @@ class MinigameTrigger(Trigger):
         for e in entities:
             if self._valid_entity(e) and e.bounds.colliderect(self.bounds):
                 self._move_entity_to_next_scene(e, manager)
+                manager.get_scene(self.next_scene).start_game()
 
     def update(self, delta_time, entities, manager):
         self.__collision(entities, manager)
