@@ -349,9 +349,9 @@ class Diner(Building):
 class Tree(Entity):
     def __init__(self, x, y):
         super(Tree, self).__init__(x, y, 10, 10)
-        self.sprite = Sprite(self.x - 11, self.y - 21, SpriteType.TREE_THING)
-        self.shadow = Sprite(self.x - 11 - 8, self.y - 21,
-                             SpriteType.TREE_THING_SHADOW)
+        self.sprite = Sprite(self.x - 11 - 16, self.y - 21, SpriteType.TREE_CLUSTER)
+        #self.shadow = Sprite(self.x - 11 - 8, self.y - 21,
+        #                     SpriteType.TREE_THING_SHADOW)
 
     def update(self, delta_time, entities):
         pass
@@ -360,7 +360,7 @@ class Tree(Entity):
         if pygine.globals.debug:
             self._draw_bounds(surface, CameraType.DYNAMIC)
         else:
-            self.shadow.draw(surface, CameraType.DYNAMIC)
+            #self.shadow.draw(surface, CameraType.DYNAMIC)
             self.sprite.draw(surface, CameraType.DYNAMIC)
 
 

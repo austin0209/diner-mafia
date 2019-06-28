@@ -145,7 +145,8 @@ class Scene(object):
         self.leave_transition_type = TransitionType.PINHOLE_CLOSE
         self.enter_transition_type = TransitionType.PINHOLE_OPEN
 
-        self.manager = None  # this is to be set in SceneManager (add scene method)
+        # this is to be set in SceneManager (add scene method)
+        self.manager = None
         self.player = None
 
     def _reset(self):
@@ -210,34 +211,18 @@ class Village(Scene):
             row = file.readline().split(",")
             for x in range(40):
                 column = row[x]
-                if column.strip() != "-1" and randint(1, 10) <= 6:
+                if column.strip() != "-1" and randint(1, 10) <= 8:
                     self.entities.append(Tree(x * 16, y * 16))
 
     def _reset(self):
         self.bounds = Rect(0, 0, 40 * 16, 19 * 16)
 
         self.shapes = [Rectangle(0, 0, 320 * 2, 180 * 2, Color.GRASS_GREEN)]
-        self.sprites = []
-
-        for y in range(2):
-            for x in range(37):
-                self.sprites.append(
-                    Sprite(x * 16, (6 + y) * 16, SpriteType.TILE))
-
-        for y in range(2):
-            for x in range(38):
-                self.sprites.append(
-                    Sprite((2 + x) * 16, (15 + y) * 16, SpriteType.TILE))
-
-        for y in range(17):
-            for x in range(2):
-                self.sprites.append(
-                    Sprite((18 + x) * 16, (0 + y) * 16, SpriteType.TILE))
-
-        for s in self.sprites:
-            if s.type == SpriteType.TILE:
-                if randint(1, 10) <= 2:
-                    s.increment_sprite_x(16)
+        self.sprites = [
+            Sprite(-1 * 16, 6 * 16, SpriteType.SIDEWALK_LONG),
+            Sprite(2 * 16, 15 * 16, SpriteType.SIDEWALK_LONG),
+            Sprite(18 * 16, 0 * 16, SpriteType.SIDEWALK_TALL),
+        ]
 
         self.entities = [
             SimpleHouse(1 * 16, 1 * 16),
@@ -555,7 +540,8 @@ class Minigame(Scene):
             "A class that inherits Minigame did not implement the start_game() method")
 
     def _exit_game(self, end_x, end_y, item, new_scene):
-        self.manager.queue_next_scene(new_scene)  # TODO: should take you to dock scene later
+        # TODO: should take you to dock scene later
+        self.manager.queue_next_scene(new_scene)
         new_player = Player(end_x, end_y)
         new_player.item_carrying = item
         self.manager.get_scene(new_scene).relay_player(new_player)
@@ -607,7 +593,8 @@ class CoffeeMinigame(Minigame):
         self.__game_timer.update()
         if self.__game_timer.done:
             # Game is over, change scene
-            self._exit_game(16 * 4, 16 * 9, Coffee(0, 0), SceneType.VILLAGE)  # TODO: should be dock later
+            # TODO: should be dock later
+            self._exit_game(16 * 4, 16 * 9, Coffee(0, 0), SceneType.VILLAGE)
             self._reset()
             self.__game_timer.reset()
         else:

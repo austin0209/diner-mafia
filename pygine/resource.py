@@ -70,7 +70,9 @@ class SpriteType(IntEnum):
     WAVE = 60
     ROCK = 61
 
-    TILE = 62
+    SIDEWALK_LONG = 62
+    SIDEWALK_TALL = 63
+    TREE_CLUSTER = 64
 
 
 SPRITE_SHEET = pygame.image.load(
@@ -247,8 +249,12 @@ class Sprite(PygineObject):
         elif (self.type == SpriteType.ROCK):
             self._sprite_setup(176, 784, 16 * 3, 16 * 2)
 
-        elif (self.type == SpriteType.TILE):
-            self._sprite_setup(32, 0, 16, 16)
+        elif (self.type == SpriteType.SIDEWALK_LONG):
+            self._sprite_setup(32, 0, 608, 32)
+        elif (self.type == SpriteType.SIDEWALK_TALL):
+            self._sprite_setup(976, 592, 32, 272)            
+        elif (self.type == SpriteType.TREE_CLUSTER):
+            self._sprite_setup(368, 80, 64, 48)               
 
         self.__apply_changes_to_sprite()
 
