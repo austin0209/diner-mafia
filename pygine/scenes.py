@@ -569,7 +569,7 @@ class CoffeeMinigame(Minigame):
                 16 * 9
             )
         )
-        self.__game_timer = Timer(10_000)
+        self.__game_timer = Timer(10000)
         self.__spawn_timer = Timer(1500, True)
 
     def _create_triggers(self):
