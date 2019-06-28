@@ -76,8 +76,8 @@ class SpriteType(IntEnum):
 
 
 SPRITE_SHEET = pygame.image.load(
-    # '/home/cpi/games/Python/village-game/pygine/assets/sprites/sprites.png'
-    'pygine/assets/sprites/sprites.png'
+    '/home/cpi/games/Python/village-game/pygine/assets/sprites/sprites.png'
+    #'pygine/assets/sprites/sprites.png'
 )
 
 
