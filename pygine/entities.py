@@ -312,7 +312,7 @@ class Building(Entity):
 
 class SimpleHouse(Building):
     def __init__(self, x, y):
-        super(SimpleHouse, self).__init__(x + 4, y + 24 + 10, 40, 40)
+        super(SimpleHouse, self).__init__(x + 4, y + 24, 40, 40)
         self.sprite = Sprite(self.x - 4, self.y - 24, SpriteType.SIMPLE_HOUSE)
         self.shadow = Sprite(self.x - 4 - 16, self.y - 24,
                              SpriteType.SIMPLE_HOUSE_SHADOW)
@@ -321,7 +321,7 @@ class SimpleHouse(Building):
 
 class SpecialHouse(Building):
     def __init__(self, x, y):
-        super(SpecialHouse, self).__init__(x + 4, y + 24 + 10, 72, 40)
+        super(SpecialHouse, self).__init__(x + 4, y + 24, 72, 40)
         self.sprite = Sprite(self.x - 4, self.y - 24, SpriteType.SPECIAL_HOUSE)
         self.shadow = Sprite(self.x - 4 - 16, self.y - 24,
                              SpriteType.SPECIAL_HOUSE_SHADOW)
@@ -330,7 +330,7 @@ class SpecialHouse(Building):
 
 class Shop(Building):
     def __init__(self, x, y):
-        super(Shop, self).__init__(x, y + 64 + 10, 80, 32)
+        super(Shop, self).__init__(x, y + 64, 80, 32)
         self.sprite = Sprite(self.x, self.y - 64, SpriteType.SHOP)
         self.shadow = Sprite(self.x - 16, self.y - 64,
                              SpriteType.SHOP_SHADOW)

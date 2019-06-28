@@ -178,7 +178,7 @@ class Scene(object):
             self.player.x + self.player.width / 2 - self.camera.BOUNDS.width / 2,
             self.player.y + self.player.height / 2 - self.camera.BOUNDS.height / 2
         )
-        self.camera.update(self.camera_location)
+        self.camera.update(self.camera_location, self.bounds)
 
     def update(self, delta_time):
         self.__update_entities(delta_time)
@@ -202,18 +202,56 @@ class Village(Scene):
         super(Village, self).__init__()
         self._reset()
         self._create_triggers()
+        self.__load_trees()
+
+    def __load_trees(self):
+        file = open('pygine/assets/scenes/trees.csv', "r")
+        for y in range(20):
+            row = file.readline().split(",")
+            for x in range(40):
+                column = row[x]
+                if column.strip() != "-1" and randint(1, 10) <= 6:
+                    self.entities.append(Tree(x * 16, y * 16))
 
     def _reset(self):
-        self.shapes = [Rectangle(0, 0, 320, 180, Color.GRASS_GREEN)]
+        self.bounds = Rect(0, 0, 40 * 16, 19 * 16)
+
+        self.shapes = [Rectangle(0, 0, 320 * 2, 180 * 2, Color.GRASS_GREEN)]
         self.sprites = []
-        # for y in range(int(Camera.BOUNDS.height * 2 / 32)):
-        #    for x in range(int(Camera.BOUNDS.width * 2 / 32)):
-        #        self.sprites.append(Sprite(x * 32, y * 32, SpriteType.GRASS))
+
+        for y in range(2):
+            for x in range(37):
+                self.sprites.append(
+                    Sprite(x * 16, (6 + y) * 16, SpriteType.TILE))
+
+        for y in range(2):
+            for x in range(38):
+                self.sprites.append(
+                    Sprite((2 + x) * 16, (15 + y) * 16, SpriteType.TILE))
+
+        for y in range(17):
+            for x in range(2):
+                self.sprites.append(
+                    Sprite((18 + x) * 16, (0 + y) * 16, SpriteType.TILE))
+
+        for s in self.sprites:
+            if s.type == SpriteType.TILE:
+                if randint(1, 10) <= 2:
+                    s.increment_sprite_x(16)
+
         self.entities = [
-            SimpleHouse(7 * 16, 1 * 16),
-            SpecialHouse(14 * 16, 0 * 16),
-            Shop(1 * 16, 0 * 16),
-            Diner(11 * 16, 6 * 16),
+            SimpleHouse(1 * 16, 1 * 16),
+            SimpleHouse(9 * 16, 10 * 16),
+            SimpleHouse(14 * 16, 10 * 16),
+            SpecialHouse(5 * 16, 1 * 16),
+            SpecialHouse(12 * 16, 1 * 16),
+            SpecialHouse(2 * 16, 10 * 16),
+            Shop(20 * 16, 0 * 16),
+            Shop(25 * 16, 0 * 16),
+            Shop(30 * 16, 0 * 16),
+            Shop(35 * 16, 0 * 16),
+            Diner(21 * 16, 10 * 16),
+
         ]
 
     def _create_triggers(self):

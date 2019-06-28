@@ -70,6 +70,8 @@ class SpriteType(IntEnum):
     WAVE = 60
     ROCK = 61
 
+    TILE = 62
+
 
 SPRITE_SHEET = pygame.image.load(
     # '/home/cpi/games/Python/village-game/pygine/assets/sprites/sprites.png'
@@ -244,6 +246,9 @@ class Sprite(PygineObject):
             self._sprite_setup(176, 880, 16, 16)
         elif (self.type == SpriteType.ROCK):
             self._sprite_setup(144, 864, 16 * 2, 16 * 2)
+
+        elif (self.type == SpriteType.TILE):
+            self._sprite_setup(32, 0, 16, 16)
 
         self.__apply_changes_to_sprite()
 
