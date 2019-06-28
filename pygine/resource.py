@@ -2,6 +2,7 @@ import pygame
 from enum import IntEnum
 from pygine.base import PygineObject
 from pygine.draw import draw_image
+from pygine.utilities import Timer
 
 
 class SpriteType(IntEnum):
@@ -85,7 +86,23 @@ class Sprite(PygineObject):
         self.type = sprite_type
         self._load_sprite()
 
+    def set_frame(self, frame, columns):
+        self.__sprite_x = self.__original_sprite_x + frame % columns * self.width
+        self.__sprite_y = self.__original_sprite_y + \
+            int(frame / columns) * self.height
+        self.__apply_changes_to_sprite()
+
+    def increment_sprite_x(self, increment):
+        self.__sprite_x += increment
+        self.__apply_changes_to_sprite()
+
+    def increment_sprite_y(self, increment):
+        self.__sprite_y += increment
+        self.__apply_changes_to_sprite()
+
     def _sprite_setup(self, sprite_x=0, sprite_y=0, width=0, height=0):
+        self.__original_sprite_x = sprite_x
+        self.__original_sprite_y = sprite_y
         self.__sprite_x = sprite_x
         self.__sprite_y = sprite_y
         self.set_width(width)
@@ -228,9 +245,30 @@ class Sprite(PygineObject):
         elif (self.type == SpriteType.ROCK):
             self._sprite_setup(144, 864, 16 * 2, 16 * 2)
 
+        self.__apply_changes_to_sprite()
+
+    def __apply_changes_to_sprite(self):
         self.image = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
         self.image.blit(SPRITE_SHEET, (0, 0),
                         (self.__sprite_x, self.__sprite_y, self.width, self.height))
 
     def draw(self, surface, camera_type):
         draw_image(surface, self.image, self.bounds, camera_type)
+
+
+class Animation:
+    def __init__(self, total_frames, columns, frame_duration):
+        self.total_frames = total_frames
+        self.columns = columns
+        self.__frame_duration = frame_duration
+        self.current_frame = 0
+        self.__timer = Timer(self.__frame_duration)
+        self.__timer.start()
+
+    def update(self):
+        self.__timer.update()
+        if self.__timer.done:
+            self.current_frame = self.current_frame + \
+                1 if self.current_frame + 1 < self.total_frames else 0
+            self.__timer.reset()
+            self.__timer.start()
