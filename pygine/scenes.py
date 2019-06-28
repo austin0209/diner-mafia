@@ -211,7 +211,7 @@ class Village(Scene):
             row = file.readline().split(",")
             for x in range(40):
                 column = row[x]
-                if column.strip() != "-1" and randint(1, 10) <= 6:
+                if column.strip() != "-1" and randint(1, 10) <= 8:
                     self.entities.append(Tree(x * 16, y * 16))
 
     def _reset(self):
