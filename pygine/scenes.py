@@ -1,5 +1,5 @@
 from enum import IntEnum
-from random import randint, random
+from random import randint, random, seed
 from pygame import Rect
 from pygine.entities import *
 from pygine.maths import Vector2
@@ -165,7 +165,7 @@ class Scene(object):
         # We can potentially add aditional logic for certain entites. For example, if the entity is a NPC then spawn it at (x, y)
 
     def __update_entities(self, delta_time):
-        for i in range(len(self.entities)-1, -1, -1):
+        for i in range(len(self.entities) - 1, -1, -1):
             self.entities[i].update(delta_time, self.entities)
         self.entities.sort(key=lambda e: e.y + e.height)
 
@@ -404,9 +404,9 @@ class RoomSpecial(Scene):
         self.entities = [
             Shelf(3 * 16, 5 * 16),
             FlowerPot(5 * 16, 5 * 16),
-            Sofa(8*16, 6*16),
-            Bed(13*16, 5*16),
-            Bed(15*16, 5*16),
+            Sofa(8 * 16, 6 * 16),
+            Bed(13 * 16, 5 * 16),
+            Bed(15 * 16, 5 * 16),
 
             Wall(2, 4, 16, 1),
             Wall(1, 5, 1, 4),
@@ -484,11 +484,11 @@ class DinerScene(Scene):
             StoolTall(3 * 16, 6 * 16),
             StoolTall(4 * 16, 6 * 16),
             StoolTall(5 * 16, 6 * 16),
-            StoolShort(12*16, 8*16),
-            StoolShort(14*16, 7*16),
-            Table(13*16, 8*16),
-            Table(15*16, 8*16),
-            Table(15*16, 7*16),
+            StoolShort(12 * 16, 8 * 16),
+            StoolShort(14 * 16, 7 * 16),
+            Table(13 * 16, 8 * 16),
+            Table(15 * 16, 8 * 16),
+            Table(15 * 16, 7 * 16),
             Wall(2, 3, 16, 1),
             Wall(1, 4, 1, 5),
             Wall(2, 9, 3, 1),
@@ -513,7 +513,7 @@ class CoffeeMinigame(Scene):
         super(CoffeeMinigame, self).__init__()
         self._reset()
         self._create_triggers()
-        self.__spawn_timer = Timer(3000, True)
+        self.__spawn_timer = Timer(1500, True)
 
     def _reset(self):
         self.shapes = [
@@ -530,17 +530,31 @@ class CoffeeMinigame(Scene):
         grid_unit_size = self.player.playbounds.height / 5
         rand_x = randint(0, 4) * grid_unit_size + Camera.BOUNDS.width
         rand_y = randint(0, 4) * grid_unit_size + self.player.playbounds.y + 5
-        self.entities.append(Octopus(rand_x, rand_y))
+        if random() < 0.40:
+            self.entities.append(Octopus(rand_x, rand_y))
+        else:
+            min_offset = 0
+            max_offset = 30
+            self.entities.append(Rock(rand_x, rand_y))
+            for i in range(randint(0, 4)):
+                self.entities.append(
+                    Rock(rand_x + randint(min_offset, max_offset), rand_y + randint(min_offset, max_offset)))
 
     def update(self, delta_time):
         self.__spawn_timer.update()
         if self.__spawn_timer.done:
-            if (random() < 0.5):
+            if random() < 0.5:
                 self.__spawn_random()
             self.__spawn_timer.reset()
             self.__spawn_timer.start()
+        for e in self.entities:
+            if e.sprite.x + e.sprite.width < 0:
+                self.entities.remove(e)
+            if isinstance(e, Bullet):
+                if e.dead:
+                    self.entities.remove(e)
         super(CoffeeMinigame, self).update(delta_time)
-    
+
     def draw(self, surface):
         draw_rectangle(surface, self.player.playbounds,
                        CameraType.DYNAMIC, Color.SKY_BLUE)

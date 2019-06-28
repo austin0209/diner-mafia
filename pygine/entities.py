@@ -132,7 +132,6 @@ class Player(Actor):
             self.sprite.set_sprite(SpriteType.PLAYER_R)
             self.set_location(self.x + self.move_speed, self.y)
             self.velocity.x = 1
-        #TEST
 
     def _update_input(self):
         self.input.update()
@@ -162,11 +161,11 @@ class Player(Actor):
     def _collision(self, entities):
         for e in entities:
             if (
-                isinstance(e, Building) or
-                isinstance(e, Furniture) or
-                isinstance(e, Wall) or
-                isinstance(e, Tree) or
-                isinstance(e, NPC)
+                    isinstance(e, Building) or
+                    isinstance(e, Furniture) or
+                    isinstance(e, Wall) or
+                    isinstance(e, Tree) or
+                    isinstance(e, NPC)
             ):
                 self._rectangle_collision_logic(e)
 
@@ -246,8 +245,8 @@ class NPC(Kinetic):
     def _collision(self, entities):
         for e in entities:
             if (
-                isinstance(e, Building) or
-                isinstance(e, Tree)
+                    isinstance(e, Building) or
+                    isinstance(e, Tree)
             ):
                 self._rectangle_collision_logic(e)
 
@@ -500,11 +499,10 @@ class Boat(Actor):
 
     def _collision(self, entities):
         for e in entities:
-            if isinstance(e, Octopus):
-                for b in e.bullets:
-                    if self.bounds.colliderect(b.bounds):
-                        b.dead = True
-                        self.beans -= 5
+            if isinstance(e, Bullet):
+                if self.bounds.colliderect(e.bounds):
+                    e.dead = True
+                    self.beans -= 5
         self.__bounds_collision()
 
     def _move(self, direction=Direction.NONE):
@@ -568,20 +566,19 @@ class Octopus(Kinetic):
         super(Octopus, self).__init__(x, y, 10, 10, randint(10, 30))
         self.timer = Timer(randint(1500, 3000), True)
         self.sprite = Sprite(x - 16, y - 16, SpriteType.OCTOPUS)
-        self.bullets = []
 
     def set_location(self, x, y):
         super(Octopus, self).set_location(x, y)
         self.sprite.set_location(self.x - 16, self.y - 16)
 
-    def __shoot(self):
-        self.bullets.append(Bullet(self.x, self.y + self.height / 2))
+    def __shoot(self, entities):
+        entities.append(Bullet(self.x, self.y + self.height / 2))
 
     def __move(self, entities):
         self.set_location(self.x - self.move_speed, self.y)
         for e in entities:
             if isinstance(e, Boat):
-                if self.x < Camera.BOUNDS.width * .6 and self.x > e.x:
+                if e.x < self.x < Camera.BOUNDS.width * .75:
                     if self.y < e.y:
                         self.set_location(self.x, self.y + self.move_speed / 4)
                     elif self.y > e.y:
@@ -593,18 +590,12 @@ class Octopus(Kinetic):
         self.timer.update()
         if self.timer.done:
             if random() < 0.25:
-                self.__shoot()
+                self.__shoot(entities)
             self.timer.reset()
             self.timer.start()
-        for b in self.bullets:
-            b.update(delta_time, entities)
-            if b.dead:
-                self.bullets.remove(b)
 
     def draw(self, surface):
         # Temporary:
-        for b in self.bullets:
-            b.draw(surface)
         if pygine.globals.debug:
             self._draw_bounds(surface, CameraType.DYNAMIC)
         else:
@@ -625,8 +616,6 @@ class Bullet(Kinetic):
     def update(self, delta_time, entities):
         self._calculate_scaled_speed(delta_time)
         self.set_location(self.x - self.move_speed, self.y)
-        if self.x + self.width < Camera.BOUNDS.x:
-            self.dead = True
 
     def draw(self, surface):
         if pygine.globals.debug:
@@ -639,7 +628,20 @@ class Rock(Kinetic):
     def __init__(self, x, y, speed=75):
         super(Rock, self).__init__(x, y, 32, 14, speed)
         self.sprite = Sprite(x, y - 16, SpriteType.ROCK)
-        
+
+    def set_location(self, x, y):
+        super(Rock, self).set_location(x, y)
+        self.sprite.set_location(self.x, self.y - 16)
+
+    def update(self, delta_time, entities):
+        self._calculate_scaled_speed(delta_time)
+        self.set_location(self.x - self.move_speed, self.y)
+
+    def draw(self, surface):
+        if pygine.globals.debug:
+            self._draw_bounds(surface, CameraType.DYNAMIC)
+        else:
+            self.sprite.draw(surface, CameraType.DYNAMIC)
 
 
 ###################################################################
