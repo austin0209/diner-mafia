@@ -186,21 +186,21 @@ class Sprite(PygineObject):
             self._sprite_setup(336, 128, 32, 32)
 
         elif (self.type == SpriteType.COFFEE_RAW):
-            self._sprite_setup(0, 576, 16, 16)
-        elif (self.type == SpriteType.COFFEE_PRO):
             self._sprite_setup(0, 592, 16, 16)
+        elif (self.type == SpriteType.COFFEE_PRO):
+            self._sprite_setup(0, 576, 16, 16)
         elif (self.type == SpriteType.FISH_RAW):
-            self._sprite_setup(16, 576, 16, 16)
-        elif (self.type == SpriteType.FISH_PRO):
             self._sprite_setup(16, 592, 16, 16)
+        elif (self.type == SpriteType.FISH_PRO):
+            self._sprite_setup(16, 576, 16, 16)
         elif (self.type == SpriteType.CROP_RAW):
-            self._sprite_setup(32, 576, 16, 16)
-        elif (self.type == SpriteType.CROP_PRO):
             self._sprite_setup(32, 592, 16, 16)
+        elif (self.type == SpriteType.CROP_PRO):
+            self._sprite_setup(32, 576, 16, 16)
         elif (self.type == SpriteType.EGGS_RAW):
-            self._sprite_setup(48, 576, 16, 16)
-        elif (self.type == SpriteType.EGGS_PRO):
             self._sprite_setup(48, 592, 16, 16)
+        elif (self.type == SpriteType.EGGS_PRO):
+            self._sprite_setup(48, 576, 16, 16)
 
         elif (self.type == SpriteType.SIMPLE_HOUSE_INSIDE):
             self._sprite_setup(0, 224, 160, 160)

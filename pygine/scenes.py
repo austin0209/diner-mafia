@@ -145,7 +145,7 @@ class Scene(object):
         self.leave_transition_type = TransitionType.PINHOLE_CLOSE
         self.enter_transition_type = TransitionType.PINHOLE_OPEN
 
-        self.manager = None # this is to be set in SceneManager (add scene method)
+        self.manager = None  # this is to be set in SceneManager (add scene method)
         self.player = None
 
     def _reset(self):
@@ -218,13 +218,13 @@ class Village(Scene):
 
     def _create_triggers(self):
         self.triggers = [
-            CollisionTrigger(
+            MinigameTrigger(
                 0, 0,
                 8, Camera.BOUNDS.height,
                 Vector2(
                     Camera.BOUNDS.width - 16 - 16, Camera.BOUNDS.height / 2
                 ),
-                SceneType.FOREST
+                SceneType.COFFEE_MINIGAME
             ),
         ]
 
@@ -523,6 +523,12 @@ class CoffeeMinigame(Scene):
         ]
         self.sprites = []
         self.entities = []
+        self.relay_player(
+            Boat(
+                16 * 4,
+                16 * 9
+            )
+        )
 
     def _create_triggers(self):
         pass
@@ -543,19 +549,28 @@ class CoffeeMinigame(Scene):
 
     def update(self, delta_time):
         self.__game_timer.update()
-        self.__spawn_timer.update()
-        if self.__spawn_timer.done:
-            if random() < 0.5:
-                self.__spawn_random()
-            self.__spawn_timer.reset()
-            self.__spawn_timer.start()
-        for e in self.entities:
-            if e.sprite.x + e.sprite.width < 0:
-                self.entities.remove(e)
-            if isinstance(e, Bullet):
-                if e.dead:
+        if self.__game_timer.done:
+            # Game is over, change scene
+            print("DONE")
+            self.manager.queue_next_scene(SceneType.VILLAGE)  # TODO: should take you to dock scene later
+            new_player = Player(16 * 4, 16 * 9)
+            new_player.item_carrying = Coffee(0, 0)
+            self.manager.get_scene(SceneType.VILLAGE).relay_player(new_player)
+            self.__game_timer.reset()
+        else:
+            self.__spawn_timer.update()
+            if self.__spawn_timer.done:
+                if random() < 0.5:
+                    self.__spawn_random()
+                self.__spawn_timer.reset()
+                self.__spawn_timer.start()
+            for e in self.entities:
+                if e.sprite.x + e.sprite.width < 0:
                     self.entities.remove(e)
-        super(CoffeeMinigame, self).update(delta_time)
+                if isinstance(e, Bullet):
+                    if e.dead:
+                        self.entities.remove(e)
+            super(CoffeeMinigame, self).update(delta_time)
 
     def draw(self, surface):
         draw_rectangle(surface, self.player.playbounds,

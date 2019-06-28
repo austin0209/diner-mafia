@@ -3,7 +3,7 @@
 from enum import IntEnum
 from pygine.base import PygineObject
 from pygine.draw import draw_rectangle
-from pygine.entities import Building, Direction, Player, NPC
+from pygine.entities import Actor, Direction, Player, NPC
 from pygine.utilities import InputType
 
 
@@ -43,6 +43,34 @@ class CollisionTrigger(Trigger):
         super(CollisionTrigger, self).__init__(
             x, y, width, height, end_location, next_scene)
         self.direction = direction
+
+    def __collision(self, entities, manager):
+        for e in entities:
+            if self._valid_entity(e) and e.bounds.colliderect(self.bounds):
+                self._move_entity_to_next_scene(e, manager)
+
+    def update(self, delta_time, entities, manager):
+        self.__collision(entities, manager)
+
+    def draw(self, surface, camera_type):
+        draw_rectangle(
+            surface,
+            self.bounds,
+            camera_type
+        )
+
+
+class MinigameTrigger(Trigger):
+    def __init__(self, x, y, width, height, end_location, next_scene, direction=Direction.UP):
+        super(MinigameTrigger, self).__init__(
+            x, y, width, height, end_location, next_scene)
+        self.direction = direction
+
+    def _move_entity_to_next_scene(self, entity, manager):
+        assert (isinstance(entity, Actor)), "Should only relay actors!"
+        current_scene = manager.get_current_scene()
+        manager.queue_next_scene(self.next_scene)
+        current_scene.entities.remove(entity)
 
     def __collision(self, entities, manager):
         for e in entities:
