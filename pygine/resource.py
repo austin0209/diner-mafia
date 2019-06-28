@@ -72,6 +72,7 @@ class SpriteType(IntEnum):
 
     SIDEWALK_LONG = 62
     SIDEWALK_TALL = 63
+    TREE_CLUSTER = 64
 
 
 SPRITE_SHEET = pygame.image.load(
@@ -252,6 +253,8 @@ class Sprite(PygineObject):
             self._sprite_setup(32, 0, 608, 32)
         elif (self.type == SpriteType.SIDEWALK_TALL):
             self._sprite_setup(976, 592, 32, 272)            
+        elif (self.type == SpriteType.TREE_CLUSTER):
+            self._sprite_setup(368, 80, 64, 48)               
 
         self.__apply_changes_to_sprite()
 
