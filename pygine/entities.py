@@ -516,11 +516,11 @@ class Boat(Actor):
         self.beans = beans
         self.playbounds = Rectangle(
             0, 16 * 4, Camera.BOUNDS.width * .6, 16 * 6 + 20)
-        self.sprite = Sprite(x - 16, y - 32, SpriteType.BOAT)
+        self.sprite = Sprite(x - 16, y - 48, SpriteType.BOAT)
 
     def set_location(self, x, y):
         super(Boat, self).set_location(x, y)
-        self.sprite.set_location(self.x - 16, self.y - 32)
+        self.sprite.set_location(self.x - 16, self.y - 48)
 
     def _collision(self, entities):
         for e in entities:
@@ -652,12 +652,12 @@ class Bullet(Kinetic):
 
 class Rock(Kinetic):
     def __init__(self, x, y, speed=75):
-        super(Rock, self).__init__(x, y, 32, 14, speed)
-        self.sprite = Sprite(x, y - 16, SpriteType.ROCK)
+        super(Rock, self).__init__(x, y, 34, 14, speed)
+        self.sprite = Sprite(x - 7, y - 16, SpriteType.ROCK)
 
     def set_location(self, x, y):
         super(Rock, self).set_location(x, y)
-        self.sprite.set_location(self.x, self.y - 16)
+        self.sprite.set_location(self.x - 7, self.y - 16)
 
     def update(self, delta_time, entities):
         self._calculate_scaled_speed(delta_time)
