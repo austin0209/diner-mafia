@@ -5,7 +5,7 @@ from pygine.base import PygineObject
 from pygine.draw import draw_rectangle
 from pygine.geometry import Rectangle
 from pygine.maths import Vector2, distance_between
-from pygine.resource import Sprite, SpriteType
+from pygine.resource import Animation, Sprite, SpriteType
 from pygine.utilities import Camera, CameraType, Color, Input, InputType, Timer
 from random import randint, random
 
@@ -105,36 +105,46 @@ class Player(Actor):
     def __init__(self, x, y, width=10, height=10, speed=50):
         super(Player, self).__init__(x, y, width, height, speed)
         self.sprite = Sprite(self.x - 3, self.y - 22, SpriteType.PLAYER_F)
+        self.arms = Sprite(self.x - 3, self.y - 22, SpriteType.PLAYER_ARM_SIDE_F)
         self.shadow = Sprite(self.x - 3, self.y - 21, SpriteType.PLAYER_SHADOW)
         self.set_color(Color.RED)
-        self.item_carrying = Coffee(self.x - 3, self.sprite.y + 8)
+        self.item_carrying = None
+        self.animation_walk = Animation(6, 6, 100)
+        self.walking = False
 
     def set_location(self, x, y):
         super(Player, self).set_location(x, y)
         self.sprite.set_location(self.x - 3, self.y - 22)
+        self.arms.set_location(self.x - 3, self.y - 22)
         self.shadow.set_location(self.x - 3, self.y - 21)
 
     def _move(self, direction=Direction.NONE):
         self.facing = direction
+        self.walking = True
         if self.facing == Direction.UP:
             self.sprite.set_sprite(SpriteType.PLAYER_B)
+            self.arms.set_sprite(SpriteType.PLAYER_ARM_SIDE_B)
             self.set_location(self.x, self.y - self.move_speed)
             self.velocity.y = -1
         if self.facing == Direction.DOWN:
             self.sprite.set_sprite(SpriteType.PLAYER_F)
+            self.arms.set_sprite(SpriteType.PLAYER_ARM_SIDE_F)
             self.set_location(self.x, self.y + self.move_speed)
             self.velocity.y = 1
         if self.facing == Direction.LEFT:
             self.sprite.set_sprite(SpriteType.PLAYER_L)
+            self.arms.set_sprite(SpriteType.PLAYER_ARM_SIDE_L)
             self.set_location(self.x - self.move_speed, self.y)
             self.velocity.x = -1
         if self.facing == Direction.RIGHT:
             self.sprite.set_sprite(SpriteType.PLAYER_R)
+            self.arms.set_sprite(SpriteType.PLAYER_ARM_SIDE_R)
             self.set_location(self.x + self.move_speed, self.y)
             self.velocity.x = 1
 
     def _update_input(self):
         self.input.update()
+        self.walking = False
         if self.input.pressing(InputType.UP):
             self._move(Direction.UP)
         if self.input.pressing(InputType.DOWN):
@@ -169,16 +179,29 @@ class Player(Actor):
             ):
                 self._rectangle_collision_logic(e)
 
-    def _move_item(self):
+    def _update_animation(self):
+        if self.walking:
+            self.animation_walk.update()
+            self.sprite.set_frame(self.animation_walk.current_frame, self.animation_walk.columns)
+            self.arms.set_frame(self.animation_walk.current_frame, self.animation_walk.columns)
+        else:
+            self.sprite.set_frame(0, self.animation_walk.columns)
+            self.arms.set_frame(0, self.animation_walk.columns)
+        
+
+    def _update_item(self):
         if self.item_carrying != None:
             self.item_carrying.set_location(self.x - 3, self.sprite.y - 8)
+            self.arms.increment_sprite_x(16 * 6)
+            
 
     def update(self, delta_time, entities):
         self._calculate_scaled_speed(delta_time)
         self._update_input()
         self._update_collision_rectangles()
         self._collision(entities)
-        self._move_item()
+        self._update_animation()
+        self._update_item()
 
     def draw(self, surface):
         if pygine.globals.debug:
@@ -187,6 +210,7 @@ class Player(Actor):
         else:
             self.shadow.draw(surface, CameraType.DYNAMIC)
             self.sprite.draw(surface, CameraType.DYNAMIC)
+            self.arms.draw(surface, CameraType.DYNAMIC)
             if (self.item_carrying != None):
                 self.item_carrying.draw(surface)
 
