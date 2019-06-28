@@ -148,7 +148,7 @@ class Scene(object):
         self.manager = None  # this is to be set in SceneManager (add scene method)
         self.player = None
 
-    def reset(self):
+    def _reset(self):
         raise NotImplementedError(
             "A class that inherits Scene did not implement the reset() method")
 
@@ -200,10 +200,10 @@ class Scene(object):
 class Village(Scene):
     def __init__(self):
         super(Village, self).__init__()
-        self.reset()
+        self._reset()
         self._create_triggers()
 
-    def reset(self):
+    def _reset(self):
         self.shapes = [Rectangle(0, 0, 320, 180, Color.GRASS_GREEN)]
         self.sprites = []
         # for y in range(int(Camera.BOUNDS.height * 2 / 32)):
@@ -279,10 +279,10 @@ class Village(Scene):
 class Forest(Scene):
     def __init__(self):
         super(Forest, self).__init__()
-        self.reset()
+        self._reset()
         self._create_triggers()
 
-    def reset(self):
+    def _reset(self):
         self.shapes = []
         self.sprites = []
         for y in range(int(Camera.BOUNDS.height * 2 / 32)):
@@ -342,7 +342,7 @@ class Farm(Scene):
     def __init__(self):
         super(Farm, self).__init__()
 
-    def reset(self):
+    def _reset(self):
         pass
 
 
@@ -350,17 +350,17 @@ class Ocean(Scene):
     def __init__(self):
         super(Ocean, self).__init__()
 
-    def reset(self):
+    def _reset(self):
         pass
 
 
 class RoomSimple(Scene):
     def __init__(self):
         super(RoomSimple, self).__init__()
-        self.reset()
+        self._reset()
         self._create_triggers()
 
-    def reset(self):
+    def _reset(self):
         self.shapes = []
         self.sprites = [
             Sprite((Camera.BOUNDS.width - 160) / 2,
@@ -392,10 +392,10 @@ class RoomSimple(Scene):
 class RoomSpecial(Scene):
     def __init__(self):
         super(RoomSpecial, self).__init__()
-        self.reset()
+        self._reset()
         self._create_triggers()
 
-    def reset(self):
+    def _reset(self):
         self.shapes = []
         self.sprites = [
             Sprite((Camera.BOUNDS.width - 288) / 2,
@@ -430,10 +430,10 @@ class RoomSpecial(Scene):
 class ShopScene(Scene):
     def __init__(self):
         super(ShopScene, self).__init__()
-        self.reset()
+        self._reset()
         self._create_triggers()
 
-    def reset(self):
+    def _reset(self):
         self.shapes = []
         self.sprites = [
             Sprite((Camera.BOUNDS.width - 288) / 2,
@@ -469,10 +469,10 @@ class ShopScene(Scene):
 class DinerScene(Scene):
     def __init__(self):
         super(DinerScene, self).__init__()
-        self.reset()
+        self._reset()
         self._create_triggers()
 
-    def reset(self):
+    def _reset(self):
         self.shapes = []
         self.sprites = [
             Sprite((Camera.BOUNDS.width - 288) / 2,
@@ -526,13 +526,13 @@ class Minigame(Scene):
 class CoffeeMinigame(Minigame):
     def __init__(self):
         super(CoffeeMinigame, self).__init__()
-        self.reset()
+        self._reset()
         self._create_triggers()
 
     def start_game(self):
         self.__game_timer.start()
 
-    def reset(self):
+    def _reset(self):
         self.shapes = [
             Rectangle(0, 0, 320, 16 * 4, Color.BLUE),
             Rectangle(0, 16 * 4, 320, 16 * 6 + 20, Color.SKY_BLUE)
@@ -570,7 +570,7 @@ class CoffeeMinigame(Minigame):
         if self.__game_timer.done:
             # Game is over, change scene
             self._exit_game(16 * 4, 16 * 9, Coffee(0, 0), SceneType.VILLAGE)  # TODO: should be dock later
-            self.reset()
+            self._reset()
             self.__game_timer.reset()
         else:
             self.__spawn_timer.update()
@@ -597,7 +597,7 @@ class CropMinigame(Scene):
     def __init__(self):
         super(CropMinigame, self).__init__()
 
-    def reset(self):
+    def _reset(self):
         pass
 
 
@@ -605,7 +605,7 @@ class FishMinigame(Scene):
     def __init__(self):
         super(FishMinigame, self).__init__()
 
-    def reset(self):
+    def _reset(self):
         pass
 
 
@@ -613,5 +613,5 @@ class EggsMinigame(Scene):
     def __init__(self):
         super(EggsMinigame, self).__init__()
 
-    def reset(self):
+    def _reset(self):
         pass
