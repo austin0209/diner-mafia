@@ -494,7 +494,7 @@ class Crop(Item):
     def __init__(self, x, y):
         super(Crop, self).__init__(x, y)
         self._type = ItemType.CROP
-        self._sprite = Sprite(x, y, SpriteType.COFFEE_RAW)
+        self._sprite = Sprite(x, y, SpriteType.CROP_RAW)
 
 
 class Eggs(Item):
