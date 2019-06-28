@@ -145,7 +145,7 @@ class Scene(object):
         self.leave_transition_type = TransitionType.PINHOLE_CLOSE
         self.enter_transition_type = TransitionType.PINHOLE_OPEN
 
-        self.manager = None
+        self.manager = None # this is to be set in SceneManager (add scene method)
         self.player = None
 
     def _reset(self):
@@ -167,7 +167,7 @@ class Scene(object):
     def __update_entities(self, delta_time):
         for i in range(len(self.entities) - 1, -1, -1):
             self.entities[i].update(delta_time, self.entities)
-        self.entities.sort(key=lambda e: e.y + e.height)
+        self.entities.sort(key=lambda e: e.sprite.y + e.sprite.height)
 
     def __update_triggers(self, delta_time, entities, manager):
         for t in self.triggers:
@@ -513,6 +513,7 @@ class CoffeeMinigame(Scene):
         super(CoffeeMinigame, self).__init__()
         self._reset()
         self._create_triggers()
+        self.__game_timer = Timer(30_000, True)
         self.__spawn_timer = Timer(1500, True)
 
     def _reset(self):
@@ -541,6 +542,7 @@ class CoffeeMinigame(Scene):
                     Rock(rand_x + randint(min_offset, max_offset), rand_y + randint(min_offset, max_offset)))
 
     def update(self, delta_time):
+        self.__game_timer.update()
         self.__spawn_timer.update()
         if self.__spawn_timer.done:
             if random() < 0.5:

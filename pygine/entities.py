@@ -13,6 +13,7 @@ from random import randint, random
 class Entity(PygineObject):
     def __init__(self, x=0, y=0, width=1, height=1):
         super(Entity, self).__init__(x, y, width, height)
+        self.sprite = Sprite(x, y, SpriteType.NONE)
         self.color = Color.WHITE
         self.layer = 0
         self.remove = False
@@ -187,13 +188,13 @@ class Player(Actor):
         else:
             self.sprite.set_frame(0, self.animation_walk.columns)
             self.arms.set_frame(0, self.animation_walk.columns)
-        
+
 
     def _update_item(self):
         if self.item_carrying != None:
             self.item_carrying.set_location(self.x - 3, self.sprite.y - 8)
             self.arms.increment_sprite_x(16 * 6)
-            
+
 
     def update(self, delta_time, entities):
         self._calculate_scaled_speed(delta_time)
@@ -569,7 +570,7 @@ class Boat(Actor):
     def __check_death(self):
         if self.beans <= 0:
             # TODO: death logic here, maybe display transition and change scene?
-            pass
+            exit(1)
 
     def update(self, delta_time, entities):
         self._calculate_scaled_speed(delta_time)
@@ -587,7 +588,7 @@ class Boat(Actor):
 
 class Octopus(Kinetic):
     def __init__(self, x, y):
-        super(Octopus, self).__init__(x, y, 10, 10, randint(10, 30))
+        super(Octopus, self).__init__(x, y, 16, 16, randint(10, 30))
         self.timer = Timer(randint(1500, 3000), True)
         self.sprite = Sprite(x - 16, y - 16, SpriteType.OCTOPUS)
 
@@ -602,11 +603,12 @@ class Octopus(Kinetic):
         self.set_location(self.x - self.move_speed, self.y)
         for e in entities:
             if isinstance(e, Boat):
-                if e.x < self.x < Camera.BOUNDS.width * .75:
-                    if self.y < e.y:
-                        self.set_location(self.x, self.y + self.move_speed / 4)
-                    elif self.y > e.y:
-                        self.set_location(self.x, self.y - self.move_speed / 4)
+                if e.x + e.width / 2 < self.x < Camera.BOUNDS.width * .75:
+                    if abs(self.y - e.y) > self.move_speed:
+                        if self.y < e.y:
+                            self.set_location(self.x, self.y + self.move_speed / 4)
+                        elif self.y > e.y:
+                            self.set_location(self.x, self.y - self.move_speed / 4)
 
     def update(self, delta_time, entities):
         self._calculate_scaled_speed(delta_time)

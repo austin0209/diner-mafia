@@ -110,7 +110,7 @@ class Sprite(PygineObject):
 
     def _load_sprite(self):
         if self.type == SpriteType.NONE:
-            pass
+            self._sprite_setup(1023, 1023, 1, 1)
 
         elif (self.type == SpriteType.PLAYER_F):
             self._sprite_setup(0, 624, 16, 32)
