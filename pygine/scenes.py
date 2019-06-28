@@ -44,7 +44,7 @@ class SceneManager:
         self.start_transition = False
 
         self.__initialize_scenes()
-        self.__set_starting_scene(SceneType.VILLAGE)
+        self.__set_starting_scene(SceneType.COFFEE_MINIGAME)
 
     def __add_scene(self, scene):
         self.__all_scenes.append(scene)
@@ -72,7 +72,7 @@ class SceneManager:
 
         self.__current_scene = self.__all_scenes[int(starting_scene_type)]
         self.__current_scene.relay_player(
-            Player(
+            Boat(
                 16 * 4,
                 16 * 9
             )
