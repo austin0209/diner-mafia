@@ -146,13 +146,13 @@ class Player(Actor):
     def _update_input(self):
         self.input.update()
         self.walking = False
-        if self.input.pressing(InputType.UP):
+        if self.input.pressing(InputType.UP) and not self.input.pressing(InputType.DOWN):
             self._move(Direction.UP)
-        if self.input.pressing(InputType.DOWN):
+        if self.input.pressing(InputType.DOWN) and not self.input.pressing(InputType.UP):
             self._move(Direction.DOWN)
-        if self.input.pressing(InputType.LEFT):
+        if self.input.pressing(InputType.LEFT) and not self.input.pressing(InputType.RIGHT):
             self._move(Direction.LEFT)
-        if self.input.pressing(InputType.RIGHT):
+        if self.input.pressing(InputType.RIGHT) and not self.input.pressing(InputType.LEFT):
             self._move(Direction.RIGHT)
 
     def _rectangle_collision_logic(self, entity):
