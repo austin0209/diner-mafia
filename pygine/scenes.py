@@ -148,7 +148,7 @@ class Scene(object):
         self.manager = None  # this is to be set in SceneManager (add scene method)
         self.player = None
 
-    def _reset(self):
+    def reset(self):
         raise NotImplementedError(
             "A class that inherits Scene did not implement the reset() method")
 
@@ -200,10 +200,10 @@ class Scene(object):
 class Village(Scene):
     def __init__(self):
         super(Village, self).__init__()
-        self._reset()
+        self.reset()
         self._create_triggers()
 
-    def _reset(self):
+    def reset(self):
         self.shapes = [Rectangle(0, 0, 320, 180, Color.GRASS_GREEN)]
         self.sprites = []
         # for y in range(int(Camera.BOUNDS.height * 2 / 32)):
@@ -279,10 +279,10 @@ class Village(Scene):
 class Forest(Scene):
     def __init__(self):
         super(Forest, self).__init__()
-        self._reset()
+        self.reset()
         self._create_triggers()
 
-    def _reset(self):
+    def reset(self):
         self.shapes = []
         self.sprites = []
         for y in range(int(Camera.BOUNDS.height * 2 / 32)):
@@ -342,7 +342,7 @@ class Farm(Scene):
     def __init__(self):
         super(Farm, self).__init__()
 
-    def _reset(self):
+    def reset(self):
         pass
 
 
@@ -350,17 +350,17 @@ class Ocean(Scene):
     def __init__(self):
         super(Ocean, self).__init__()
 
-    def _reset(self):
+    def reset(self):
         pass
 
 
 class RoomSimple(Scene):
     def __init__(self):
         super(RoomSimple, self).__init__()
-        self._reset()
+        self.reset()
         self._create_triggers()
 
-    def _reset(self):
+    def reset(self):
         self.shapes = []
         self.sprites = [
             Sprite((Camera.BOUNDS.width - 160) / 2,
@@ -392,10 +392,10 @@ class RoomSimple(Scene):
 class RoomSpecial(Scene):
     def __init__(self):
         super(RoomSpecial, self).__init__()
-        self._reset()
+        self.reset()
         self._create_triggers()
 
-    def _reset(self):
+    def reset(self):
         self.shapes = []
         self.sprites = [
             Sprite((Camera.BOUNDS.width - 288) / 2,
@@ -430,10 +430,10 @@ class RoomSpecial(Scene):
 class ShopScene(Scene):
     def __init__(self):
         super(ShopScene, self).__init__()
-        self._reset()
+        self.reset()
         self._create_triggers()
 
-    def _reset(self):
+    def reset(self):
         self.shapes = []
         self.sprites = [
             Sprite((Camera.BOUNDS.width - 288) / 2,
@@ -469,10 +469,10 @@ class ShopScene(Scene):
 class DinerScene(Scene):
     def __init__(self):
         super(DinerScene, self).__init__()
-        self._reset()
+        self.reset()
         self._create_triggers()
 
-    def _reset(self):
+    def reset(self):
         self.shapes = []
         self.sprites = [
             Sprite((Camera.BOUNDS.width - 288) / 2,
@@ -508,15 +508,31 @@ class DinerScene(Scene):
         )
 
 
-class CoffeeMinigame(Scene):
+class Minigame(Scene):
+    def __init__(self):
+        super(Minigame, self).__init__()
+
+    def start_game(self):
+        raise NotImplementedError(
+            "A class that inherits Minigame did not implement the start_game() method")
+
+    def _exit_game(self, end_x, end_y, item, new_scene):
+        self.manager.queue_next_scene(new_scene)  # TODO: should take you to dock scene later
+        new_player = Player(end_x, end_y)
+        new_player.item_carrying = item
+        self.manager.get_scene(new_scene).relay_player(new_player)
+
+
+class CoffeeMinigame(Minigame):
     def __init__(self):
         super(CoffeeMinigame, self).__init__()
-        self._reset()
+        self.reset()
         self._create_triggers()
-        self.__game_timer = Timer(30_000, True)
-        self.__spawn_timer = Timer(1500, True)
 
-    def _reset(self):
+    def start_game(self):
+        self.__game_timer.start()
+
+    def reset(self):
         self.shapes = [
             Rectangle(0, 0, 320, 16 * 4, Color.BLUE),
             Rectangle(0, 16 * 4, 320, 16 * 6 + 20, Color.SKY_BLUE)
@@ -529,6 +545,8 @@ class CoffeeMinigame(Scene):
                 16 * 9
             )
         )
+        self.__game_timer = Timer(10_000)
+        self.__spawn_timer = Timer(1500, True)
 
     def _create_triggers(self):
         pass
@@ -551,11 +569,8 @@ class CoffeeMinigame(Scene):
         self.__game_timer.update()
         if self.__game_timer.done:
             # Game is over, change scene
-            print("DONE")
-            self.manager.queue_next_scene(SceneType.VILLAGE)  # TODO: should take you to dock scene later
-            new_player = Player(16 * 4, 16 * 9)
-            new_player.item_carrying = Coffee(0, 0)
-            self.manager.get_scene(SceneType.VILLAGE).relay_player(new_player)
+            self._exit_game(16 * 4, 16 * 9, Coffee(0, 0), SceneType.VILLAGE)  # TODO: should be dock later
+            self.reset()
             self.__game_timer.reset()
         else:
             self.__spawn_timer.update()
@@ -582,7 +597,7 @@ class CropMinigame(Scene):
     def __init__(self):
         super(CropMinigame, self).__init__()
 
-    def _reset(self):
+    def reset(self):
         pass
 
 
@@ -590,7 +605,7 @@ class FishMinigame(Scene):
     def __init__(self):
         super(FishMinigame, self).__init__()
 
-    def _reset(self):
+    def reset(self):
         pass
 
 
@@ -598,5 +613,5 @@ class EggsMinigame(Scene):
     def __init__(self):
         super(EggsMinigame, self).__init__()
 
-    def _reset(self):
+    def reset(self):
         pass
