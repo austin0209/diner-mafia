@@ -202,30 +202,42 @@ class Village(Scene):
         super(Village, self).__init__()
         self._reset()
         self._create_triggers()
+        self.__load_trees()
+
+    def __load_trees(self):
+        file = open('pygine/assets/scenes/trees.csv', "r")
+        for y in range(20):
+            row = file.readline().split(",")
+            for x in range(40):
+                column = row[x]
+                if column.strip() != "-1" and randint(1, 10) <= 6:
+                    self.entities.append(Tree(x * 16, y * 16))
 
     def _reset(self):
-        self.bounds = Rect(0, 0, Camera.BOUNDS.width * 2, Camera.BOUNDS.height * 2)
+        self.bounds = Rect(0, 0, 40 * 16, 19 * 16)
 
         self.shapes = [Rectangle(0, 0, 320 * 2, 180 * 2, Color.GRASS_GREEN)]
         self.sprites = []
 
         for y in range(2):
             for x in range(37):
-                self.sprites.append(Sprite(x * 16, (6 + y) * 16, SpriteType.TILE))
+                self.sprites.append(
+                    Sprite(x * 16, (6 + y) * 16, SpriteType.TILE))
 
         for y in range(2):
             for x in range(38):
-                self.sprites.append(Sprite((2 + x) * 16, (15 + y) * 16, SpriteType.TILE))
+                self.sprites.append(
+                    Sprite((2 + x) * 16, (15 + y) * 16, SpriteType.TILE))
 
         for y in range(17):
             for x in range(2):
-                self.sprites.append(Sprite((18 + x) * 16, (0 + y) * 16, SpriteType.TILE))    
-
+                self.sprites.append(
+                    Sprite((18 + x) * 16, (0 + y) * 16, SpriteType.TILE))
 
         for s in self.sprites:
             if s.type == SpriteType.TILE:
-                if randint(1,10) <= 2:
-                    s.increment_sprite_x(16)            
+                if randint(1, 10) <= 2:
+                    s.increment_sprite_x(16)
 
         self.entities = [
             SimpleHouse(1 * 16, 1 * 16),
@@ -239,6 +251,7 @@ class Village(Scene):
             Shop(30 * 16, 0 * 16),
             Shop(35 * 16, 0 * 16),
             Diner(21 * 16, 10 * 16),
+
         ]
 
     def _create_triggers(self):
