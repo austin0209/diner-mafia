@@ -74,6 +74,23 @@ class SpriteType(IntEnum):
     SIDEWALK_TALL = 63
     TREE_CLUSTER = 64
 
+    OCTOPUS_SHADOW = 65
+    INK_BULLET_SHADOW = 66
+    BOAT_SHADOW = 67
+    ROCK_SHADOW = 68
+
+    BEACH = 69
+
+    HOOK = 70
+    FISH_SMALL_R = 71
+    FISH_SMALL_L = 72
+    FISH_LARGE_R = 73
+    FISH_LARGE_L = 74
+    ROCK_WALL_R = 75
+    ROCK_WALL_L = 76
+
+
+
 
 SPRITE_SHEET = pygame.image.load(
     # '/home/cpi/games/Python/village-game/pygine/assets/sprites/sprites.png'
@@ -254,7 +271,34 @@ class Sprite(PygineObject):
         elif (self.type == SpriteType.SIDEWALK_TALL):
             self._sprite_setup(976, 592, 32, 272)            
         elif (self.type == SpriteType.TREE_CLUSTER):
-            self._sprite_setup(368, 80, 64, 48)               
+            self._sprite_setup(368, 80, 64, 48)   
+
+        elif (self.type == SpriteType.OCTOPUS_SHADOW):
+            self._sprite_setup(112, 832, 48, 48)   
+        elif (self.type == SpriteType.INK_BULLET_SHADOW):
+            self._sprite_setup(160, 816, 16, 16)               
+        elif (self.type == SpriteType.BOAT_SHADOW):
+            self._sprite_setup(112, 960, 112, 48)   
+        elif (self.type == SpriteType.ROCK_SHADOW):
+            self._sprite_setup(176, 816, 48, 32)         
+
+        elif (self.type == SpriteType.BEACH):
+            self._sprite_setup(704, 400, 320, 180)                
+
+        elif (self.type == SpriteType.HOOK):
+            self._sprite_setup(352, 816, 16, 32)                  
+        elif (self.type == SpriteType.FISH_SMALL_R):
+            self._sprite_setup(384, 848, 32, 16)                   
+        elif (self.type == SpriteType.FISH_SMALL_L):
+            self._sprite_setup(352, 848, 32, 16)               
+        elif (self.type == SpriteType.FISH_LARGE_R):
+            self._sprite_setup(384, 864, 32, 16)                   
+        elif (self.type == SpriteType.FISH_LARGE_L):
+            self._sprite_setup(352, 864, 32, 16)                       
+        elif (self.type == SpriteType.ROCK_WALL_R):
+            self._sprite_setup(352, 880, 32, 64)                   
+        elif (self.type == SpriteType.ROCK_WALL_L):
+            self._sprite_setup(384, 880, 32, 64)       
 
         self.__apply_changes_to_sprite()
 

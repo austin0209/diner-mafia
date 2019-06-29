@@ -246,14 +246,20 @@ class Village(Scene):
 
     def _create_triggers(self):
         self.triggers = [
-            MinigameTrigger(
-                0, 0,
-                8, Camera.BOUNDS.height,
+            CollisionTrigger(
+                -1 * 16, 6 * 16,
+                16, 32,
                 Vector2(
                     Camera.BOUNDS.width - 16 - 16, Camera.BOUNDS.height / 2
                 ),
-                SceneType.COFFEE_MINIGAME
+                SceneType.FOREST
             ),
+            CollisionTrigger(
+                18 * 16, -1 * 16,
+                32, 16,
+                Vector2(Camera.BOUNDS.width / 2, Camera.BOUNDS.height - 16),
+                SceneType.OCEAN
+            )
         ]
 
         for e in self.entities:
@@ -377,9 +383,37 @@ class Farm(Scene):
 class Ocean(Scene):
     def __init__(self):
         super(Ocean, self).__init__()
+        self._reset()
+        self._create_triggers()
 
     def _reset(self):
-        pass
+        self.bounds = Rect(0, 0, 320, 180)
+
+        self.shapes = [Rectangle(0, 0, 320, 180, Color.OCEAN_BLUE)]
+        self.sprites = [
+            Sprite(0, 0, SpriteType.BEACH),
+        ]
+
+        self.entities = [
+        ]
+
+    def _create_triggers(self):
+        self.triggers = [
+            MinigameTrigger(
+                12 * 16, 2 * 16 + 4,
+                32, 16,
+                Vector2(
+                    16, Camera.BOUNDS.height / 2
+                ),
+                SceneType.COFFEE_MINIGAME
+            ),
+            CollisionTrigger(
+                0, Camera.BOUNDS.height, 
+                Camera.BOUNDS.width, 16,
+                Vector2(18 * 16, 1 * 16),
+                SceneType.VILLAGE
+            )
+        ]
 
 
 class RoomSimple(Scene):
@@ -574,7 +608,7 @@ class CoffeeMinigame(Minigame):
                 16 * 9
             )
         )
-        self.__game_timer = Timer(10000)
+        self.__game_timer = Timer(35000)
         self.__spawn_timer = Timer(1500, True)
 
     def _create_triggers(self):
@@ -582,8 +616,8 @@ class CoffeeMinigame(Minigame):
 
     def __spawn_random(self):
         grid_unit_size = self.player.playbounds.height / 5
-        rand_x = randint(0, 4) * grid_unit_size + Camera.BOUNDS.width
-        rand_y = randint(0, 4) * grid_unit_size + self.player.playbounds.y + 5
+        rand_x = randint(-2, 4) * grid_unit_size + Camera.BOUNDS.width
+        rand_y = randint(-2, 4) * grid_unit_size + self.player.playbounds.y
         if random() < 0.40:
             self.entities.append(Octopus(rand_x, rand_y))
         else:
@@ -599,13 +633,13 @@ class CoffeeMinigame(Minigame):
         if self.__game_timer.done:
             # Game is over, change scene
             # TODO: should be dock later
-            self._exit_game(16 * 4, 16 * 9, Coffee(0, 0), SceneType.VILLAGE)
+            self._exit_game(12 * 16 + 11, 4 * 16, Coffee(0, 0), SceneType.OCEAN)
             self._reset()
             self.__game_timer.reset()
         else:
             self.__spawn_timer.update()
             if self.__spawn_timer.done:
-                if random() < 0.5:
+                if randint(1,10) <= 7:
                     self.__spawn_random()
                 self.__spawn_timer.reset()
                 self.__spawn_timer.start()
