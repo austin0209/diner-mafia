@@ -119,6 +119,8 @@ class SceneManager:
         self.__update_transition(delta_time)
         if not self.start_transition:
             self.__current_scene.update(delta_time)
+        else:
+            self.__current_scene.update_camera()
 
     def __draw_transitions(self, surface):
         if self.start_transition:
@@ -173,13 +175,13 @@ class Scene(object):
     def __update_entities(self, delta_time):
         for i in range(len(self.entities) - 1, -1, -1):
             self.entities[i].update(delta_time, self.entities)
-        self.entities.sort(key=lambda e: (e.sprite.y + e.sprite.height) * 10 - e.sprite.x)
+        self.entities.sort(key=lambda e: (e.sprite.y + e.sprite.height) * 1000 - e.sprite.x)
 
     def __update_triggers(self, delta_time, entities, manager):
         for t in self.triggers:
             t.update(delta_time, entities, manager)
 
-    def __update_camera(self):
+    def update_camera(self):
         self.camera_location = Vector2(
             self.player.x + self.player.width / 2 - self.camera.BOUNDS.width / 2,
             self.player.y + self.player.height / 2 - self.camera.BOUNDS.height / 2
@@ -189,7 +191,7 @@ class Scene(object):
     def update(self, delta_time):
         self.__update_entities(delta_time)
         self.__update_triggers(delta_time, self.entities, self.manager)
-        self.__update_camera()
+        self.update_camera()
 
     def draw(self, surface):
         for s in self.shapes:
@@ -632,14 +634,13 @@ class CoffeeMinigame(Minigame):
         self.__game_timer.update()
         if self.__game_timer.done:
             # Game is over, change scene
-            # TODO: should be dock later
-            self._exit_game(12 * 16 + 11, 4 * 16, Coffee(0, 0), SceneType.OCEAN)
+            self._exit_game(12 * 16 + 11, 4 * 16, Coffee(-20000, 0), SceneType.OCEAN)
             self._reset()
             self.__game_timer.reset()
         else:
             self.__spawn_timer.update()
             if self.__spawn_timer.done:
-                if randint(1,10) <= 7:
+                if random() < 0.7:
                     self.__spawn_random()
                 self.__spawn_timer.reset()
                 self.__spawn_timer.start()
