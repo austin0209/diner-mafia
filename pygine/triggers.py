@@ -17,7 +17,7 @@ class Trigger(PygineObject):
     def _move_entity_to_next_scene(self, entity, manager):
         next_scene = manager.get_scene(self.next_scene)
         current_scene = manager.get_current_scene()
-    
+
         if isinstance(entity, Player):
             manager.queue_next_scene(self.next_scene, self.end_location)
             next_scene.relay_player(entity)
@@ -102,15 +102,12 @@ class ButtonTrigger(Trigger):
                     if e.input.pressing(InputType.A) and int(e.facing) == int(self.direction):
                         self._move_entity_to_next_scene(e, manager)
                         self.__set_correct_exit(manager)
-                elif isinstance(e, NPC):
-                    self._move_entity_to_next_scene(e, manager)
 
     def __set_correct_exit(self, manager):
         from pygine.scenes import SceneType
         for t in manager.get_scene(self.next_scene).triggers:
             if t.next_scene == SceneType.VILLAGE:
                 t.end_location = Vector2(self.x, self.y)
-
 
     def update(self, delta_time, entities, manager):
         self.__collision(entities, manager)

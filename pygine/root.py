@@ -22,7 +22,7 @@ class Game:
     def __init__(self):
         self.__initialize_pygame()
 
-        self.__setup_window(320, 240, 30, False,
+        self.__setup_window(320, 240, 60, False,
                           Orientaion.LANDSCAPE, "Village Game")
         self.__setup_pixel_scene(320, 180)
         self.__setup_cameras()
@@ -116,8 +116,8 @@ class Game:
         self.delta_time = (pygame.time.get_ticks() - self.ticks) / 1000.0
         self.ticks = pygame.time.get_ticks()
 
-    def __update_input(self):
-        self.input.update()
+    def __update_input(self, delta_time):
+        self.input.update(delta_time)
         if self.input.pressing(InputType.QUIT):
             self.__quit_game()
         if self.input.pressing(InputType.TOGGLE_FULLSCREEN):
@@ -136,7 +136,7 @@ class Game:
 
     def __update(self):
         self.__calculate_delta_time()
-        self.__update_input()
+        self.__update_input(self.delta_time)
         self.scene_manager.update(self.delta_time)
         self.__update_events()
 
