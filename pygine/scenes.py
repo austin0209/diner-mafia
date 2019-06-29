@@ -173,10 +173,19 @@ class Scene(object):
         self.entities.append(entity)
         # We can potentially add aditional logic for certain entites. For example, if the entity is a NPC then spawn it at (x, y)
 
+    def _sort_key(self, e):
+        if isinstance(e, SpeechBubble):
+            return 10000 * (e.source.sprite.y + e.source.sprite.height) - e.source.sprite.x
+        else:
+            return 1000 * (e.sprite.y + e.sprite.height) - e.sprite.x
+
+    def _sort_entities(self):
+        self.entities.sort(key=self._sort_key)
+
     def __update_entities(self, delta_time):
         for i in range(len(self.entities) - 1, -1, -1):
             self.entities[i].update(delta_time, self.entities)
-        self.entities.sort(key=lambda e: (e.sprite.y + e.sprite.height) * 1000 - e.sprite.x)
+        self._sort_entities()
 
     def __update_triggers(self, delta_time, entities, manager):
         for t in self.triggers:
@@ -528,7 +537,7 @@ class ShopScene(Scene):
                    (Camera.BOUNDS.height - 160) / 2, SpriteType.SHOP_INSIDE)
         ]
         self.entities = [
-            NPC(6 * 16, 6 * 16, NPCType.FEMALE, can_move=False),
+            Merchant(6 * 16, 6 * 16, NPCType.FEMALE, SpriteType.FISH_RAW),
             NPC(3 * 16, 8 * 16, NPCType.MALE),
             CounterShop(2 * 16, 6 * 16),
             Shelf(10 * 16, 5 * 16, False),
@@ -585,7 +594,7 @@ class DinerScene(Scene):
             Wall(7, 9, 11, 1),
             Wall(18, 4, 1, 5),
             SellPad(6 * 16, 7 * 16 - 8, 16, 8),
-            NPC(6 * 16 + 3, 6 * 16 - 12, NPCType.FEMALE, can_move=False)
+            Merchant(6 * 16 + 3, 6 * 16 - 12, NPCType.MALE, SpriteType.COFFEE_PRO)
 
         ]
 

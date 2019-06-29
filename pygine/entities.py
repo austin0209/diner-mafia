@@ -217,6 +217,29 @@ class Player(Actor):
                 self.item_carrying.draw(surface)
 
 
+class SpeechBubble(Entity):
+    def __init__(self, x, y, source, sprite_type=SpriteType.NONE):
+        super(SpeechBubble, self).__init__(x, y, 1, 1)
+        self.sprite = Sprite(x, y, SpriteType.SPEECH_BUBBLE)
+        self.__content = Sprite(x + 8, y + 8, sprite_type)
+        self.source = source
+
+    def set_location(self, x, y):
+        super(SpeechBubble, self).set_location(x, y)
+        self.sprite.set_location(x, y)
+        self.__content.set_location(x + 8, y + 8)
+
+    def set_content(self, sprite_type):
+        self.__content.set_sprite(sprite_type)
+        self.__content.set_location(self.x + 8, self.y + 8)
+
+    def update(self, delta_time, entities):
+        pass
+
+    def draw(self, surface):
+        self.sprite.draw(surface, CameraType.DYNAMIC)
+        self.__content.draw(surface, CameraType.DYNAMIC)
+
 class NPCType(IntEnum):
     MALE = 0
     FEMALE = 1
@@ -228,8 +251,7 @@ class NPC(Kinetic):
         self.type = type
         self.sprite = Sprite(self.x - 3, self.y - 22, SpriteType.NONE)
         self.shadow = Sprite(self.x - 3, self.y - 21, SpriteType.PLAYER_SHADOW)
-        self.speech_bubble = Sprite(
-            self.x - 11, self.y - 32 - 11, SpriteType.SPEECH_BUBBLE)
+        self.speech_bubble = SpeechBubble(self.x - 11, self.y - 32 - 11, self)
         self.radius = 32
         self.show_prompt = False
         self.set_color(Color.RED)
@@ -240,23 +262,39 @@ class NPC(Kinetic):
         self.animation_walk = Animation(6, 6, 100)
         self.walking = True
         self._set_walking_sprite()
+        self._set_random_emotion()
 
     def set_location(self, x, y):
         super(NPC, self).set_location(x, y)
         self.sprite.set_location(self.x - 3, self.y - 22)
         self.shadow.set_location(self.x - 3, self.y - 21)
-        self.speech_bubble.set_location(self.x + 8, self.y - 28)
+        self.speech_bubble.set_location(self.x - 11, self.y - 32 - 11)
+
+    def _set_random_emotion(self):
+        rand = randint(1, 4)
+        if rand == 1:
+            self.speech_bubble.set_content(SpriteType.FACE_HAPPY)
+        elif rand == 2:
+            self.speech_bubble.set_content(SpriteType.FACE_SAD)
+        elif rand == 3:
+            self.speech_bubble.set_content(SpriteType.FACE_MAD)
+        elif rand == 4:
+            self.speech_bubble.set_content(SpriteType.FACE_SURPRISED)
+
+    def _stop_walking(self):
+        if not self.horizontal:
+            if self.type == NPCType.MALE:
+                self.sprite.set_sprite(SpriteType.NPC_M_F)
+            else:
+                self.sprite.set_sprite(SpriteType.NPC_F_F)
+        self._set_random_emotion()
+        self.walking = not self.walking
 
     def _walk(self, delta_time):
         self._walk_timer.update(delta_time)
         if self._walk_timer.done:
             if random() < 0.25:
-                if not self.horizontal:
-                    if self.type == NPCType.MALE:
-                        self.sprite.set_sprite(SpriteType.NPC_M_F)
-                    else:
-                        self.sprite.set_sprite(SpriteType.NPC_F_F)
-                self.walking = not self.walking
+                self._stop_walking()
             if self.walking:
                 self.walk_direction = -self.walk_direction
                 self._set_walking_sprite()
@@ -307,7 +345,13 @@ class NPC(Kinetic):
     def _update_conversation(self, entities):
         for e in entities:
             if isinstance(e, Player):
+                last = self.show_prompt
                 self._within_radius(e)
+                if last != self.show_prompt:
+                    if self.show_prompt:
+                        entities.append(self.speech_bubble)
+                    else:
+                        entities.remove(self.speech_bubble)
 
     def _update_animation(self, delta_time):
         if self.walking:
@@ -356,9 +400,23 @@ class NPC(Kinetic):
         else:
             self.shadow.draw(surface, CameraType.DYNAMIC)
             self.sprite.draw(surface, CameraType.DYNAMIC)
-        if self.show_prompt:
-            self.speech_bubble.draw(surface, CameraType.DYNAMIC)
 
+
+class Merchant(NPC):
+    def __init__(self, x, y, type, speech_content):
+        super(Merchant, self).__init__(x, y, type, can_move=False)
+        self.speech_bubble.set_content(speech_content)
+
+    def _update_conversation(self, entities):
+        for e in entities:
+            if isinstance(e, Player):
+                last = self.show_prompt
+                self._within_radius(e)
+                if last != self.show_prompt:
+                    if self.show_prompt:
+                        entities.append(self.speech_bubble)
+                    else:
+                        entities.remove(self.speech_bubble)
 
 class Building(Entity):
     def __init__(self, x, y, width, height):
