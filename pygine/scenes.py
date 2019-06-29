@@ -27,6 +27,7 @@ class SceneManager:
     def __init__(self):
         self.input = Input()
         self.__reset()
+        self.__flag = 0
 
     def get_scene(self, scene_type):
         return self.__all_scenes[int(scene_type)]
@@ -87,12 +88,17 @@ class SceneManager:
 
         self.start_transition = True
 
-    def queue_next_scene(self, scene_type):
+    def queue_next_scene(self, scene_type, end_location):
+        self.__flag = 0
+        self.__end_location = end_location
         self.__previous_scene = self.__current_scene
         self.__next_scene = self.__all_scenes[int(scene_type)]
         self.__setup_transition()
 
     def __change_scenes(self):
+        if self.__flag == 0:
+            self.__current_scene.player.set_location(self.__end_location.x, self.__end_location.y)
+        self.__flag = 1
         self.__current_scene = self.__next_scene
 
     def __update_input(self):
@@ -270,7 +276,7 @@ class Village(Scene):
                             e.x + (40 - 16) / 2, e.y + 40,
                             16, 8,
                             Vector2(
-                                9 * 16 + 8 + 3, 8 * 16 + 10
+                                16 * 5 + 11, 16 * 8 + 10
                             ),
                             SceneType.ROOM_SPECIAL
                         )
@@ -281,7 +287,7 @@ class Village(Scene):
                             e.x, e.y + 32,
                             32, 8,
                             Vector2(
-                                9 * 16 + 8 + 3, 8 * 16 + 10
+                                16 * 5 + 11, 16 * 8 + 10
                             ),
                             SceneType.SHOP
                         )
@@ -292,7 +298,7 @@ class Village(Scene):
                             e.x + 16, e.y + 32,
                             16, 8,
                             Vector2(
-                                9 * 16 + 8 + 3, 8 * 16 + 10
+                                16 * 5 + 11, 16 * 8 + 10
                             ),
                             SceneType.DINER
                         )

@@ -4,6 +4,7 @@ from enum import IntEnum
 from pygine.base import PygineObject
 from pygine.draw import draw_rectangle
 from pygine.entities import Actor, Direction, Player, NPC
+from pygine.maths import Vector2
 from pygine.utilities import InputType
 
 
@@ -18,13 +19,12 @@ class Trigger(PygineObject):
         current_scene = manager.get_current_scene()
     
         if isinstance(entity, Player):
-            manager.queue_next_scene(self.next_scene)
+            manager.queue_next_scene(self.next_scene, self.end_location)
             next_scene.relay_player(entity)
         else:
             next_scene.relay_entity(entity)
 
         current_scene.entities.remove(entity)
-        entity.set_location(self.end_location.x, self.end_location.y)
 
     def _valid_entity(self, entity):
         return isinstance(entity, Player) or isinstance(entity, NPC)
@@ -69,7 +69,7 @@ class MinigameTrigger(Trigger):
     def _move_entity_to_next_scene(self, entity, manager):
         assert (isinstance(entity, Actor)), "Should only relay actors!"
         current_scene = manager.get_current_scene()
-        manager.queue_next_scene(self.next_scene)
+        manager.queue_next_scene(self.next_scene, self.end_location)
         current_scene.entities.remove(entity)
 
     def __collision(self, entities, manager):
@@ -101,8 +101,16 @@ class ButtonTrigger(Trigger):
                 if isinstance(e, Player):
                     if e.input.pressing(InputType.A) and int(e.facing) == int(self.direction):
                         self._move_entity_to_next_scene(e, manager)
+                        self.__set_correct_exit(manager)
                 elif isinstance(e, NPC):
                     self._move_entity_to_next_scene(e, manager)
+
+    def __set_correct_exit(self, manager):
+        from pygine.scenes import SceneType
+        for t in manager.get_scene(self.next_scene).triggers:
+            if t.next_scene == SceneType.VILLAGE:
+                t.end_location = Vector2(self.x, self.y)
+
 
     def update(self, delta_time, entities, manager):
         self.__collision(entities, manager)
