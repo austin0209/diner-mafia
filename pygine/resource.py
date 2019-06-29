@@ -70,7 +70,9 @@ class SpriteType(IntEnum):
     WAVE = 60
     ROCK = 61
 
-    TILE = 62
+    SIDEWALK_LONG = 62
+    SIDEWALK_TALL = 63
+    TREE_CLUSTER = 64
 
 
 SPRITE_SHEET = pygame.image.load(
@@ -91,7 +93,7 @@ class Sprite(PygineObject):
     def set_frame(self, frame, columns):
         self.__sprite_x = self.__original_sprite_x + frame % columns * self.width
         self.__sprite_y = self.__original_sprite_y + \
-            int(frame / columns) * self.height
+                          int(frame / columns) * self.height
         self.__apply_changes_to_sprite()
 
     def increment_sprite_x(self, increment):
@@ -237,18 +239,22 @@ class Sprite(PygineObject):
             self._sprite_setup(0, 480, 256, 80)
 
         elif (self.type == SpriteType.OCTOPUS):
-            self._sprite_setup(112, 816, 16 * 3, 16 * 3)
+            self._sprite_setup(112, 784, 16 * 3, 16 * 3)
         elif (self.type == SpriteType.INK_BULLET):
-            self._sprite_setup(160, 848, 16, 16)
+            self._sprite_setup(160, 800, 16, 16)
         elif (self.type == SpriteType.BOAT):
-            self._sprite_setup(112, 896, 16 * 7, 16 * 4)
+            self._sprite_setup(112, 880, 16 * 7, 16 * 5)
         elif (self.type == SpriteType.WAVE):
             self._sprite_setup(176, 880, 16, 16)
         elif (self.type == SpriteType.ROCK):
-            self._sprite_setup(144, 864, 16 * 2, 16 * 2)
+            self._sprite_setup(176, 784, 16 * 3, 16 * 2)
 
-        elif (self.type == SpriteType.TILE):
-            self._sprite_setup(32, 0, 16, 16)
+        elif (self.type == SpriteType.SIDEWALK_LONG):
+            self._sprite_setup(32, 0, 608, 32)
+        elif (self.type == SpriteType.SIDEWALK_TALL):
+            self._sprite_setup(976, 592, 32, 272)            
+        elif (self.type == SpriteType.TREE_CLUSTER):
+            self._sprite_setup(368, 80, 64, 48)               
 
         self.__apply_changes_to_sprite()
 
@@ -274,6 +280,6 @@ class Animation:
         self.__timer.update()
         if self.__timer.done:
             self.current_frame = self.current_frame + \
-                1 if self.current_frame + 1 < self.total_frames else 0
+                                 1 if self.current_frame + 1 < self.total_frames else 0
             self.__timer.reset()
             self.__timer.start()

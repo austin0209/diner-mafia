@@ -87,12 +87,14 @@ class SceneManager:
 
         self.start_transition = True
 
-    def queue_next_scene(self, scene_type):
+    def queue_next_scene(self, scene_type, end_location):
+        self.__end_location = end_location
         self.__previous_scene = self.__current_scene
         self.__next_scene = self.__all_scenes[int(scene_type)]
         self.__setup_transition()
 
     def __change_scenes(self):
+        self.__current_scene.player.set_location(self.__end_location.x, self.__end_location.y)
         self.__current_scene = self.__next_scene
 
     def __update_input(self):
@@ -101,11 +103,13 @@ class SceneManager:
             self.__reset()
 
     def __update_transition(self, delta_time):
-        if self.start_transition:
+        if self.start_transition and not self.enter_transition.done:
             self.leave_transition.update(delta_time)
             if self.leave_transition.done:
                 self.enter_transition.update(delta_time)
                 self.__change_scenes()
+        else:
+            self.start_transition = False
 
     def update(self, delta_time):
         assert (self.__current_scene != None), \
@@ -113,7 +117,8 @@ class SceneManager:
 
         self.__update_input()
         self.__update_transition(delta_time)
-        self.__current_scene.update(delta_time)
+        if not self.start_transition:
+            self.__current_scene.update(delta_time)
 
     def __draw_transitions(self, surface):
         if self.start_transition:
@@ -145,7 +150,8 @@ class Scene(object):
         self.leave_transition_type = TransitionType.PINHOLE_CLOSE
         self.enter_transition_type = TransitionType.PINHOLE_OPEN
 
-        self.manager = None  # this is to be set in SceneManager (add scene method)
+        # this is to be set in SceneManager (add scene method)
+        self.manager = None
         self.player = None
 
     def _reset(self):
@@ -167,7 +173,7 @@ class Scene(object):
     def __update_entities(self, delta_time):
         for i in range(len(self.entities) - 1, -1, -1):
             self.entities[i].update(delta_time, self.entities)
-        self.entities.sort(key=lambda e: e.sprite.y + e.sprite.height)
+        self.entities.sort(key=lambda e: (e.sprite.y + e.sprite.height) * 10 - e.sprite.x)
 
     def __update_triggers(self, delta_time, entities, manager):
         for t in self.triggers:
@@ -210,34 +216,18 @@ class Village(Scene):
             row = file.readline().split(",")
             for x in range(40):
                 column = row[x]
-                if column.strip() != "-1" and randint(1, 10) <= 6:
+                if column.strip() != "-1" and randint(1, 10) <= 8:
                     self.entities.append(Tree(x * 16, y * 16))
 
     def _reset(self):
         self.bounds = Rect(0, 0, 40 * 16, 19 * 16)
 
         self.shapes = [Rectangle(0, 0, 320 * 2, 180 * 2, Color.GRASS_GREEN)]
-        self.sprites = []
-
-        for y in range(2):
-            for x in range(37):
-                self.sprites.append(
-                    Sprite(x * 16, (6 + y) * 16, SpriteType.TILE))
-
-        for y in range(2):
-            for x in range(38):
-                self.sprites.append(
-                    Sprite((2 + x) * 16, (15 + y) * 16, SpriteType.TILE))
-
-        for y in range(17):
-            for x in range(2):
-                self.sprites.append(
-                    Sprite((18 + x) * 16, (0 + y) * 16, SpriteType.TILE))
-
-        for s in self.sprites:
-            if s.type == SpriteType.TILE:
-                if randint(1, 10) <= 2:
-                    s.increment_sprite_x(16)
+        self.sprites = [
+            Sprite(-1 * 16, 6 * 16, SpriteType.SIDEWALK_LONG),
+            Sprite(2 * 16, 15 * 16, SpriteType.SIDEWALK_LONG),
+            Sprite(18 * 16, 0 * 16, SpriteType.SIDEWALK_TALL),
+        ]
 
         self.entities = [
             SimpleHouse(1 * 16, 1 * 16),
@@ -285,7 +275,7 @@ class Village(Scene):
                             e.x + (40 - 16) / 2, e.y + 40,
                             16, 8,
                             Vector2(
-                                9 * 16 + 8 + 3, 8 * 16 + 10
+                                16 * 5 + 11, 16 * 8 + 10
                             ),
                             SceneType.ROOM_SPECIAL
                         )
@@ -296,7 +286,7 @@ class Village(Scene):
                             e.x, e.y + 32,
                             32, 8,
                             Vector2(
-                                9 * 16 + 8 + 3, 8 * 16 + 10
+                                16 * 5 + 11, 16 * 8 + 10
                             ),
                             SceneType.SHOP
                         )
@@ -307,7 +297,7 @@ class Village(Scene):
                             e.x + 16, e.y + 32,
                             16, 8,
                             Vector2(
-                                9 * 16 + 8 + 3, 8 * 16 + 10
+                                16 * 5 + 11, 16 * 8 + 10
                             ),
                             SceneType.DINER
                         )
@@ -555,7 +545,8 @@ class Minigame(Scene):
             "A class that inherits Minigame did not implement the start_game() method")
 
     def _exit_game(self, end_x, end_y, item, new_scene):
-        self.manager.queue_next_scene(new_scene)  # TODO: should take you to dock scene later
+        # TODO: should take you to dock scene later
+        self.manager.queue_next_scene(new_scene, Vector2(end_x, end_y))
         new_player = Player(end_x, end_y)
         new_player.item_carrying = item
         self.manager.get_scene(new_scene).relay_player(new_player)
@@ -583,7 +574,7 @@ class CoffeeMinigame(Minigame):
                 16 * 9
             )
         )
-        self.__game_timer = Timer(10_000)
+        self.__game_timer = Timer(10000)
         self.__spawn_timer = Timer(1500, True)
 
     def _create_triggers(self):
@@ -607,7 +598,8 @@ class CoffeeMinigame(Minigame):
         self.__game_timer.update()
         if self.__game_timer.done:
             # Game is over, change scene
-            self._exit_game(16 * 4, 16 * 9, Coffee(0, 0), SceneType.VILLAGE)  # TODO: should be dock later
+            # TODO: should be dock later
+            self._exit_game(16 * 4, 16 * 9, Coffee(0, 0), SceneType.VILLAGE)
             self._reset()
             self.__game_timer.reset()
         else:
