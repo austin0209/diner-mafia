@@ -240,6 +240,7 @@ class SpeechBubble(Entity):
         self.sprite.draw(surface, CameraType.DYNAMIC)
         self.__content.draw(surface, CameraType.DYNAMIC)
 
+
 class NPCType(IntEnum):
     MALE = 0
     FEMALE = 1
@@ -417,6 +418,7 @@ class Merchant(NPC):
                         entities.append(self.speech_bubble)
                     else:
                         entities.remove(self.speech_bubble)
+
 
 class Building(Entity):
     def __init__(self, x, y, width, height):
@@ -645,7 +647,6 @@ class SellPad(Entity):
                     if e.input.pressing(InputType.A) and int(e.facing) == int(self.direction):
                         pygine.globals.money += e.item_carrying.value
                         e.item_carrying = None
-                        print(pygine.globals.money)
 
     def update(self, delta_time, entities):
         self.__collision(entities)
