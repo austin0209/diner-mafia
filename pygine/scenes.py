@@ -236,6 +236,8 @@ class Village(Scene):
             if isinstance(e, Wall):
                 e.apply_an_offset(0, 6)
 
+        self._sort_entities()
+
     def __load_trees(self):
         file = open('pygine/assets/scenes/trees.csv', "r")
         for y in range(20):
@@ -275,6 +277,8 @@ class Village(Scene):
             Diner(21 * 16, 10 * 16),
 
         ]
+
+        self._sort_entities()
 
     def _create_triggers(self):
         self.triggers = [
@@ -383,6 +387,8 @@ class Forest(Scene):
            
         ]
 
+        self._sort_entities()
+
     def _create_triggers(self):
         self.triggers.append(
             CollisionTrigger(
@@ -432,6 +438,8 @@ class Ocean(Scene):
 
         ]
 
+        self._sort_entities()
+
     def _create_triggers(self):
         self.triggers = [
             MinigameTrigger(
@@ -475,6 +483,8 @@ class RoomSimple(Scene):
 
         ]
 
+        self._sort_entities()
+
     def _create_triggers(self):
         self.triggers.append(
             CollisionTrigger(
@@ -512,6 +522,8 @@ class RoomSpecial(Scene):
             Wall(18, 5, 1, 4),
 
         ]
+
+        self._sort_entities()
 
     def _create_triggers(self):
         self.triggers.append(
@@ -553,6 +565,8 @@ class ShopScene(Scene):
             Wall(18, 5, 1, 4),
 
         ]
+
+        self._sort_entities()
 
     def _create_triggers(self):
         self.triggers.append(
@@ -597,6 +611,8 @@ class DinerScene(Scene):
             Merchant(6 * 16 + 3, 6 * 16 - 12, NPCType.MALE, SpriteType.COFFEE_PRO)
 
         ]
+
+        self._sort_entities()
 
     def _create_triggers(self):
         self.triggers.append(
@@ -649,6 +665,8 @@ class CoffeeMinigame(Minigame):
         )
         self.__game_timer = Timer(35000)
         self.__spawn_timer = Timer(1500, True)
+
+        self._sort_entities()
 
     def _create_triggers(self):
         pass
