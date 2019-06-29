@@ -569,7 +569,7 @@ class CoffeeMinigame(Minigame):
                 16 * 9
             )
         )
-        self.__game_timer = Timer(10_000)
+        self.__game_timer = Timer(30000)
         self.__spawn_timer = Timer(1500, True)
 
     def _create_triggers(self):
@@ -577,8 +577,8 @@ class CoffeeMinigame(Minigame):
 
     def __spawn_random(self):
         grid_unit_size = self.player.playbounds.height / 5
-        rand_x = randint(0, 4) * grid_unit_size + Camera.BOUNDS.width
-        rand_y = randint(0, 4) * grid_unit_size + self.player.playbounds.y + 5
+        rand_x = randint(-2, 4) * grid_unit_size + Camera.BOUNDS.width
+        rand_y = randint(-2, 4) * grid_unit_size + self.player.playbounds.y
         if random() < 0.40:
             self.entities.append(Octopus(rand_x, rand_y))
         else:
@@ -600,7 +600,7 @@ class CoffeeMinigame(Minigame):
         else:
             self.__spawn_timer.update()
             if self.__spawn_timer.done:
-                if random() < 0.5:
+                if randint(1,10) <= 7:
                     self.__spawn_random()
                 self.__spawn_timer.reset()
                 self.__spawn_timer.start()
