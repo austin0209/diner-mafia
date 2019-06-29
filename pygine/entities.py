@@ -444,6 +444,9 @@ class Wall(Entity):
             x * 16, y * 16 + 10, width * 16, height * 16)
         self.set_color(Color.BLUE)
 
+    def apply_an_offset(self, x_offset, y_offset):
+        self.set_location(self.x + x_offset, self.y + y_offset)
+
     def update(self, delta_time, entities):
         pass
 
