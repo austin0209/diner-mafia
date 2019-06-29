@@ -324,8 +324,8 @@ class Animation:
         self.__timer = Timer(self.__frame_duration)
         self.__timer.start()
 
-    def update(self):
-        self.__timer.update()
+    def update(self, delta_time):
+        self.__timer.update(delta_time)
         if self.__timer.done:
             self.current_frame = self.current_frame + \
                                  1 if self.current_frame + 1 < self.total_frames else 0

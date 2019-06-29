@@ -29,13 +29,12 @@ class Timer:
     def reset(self):
         self.started = False
         self.done = False
-        self.starting_ticks = 0
         self.ticks = 0
 
-    def update(self):
+    def update(self, delta_time):
         if self.started and not self.done:
-            self.ticks = pygame.time.get_ticks()
-            if self.ticks - self.starting_ticks >= self.length:
+            self.ticks += delta_time
+            if self.ticks * 1000 >= self.length:
                 self.done = True
 
 
@@ -108,9 +107,9 @@ class Input:
 
         return False
 
-    def update(self):
+    def update(self, delta_time):
         self.key_state = pygame.key.get_pressed()
-        self.timer.update()
+        self.timer.update(delta_time)
         if not self.no_spam and self.timer.done:
             self.no_spam = True
             self.timer.reset()

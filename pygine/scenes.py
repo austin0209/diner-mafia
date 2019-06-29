@@ -97,8 +97,8 @@ class SceneManager:
         self.__current_scene.player.set_location(self.__end_location.x, self.__end_location.y)
         self.__current_scene = self.__next_scene
 
-    def __update_input(self):
-        self.input.update()
+    def __update_input(self, delta_time):
+        self.input.update(delta_time)
         if self.input.pressing(InputType.RESET):
             self.__reset()
 
@@ -115,7 +115,7 @@ class SceneManager:
         assert (self.__current_scene != None), \
             "It looks like you never set a starting scene! Make sure to call __set_starting_scene(starting_scene_type)"
 
-        self.__update_input()
+        self.__update_input(delta_time)
         self.__update_transition(delta_time)
         if not self.start_transition:
             self.__current_scene.update(delta_time)
@@ -232,6 +232,12 @@ class Village(Scene):
         ]
 
         self.entities = [
+            NPC(25 * 16, 7 * 16, NPCType.MALE),
+            NPC(19 * 16, 4 * 16, NPCType.FEMALE, horizontal=False),
+            NPC(10 * 16, 15 * 16, NPCType.FEMALE),
+            NPC(32 * 16, 16 * 16, NPCType.MALE),
+            NPC(18 * 16, 9 * 16, NPCType.MALE, horizontal=False, walk_duration=3000),
+            NPC(24 * 16, 15 * 16, NPCType.FEMALE),
             SimpleHouse(1 * 16, 1 * 16),
             SimpleHouse(9 * 16, 10 * 16),
             SimpleHouse(14 * 16, 10 * 16),
@@ -410,7 +416,7 @@ class Ocean(Scene):
                 SceneType.COFFEE_MINIGAME
             ),
             CollisionTrigger(
-                0, Camera.BOUNDS.height, 
+                0, Camera.BOUNDS.height,
                 Camera.BOUNDS.width, 16,
                 Vector2(18 * 16, 1 * 16),
                 SceneType.VILLAGE
@@ -504,6 +510,8 @@ class ShopScene(Scene):
                    (Camera.BOUNDS.height - 160) / 2, SpriteType.SHOP_INSIDE)
         ]
         self.entities = [
+            NPC(6 * 16, 6 * 16, NPCType.FEMALE, can_move=False),
+            NPC(3 * 16, 8 * 16, NPCType.MALE),
             CounterShop(2 * 16, 6 * 16),
             Shelf(10 * 16, 5 * 16, False),
             Shelf(12 * 16, 5 * 16, False),

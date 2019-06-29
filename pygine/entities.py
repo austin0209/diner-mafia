@@ -147,8 +147,8 @@ class Player(Actor):
             self.set_location(self.x + self.move_speed, self.y)
             self.velocity.x = 1
 
-    def _update_input(self):
-        self.input.update()
+    def _update_input(self, delta_time):
+        self.input.update(delta_time)
         self.walking = False
         if self.input.pressing(InputType.UP) and not self.input.pressing(InputType.DOWN):
             self._move(Direction.UP)
@@ -179,14 +179,14 @@ class Player(Actor):
                     isinstance(e, Building) or
                     isinstance(e, Furniture) or
                     isinstance(e, Wall) or
-                    isinstance(e, Tree) or
-                    isinstance(e, NPC)
+                    isinstance(e, Tree)
+                    # isinstance(e, NPC)
             ):
                 self._rectangle_collision_logic(e)
 
-    def _update_animation(self):
+    def _update_animation(self, delta_time):
         if self.walking:
-            self.animation_walk.update()
+            self.animation_walk.update(delta_time)
             self.sprite.set_frame(self.animation_walk.current_frame, self.animation_walk.columns)
             self.arms.set_frame(self.animation_walk.current_frame, self.animation_walk.columns)
         else:
@@ -199,10 +199,10 @@ class Player(Actor):
 
     def update(self, delta_time, entities):
         self._calculate_scaled_speed(delta_time)
-        self._update_input()
+        self._update_input(delta_time)
         self._update_collision_rectangles()
         self._collision(entities)
-        self._update_animation()
+        self._update_animation(delta_time)
         self._update_item()
 
     def draw(self, surface):
@@ -223,25 +223,80 @@ class NPCType(IntEnum):
 
 
 class NPC(Kinetic):
-    def __init__(self, x, y, type):
-        super(NPC, self).__init__(x, y, 10, 10, 50)
+    def __init__(self, x, y, type, can_move=True, horizontal=True, start_direction=1, walk_duration=5000):
+        super(NPC, self).__init__(x, y, 10, 10, 25)
         self.type = type
-        if self.type == NPCType.MALE:
-            self.sprite = Sprite(self.x - 3, self.y - 22, SpriteType.NPC_M_F)
-        if self.type == NPCType.FEMALE:
-            self.sprite = Sprite(self.x - 3, self.y - 22, SpriteType.NPC_F_F)
+        self.sprite = Sprite(self.x - 3, self.y - 22, SpriteType.NONE)
         self.shadow = Sprite(self.x - 3, self.y - 21, SpriteType.PLAYER_SHADOW)
         self.speech_bubble = Sprite(
             self.x - 11, self.y - 32 - 11, SpriteType.SPEECH_BUBBLE)
         self.radius = 32
         self.show_prompt = False
         self.set_color(Color.RED)
+        self.walk_direction = 1 if start_direction >= 0 else -1
+        self.horizontal = horizontal
+        self.can_move = can_move
+        self._walk_timer = Timer(walk_duration, True)
+        self.animation_walk = Animation(6, 6, 100)
+        self.walking = True
+        self._set_walking_sprite()
 
     def set_location(self, x, y):
         super(NPC, self).set_location(x, y)
         self.sprite.set_location(self.x - 3, self.y - 22)
         self.shadow.set_location(self.x - 3, self.y - 21)
-        self.speech_bubble.set_height(self.x + 8, self.y - 28)
+        self.speech_bubble.set_location(self.x + 8, self.y - 28)
+
+    def _walk(self, delta_time):
+        self._walk_timer.update(delta_time)
+        if self._walk_timer.done:
+            if random() < 0.25:
+                if not self.horizontal:
+                    if self.type == NPCType.MALE:
+                        self.sprite.set_sprite(SpriteType.NPC_M_F)
+                    else:
+                        self.sprite.set_sprite(SpriteType.NPC_F_F)
+                self.walking = not self.walking
+            if self.walking:
+                self.walk_direction = -self.walk_direction
+                self._set_walking_sprite()
+            self._walk_timer.reset()
+            self._walk_timer.start()
+        if self.walking:
+            if self.horizontal:
+                self.set_location(self.x + self.move_speed * self.walk_direction, self.y)
+            else:
+                self.set_location(self.x, self.y + self.move_speed * self.walk_direction)
+
+    def _set_walking_sprite(self):
+        if self.can_move:
+            if self.horizontal:
+                if self.walk_direction > 0:
+                    if self.type == NPCType.MALE:
+                        self.sprite.set_sprite(SpriteType.NPC_M_R)
+                    else:
+                        self.sprite.set_sprite(SpriteType.NPC_F_R)
+                else:
+                    if self.type == NPCType.MALE:
+                        self.sprite.set_sprite(SpriteType.NPC_M_L)
+                    else:
+                        self.sprite.set_sprite(SpriteType.NPC_F_L)
+            else:
+                if self.walk_direction > 0:
+                    if self.type == NPCType.MALE:
+                        self.sprite.set_sprite(SpriteType.NPC_M_F)
+                    else:
+                        self.sprite.set_sprite(SpriteType.NPC_F_F)
+                else:
+                    if self.type == NPCType.MALE:
+                        self.sprite.set_sprite(SpriteType.NPC_M_B)
+                    else:
+                        self.sprite.set_sprite(SpriteType.NPC_F_B)
+        else:
+            if self.type == NPCType.MALE:
+                self.sprite.set_sprite(SpriteType.NPC_M_F)
+            else:
+                self.sprite.set_sprite(SpriteType.NPC_F_F)
 
     def _within_radius(self, e):
         if distance_between(self.center, e.center) <= self.radius:
@@ -253,6 +308,13 @@ class NPC(Kinetic):
         for e in entities:
             if isinstance(e, Player):
                 self._within_radius(e)
+
+    def _update_animation(self, delta_time):
+        if self.walking:
+            self.animation_walk.update(delta_time)
+            self.sprite.set_frame(self.animation_walk.current_frame, self.animation_walk.columns)
+        else:
+            self.sprite.set_frame(0, self.animation_walk.columns)
 
     def _rectangle_collision_logic(self, entity):
         # Bottom
@@ -280,9 +342,13 @@ class NPC(Kinetic):
         self._update_conversation(entities)
 
         self._calculate_scaled_speed(delta_time)
+        if self.can_move:
+            self._walk(delta_time)
         # update_MASTER_AI_SYSTEM
         self._update_collision_rectangles()
         self._collision(entities)
+        if self.can_move:
+            self._update_animation(delta_time)
 
     def draw(self, surface):
         if pygine.globals.debug:
