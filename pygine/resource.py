@@ -91,6 +91,11 @@ class SpriteType(IntEnum):
 
     BOAT_OWO = 77
 
+    FACE_HAPPY = 78
+    FACE_SAD = 79
+    FACE_MAD = 80
+    FACE_SURPRISED = 81
+
 
 
 SPRITE_SHEET = pygame.image.load(
@@ -302,7 +307,16 @@ class Sprite(PygineObject):
         elif (self.type == SpriteType.ROCK_WALL_R):
             self._sprite_setup(352, 880, 32, 64)                   
         elif (self.type == SpriteType.ROCK_WALL_L):
-            self._sprite_setup(384, 880, 32, 64)       
+            self._sprite_setup(384, 880, 32, 64)
+
+        elif (self.type == SpriteType.FACE_HAPPY):
+            self._sprite_setup(144, 752, 16, 16)
+        elif (self.type == SpriteType.FACE_SAD):
+            self._sprite_setup(144 + 16, 752, 16, 16)
+        elif (self.type == SpriteType.FACE_MAD):
+            self._sprite_setup(144, 752 + 16, 16, 16)
+        elif (self.type == SpriteType.FACE_SURPRISED):
+            self._sprite_setup(144 + 16, 752 + 16, 16, 16)
 
         self.__apply_changes_to_sprite()
 
