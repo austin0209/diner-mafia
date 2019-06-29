@@ -173,7 +173,7 @@ class Scene(object):
     def __update_entities(self, delta_time):
         for i in range(len(self.entities) - 1, -1, -1):
             self.entities[i].update(delta_time, self.entities)
-        self.entities.sort(key=lambda e: e.sprite.y + e.sprite.height)
+        self.entities.sort(key=lambda e: (e.sprite.y + e.sprite.height) * 10 - e.sprite.x)
 
     def __update_triggers(self, delta_time, entities, manager):
         for t in self.triggers:
