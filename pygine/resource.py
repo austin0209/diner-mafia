@@ -79,6 +79,17 @@ class SpriteType(IntEnum):
     BOAT_SHADOW = 67
     ROCK_SHADOW = 68
 
+    BEACH = 69
+
+    HOOK = 70
+    FISH_SMALL_R = 71
+    FISH_SMALL_L = 72
+    FISH_LARGE_R = 73
+    FISH_LARGE_L = 74
+    ROCK_WALL_R = 75
+    ROCK_WALL_L = 76
+
+
 
 
 SPRITE_SHEET = pygame.image.load(
@@ -269,7 +280,25 @@ class Sprite(PygineObject):
         elif (self.type == SpriteType.BOAT_SHADOW):
             self._sprite_setup(112, 960, 112, 48)   
         elif (self.type == SpriteType.ROCK_SHADOW):
-            self._sprite_setup(176, 816, 48, 32)                         
+            self._sprite_setup(176, 816, 48, 32)         
+
+        elif (self.type == SpriteType.BEACH):
+            self._sprite_setup(704, 400, 320, 180)                
+
+        elif (self.type == SpriteType.HOOK):
+            self._sprite_setup(352, 816, 16, 32)                  
+        elif (self.type == SpriteType.FISH_SMALL_R):
+            self._sprite_setup(384, 848, 32, 16)                   
+        elif (self.type == SpriteType.FISH_SMALL_L):
+            self._sprite_setup(352, 848, 32, 16)               
+        elif (self.type == SpriteType.FISH_LARGE_R):
+            self._sprite_setup(384, 864, 32, 16)                   
+        elif (self.type == SpriteType.FISH_LARGE_L):
+            self._sprite_setup(352, 864, 32, 16)                       
+        elif (self.type == SpriteType.ROCK_WALL_R):
+            self._sprite_setup(352, 880, 32, 64)                   
+        elif (self.type == SpriteType.ROCK_WALL_L):
+            self._sprite_setup(384, 880, 32, 64)       
 
         self.__apply_changes_to_sprite()
 
