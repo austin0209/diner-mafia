@@ -94,7 +94,8 @@ class SceneManager:
         self.__setup_transition()
 
     def __change_scenes(self):
-        self.__current_scene.player.set_location(self.__end_location.x, self.__end_location.y)
+        self.__current_scene.player.set_location(
+            self.__end_location.x, self.__end_location.y)
         self.__current_scene = self.__next_scene
 
     def __update_input(self):
@@ -173,7 +174,8 @@ class Scene(object):
     def __update_entities(self, delta_time):
         for i in range(len(self.entities) - 1, -1, -1):
             self.entities[i].update(delta_time, self.entities)
-        self.entities.sort(key=lambda e: (e.sprite.y + e.sprite.height) * 10 - e.sprite.x)
+        self.entities.sort(key=lambda e: (
+            e.sprite.y + e.sprite.height) * 10 - e.sprite.x)
 
     def __update_triggers(self, delta_time, entities, manager):
         for t in self.triggers:
@@ -209,6 +211,20 @@ class Village(Scene):
         self._reset()
         self._create_triggers()
         self.__load_trees()
+        self.__load_bounds()
+
+    def __load_bounds(self):
+        file = open('pygine/assets/scenes/bounds_village.csv', "r")
+        for y in range(22):
+            row = file.readline().split(",")
+            for x in range(42):
+                column = row[x]
+                if column.strip() != "-1":
+                    self.entities.append(Wall(x - 1, y - 2, 1, 1))
+
+        for e in self.entities:
+            if isinstance(e, Wall):
+                e.apply_an_offset(0, 6)
 
     def __load_trees(self):
         file = open('pygine/assets/scenes/trees.csv', "r")
@@ -315,6 +331,30 @@ class Forest(Scene):
         super(Forest, self).__init__()
         self._reset()
         self._create_triggers()
+        self.__load_trees()
+        self.__load_bounds()
+
+    def __load_bounds(self):
+        file = open('pygine/assets/scenes/bounds_forest.csv', "r")
+        for y in range(13):
+            row = file.readline().split(",")
+            for x in range(22):
+                column = row[x]
+                if column.strip() != "-1":
+                    self.entities.append(Wall(x - 1, y - 1, 1, 1))
+
+        for e in self.entities:
+            if isinstance(e, Wall):
+                e.apply_an_offset(0, 8)
+
+    def __load_trees(self):
+        file = open('pygine/assets/scenes/trees_forest.csv', "r")
+        for y in range(11):
+            row = file.readline().split(",")
+            for x in range(20):
+                column = row[x]
+                if column.strip() != "-1":
+                    self.entities.append(Tree(x * 16, y * 16))        
 
     def _reset(self):
         self.shapes = []
@@ -324,41 +364,7 @@ class Forest(Scene):
                 self.sprites.append(Sprite(x * 32, y * 32, SpriteType.GRASS))
 
         self.entities = [
-            Tree(16 + 16 * 0, 16 + 16 * 0),
-            Tree(32 + 16 * 0, 16 + 16 * 0),
-            Tree(64 + 16 * 0, 16 + 16 * 0),
-            Tree(32 + 16 * 0, 32 + 16 * 0),
-            Tree(48 + 16 * 0, 48 + 16 * 0),
-
-            Tree(16 + 16 * 10, 16 + 16 * 5),
-            Tree(32 + 16 * 10, 16 + 16 * 5),
-            Tree(64 + 16 * 10, 16 + 16 * 5),
-            Tree(32 + 16 * 10, 32 + 16 * 5),
-            Tree(48 + 16 * 10, 48 + 16 * 5),
-
-            Tree(16 + 16 * 7, 16 + 16 * 3),
-            Tree(32 + 16 * 7, 16 + 16 * 3),
-            Tree(64 + 16 * 7, 16 + 16 * 3),
-            Tree(32 + 16 * 7, 32 + 16 * 3),
-            Tree(48 + 16 * 7, 48 + 16 * 3),
-
-            Tree(16 + 16 * 2, 16 + 16 * 8),
-            Tree(32 + 16 * 2, 16 + 16 * 8),
-            Tree(64 + 16 * 2, 16 + 16 * 8),
-            Tree(32 + 16 * 2, 32 + 16 * 8),
-            Tree(48 + 16 * 2, 48 + 16 * 8),
-
-            Tree(16 + 16 * 10, 16 + 16 * 6),
-            Tree(32 + 16 * 10, 16 + 16 * 6),
-            Tree(64 + 16 * 10, 16 + 16 * 6),
-            Tree(32 + 16 * 10, 32 + 16 * 6),
-            Tree(48 + 16 * 10, 48 + 16 * 6),
-
-            Tree(16 + 16 * 15, 16 + 16 * 2),
-            Tree(32 + 16 * 15, 16 + 16 * 2),
-            Tree(64 + 16 * 15, 16 + 16 * 2),
-            Tree(32 + 16 * 15, 32 + 16 * 2),
-            Tree(48 + 16 * 15, 48 + 16 * 2),
+           
         ]
 
     def _create_triggers(self):
@@ -385,6 +391,16 @@ class Ocean(Scene):
         super(Ocean, self).__init__()
         self._reset()
         self._create_triggers()
+        self.__load_bounds()
+
+    def __load_bounds(self):
+        file = open('pygine/assets/scenes/bounds_ocean.csv', "r")
+        for y in range(11):
+            row = file.readline().split(",")
+            for x in range(20):
+                column = row[x]
+                if column.strip() != "-1":
+                    self.entities.append(Wall(x, y, 1, 1))
 
     def _reset(self):
         self.bounds = Rect(0, 0, 320, 180)
@@ -395,6 +411,9 @@ class Ocean(Scene):
         ]
 
         self.entities = [
+            Wall(-1, 0, 1, 12),
+            Wall(20, 0, 1, 12),
+
         ]
 
     def _create_triggers(self):
@@ -408,7 +427,7 @@ class Ocean(Scene):
                 SceneType.COFFEE_MINIGAME
             ),
             CollisionTrigger(
-                0, Camera.BOUNDS.height, 
+                0, Camera.BOUNDS.height,
                 Camera.BOUNDS.width, 16,
                 Vector2(18 * 16, 1 * 16),
                 SceneType.VILLAGE
@@ -633,13 +652,14 @@ class CoffeeMinigame(Minigame):
         if self.__game_timer.done:
             # Game is over, change scene
             # TODO: should be dock later
-            self._exit_game(12 * 16 + 11, 4 * 16, Coffee(0, 0), SceneType.OCEAN)
+            self._exit_game(12 * 16 + 11, 4 * 16,
+                            Coffee(0, 0), SceneType.OCEAN)
             self._reset()
             self.__game_timer.reset()
         else:
             self.__spawn_timer.update()
             if self.__spawn_timer.done:
-                if randint(1,10) <= 7:
+                if randint(1, 10) <= 7:
                     self.__spawn_random()
                 self.__spawn_timer.reset()
                 self.__spawn_timer.start()
