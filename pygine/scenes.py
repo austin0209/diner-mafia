@@ -27,7 +27,6 @@ class SceneManager:
     def __init__(self):
         self.input = Input()
         self.__reset()
-        self.__flag = 0
 
     def get_scene(self, scene_type):
         return self.__all_scenes[int(scene_type)]
@@ -89,16 +88,13 @@ class SceneManager:
         self.start_transition = True
 
     def queue_next_scene(self, scene_type, end_location):
-        self.__flag = 0
         self.__end_location = end_location
         self.__previous_scene = self.__current_scene
         self.__next_scene = self.__all_scenes[int(scene_type)]
         self.__setup_transition()
 
     def __change_scenes(self):
-        if self.__flag == 0:
-            self.__current_scene.player.set_location(self.__end_location.x, self.__end_location.y)
-        self.__flag = 1
+        self.__current_scene.player.set_location(self.__end_location.x, self.__end_location.y)
         self.__current_scene = self.__next_scene
 
     def __update_input(self):
@@ -107,11 +103,13 @@ class SceneManager:
             self.__reset()
 
     def __update_transition(self, delta_time):
-        if self.start_transition:
+        if self.start_transition and not self.enter_transition.done:
             self.leave_transition.update(delta_time)
             if self.leave_transition.done:
                 self.enter_transition.update(delta_time)
                 self.__change_scenes()
+        else:
+            self.start_transition = False
 
     def update(self, delta_time):
         assert (self.__current_scene != None), \
@@ -119,7 +117,8 @@ class SceneManager:
 
         self.__update_input()
         self.__update_transition(delta_time)
-        self.__current_scene.update(delta_time)
+        if not self.start_transition:
+            self.__current_scene.update(delta_time)
 
     def __draw_transitions(self, surface):
         if self.start_transition:

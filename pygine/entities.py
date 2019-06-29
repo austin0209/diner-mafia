@@ -421,7 +421,7 @@ class CounterDiner(Furniture):
 
 class StoolTall(Furniture):
     def __init__(self, x, y):
-        super(StoolTall, self).__init__(x, y + 10 + 6, 16, 6)
+        super(StoolTall, self).__init__(x, y + 10, 16, 6)
         self.sprite = Sprite(self.x, self.y - 16 - 6, SpriteType.STOOL_TALL)
 
 
