@@ -22,7 +22,7 @@ class Game:
     def __init__(self):
         self.__initialize_pygame()
 
-        self.__setup_window(320, 240, 60, False,
+        self.__setup_window(320, 240, 30, False,
                           Orientaion.LANDSCAPE, "Village Game")
         self.__setup_pixel_scene(320, 180)
         self.__setup_cameras()

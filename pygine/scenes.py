@@ -657,7 +657,7 @@ class CoffeeMinigame(Minigame):
                     Rock(rand_x + randint(min_offset, max_offset), rand_y + randint(min_offset, max_offset)))
 
     def update(self, delta_time):
-        self.__game_timer.update()
+        self.__game_timer.update(delta_time)
         if self.__game_timer.done:
             # Game is over, change scene
             self._exit_game(12 * 16 + 11, 4 * 16,
@@ -665,7 +665,7 @@ class CoffeeMinigame(Minigame):
             self._reset()
             self.__game_timer.reset()
         else:
-            self.__spawn_timer.update()
+            self.__spawn_timer.update(delta_time)
             if self.__spawn_timer.done:
                 if randint(1, 10) <= 7:
                     self.__spawn_random()

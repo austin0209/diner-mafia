@@ -634,8 +634,8 @@ class Boat(Actor):
             self.set_location(self.x + self.move_speed, self.y)
             self.velocity.x = 1
 
-    def _update_input(self):
-        self.input.update()
+    def _update_input(self, delta_time):
+        self.input.update(delta_time)
         if self.input.pressing(InputType.UP):
             self._move(Direction.UP)
         if self.input.pressing(InputType.DOWN):
@@ -645,10 +645,10 @@ class Boat(Actor):
         if self.input.pressing(InputType.RIGHT):
             self._move(Direction.RIGHT)
 
-    def __update_health(self):
+    def __update_health(self, delta_time):
         if self.damaged:
-            self.invis_timer.update()
-            self.blink_timer.update()
+            self.invis_timer.update(delta_time)
+            self.blink_timer.update(delta_time)
             if self.blink_timer.done:
                 self.flashing = not self.flashing
                 self.blink_timer.reset()
@@ -677,9 +677,9 @@ class Boat(Actor):
 
     def update(self, delta_time, entities):
         self._calculate_scaled_speed(delta_time)
-        self._update_input()
+        self._update_input(delta_time)
         self._collision(entities)
-        self.__update_health()
+        self.__update_health(delta_time)
         self.__check_death()
 
     def draw(self, surface):
@@ -722,7 +722,7 @@ class Octopus(Kinetic):
         self.i += delta_time * 1
         self._calculate_scaled_speed(delta_time)
         self.__move(entities)
-        self.timer.update()
+        self.timer.update(delta_time)
         if self.timer.done:
             if random() < 0.25:
                 self.__shoot(entities)
