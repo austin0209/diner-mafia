@@ -120,6 +120,9 @@ class Player(Actor):
         self.arms.set_location(self.x - 3, self.y - 22)
         self.shadow.set_location(self.x - 3, self.y - 21)
 
+        if self.item_carrying != None:
+            self.item_carrying.set_location(self.x - 3, self.sprite.y - 8)
+
     def _move(self, direction=Direction.NONE):
         self.facing = direction
         self.walking = True
@@ -190,12 +193,9 @@ class Player(Actor):
             self.sprite.set_frame(0, self.animation_walk.columns)
             self.arms.set_frame(0, self.animation_walk.columns)
 
-
     def _update_item(self):
         if self.item_carrying != None:
-            self.item_carrying.set_location(self.x - 3, self.sprite.y - 8)
             self.arms.increment_sprite_x(16 * 6)
-
 
     def update(self, delta_time, entities):
         self._calculate_scaled_speed(delta_time)
@@ -351,7 +351,7 @@ class Tree(Entity):
     def __init__(self, x, y):
         super(Tree, self).__init__(x, y, 10, 10)
         self.sprite = Sprite(self.x - 11 - 16, self.y - 21, SpriteType.TREE_CLUSTER)
-        #self.shadow = Sprite(self.x - 11 - 8, self.y - 21,
+        # self.shadow = Sprite(self.x - 11 - 8, self.y - 21,
         #                     SpriteType.TREE_THING_SHADOW)
 
     def update(self, delta_time, entities):
@@ -361,7 +361,7 @@ class Tree(Entity):
         if pygine.globals.debug:
             self._draw_bounds(surface, CameraType.DYNAMIC)
         else:
-            #self.shadow.draw(surface, CameraType.DYNAMIC)
+            # self.shadow.draw(surface, CameraType.DYNAMIC)
             self.sprite.draw(surface, CameraType.DYNAMIC)
 
 
@@ -512,13 +512,19 @@ class Eggs(Item):
 ###################################################################
 
 class Boat(Actor):
-    def __init__(self, x, y, beans=30):
+    def __init__(self, x, y, beans=50):
         super(Boat, self).__init__(x, y, 83, 16, 50)
         self.beans = beans
         self.playbounds = Rectangle(
             0, 16 * 3, Camera.BOUNDS.width, 16 * 6 + 20)
         self.sprite = Sprite(x - 16, y - 48, SpriteType.BOAT)
         self.shadow = Sprite(x - 16 - 16, y - 16, SpriteType.BOAT_SHADOW)
+        self.blinks = 4
+        self.invis_duration = 1280
+        self.invis_timer = Timer(self.invis_duration)
+        self.blink_timer = Timer(self.invis_duration / self.blinks / 2)
+        self.damaged = False
+        self.flashing = False
 
     def set_location(self, x, y):
         super(Boat, self).set_location(x, y)
@@ -527,11 +533,22 @@ class Boat(Actor):
 
     def _collision(self, entities):
         for e in entities:
-            if isinstance(e, Bullet):
-                if self.bounds.colliderect(e.bounds):
-                    e.dead = True
-                    self.beans -= 5
+            if not self.damaged:
+                if isinstance(e, Bullet) or isinstance(e, Octopus):
+                    if self.bounds.colliderect(e.bounds):
+                        e.dead = True
+                        self.__decrease_health(5)
+                elif isinstance(e, Rock):
+                    if self.bounds.colliderect(e.bounds):
+                        self.__decrease_health(10)
         self.__bounds_collision()
+
+    def __decrease_health(self, amount):
+        self.damaged = True
+        self.beans -= amount
+        self.invis_timer.start()
+        self.blink_timer.start()
+        self.sprite.set_sprite(SpriteType.BOAT_OWO)
 
     def _move(self, direction=Direction.NONE):
         self.facing = direction
@@ -559,6 +576,20 @@ class Boat(Actor):
         if self.input.pressing(InputType.RIGHT):
             self._move(Direction.RIGHT)
 
+    def __update_health(self):
+        if self.damaged:
+            self.invis_timer.update()
+            self.blink_timer.update()
+            if self.blink_timer.done:
+                self.flashing = not self.flashing
+                self.blink_timer.reset()
+                self.blink_timer.start()
+            if self.invis_timer.done:
+                self.damaged = False
+                self.flashing = False
+                self.invis_timer.reset()
+                self.sprite.set_sprite(SpriteType.BOAT)
+
     def __bounds_collision(self):
         if self.x < self.playbounds.x:
             self.x = self.playbounds.x
@@ -579,14 +610,16 @@ class Boat(Actor):
         self._calculate_scaled_speed(delta_time)
         self._update_input()
         self._collision(entities)
+        self.__update_health()
         self.__check_death()
 
     def draw(self, surface):
         if pygine.globals.debug:
             self._draw_bounds(surface, CameraType.DYNAMIC)
         else:
-            self.shadow.draw(surface, CameraType.DYNAMIC)
-            self.sprite.draw(surface, CameraType.DYNAMIC)
+            if not self.flashing:
+                self.shadow.draw(surface, CameraType.DYNAMIC)
+                self.sprite.draw(surface, CameraType.DYNAMIC)
 
 
 class Octopus(Kinetic):
@@ -605,9 +638,9 @@ class Octopus(Kinetic):
     def __shoot(self, entities):
         entities.append(Bullet(self.x, self.y + self.height / 2))
 
-    def __move(self, entities):        
+    def __move(self, entities):
         self.set_location(self.x - self.move_speed, self.y + math.sin(self.i) * 6)
-        #for e in entities:
+        # for e in entities:
         #    if isinstance(e, Boat):
         #        if e.x + e.width / 2 < self.x < Camera.BOUNDS.width * .75:
         #            if abs(self.y - e.y) > self.move_speed:
@@ -664,12 +697,12 @@ class Rock(Kinetic):
         super(Rock, self).__init__(x, y, 34, 14, speed)
         self.sprite = Sprite(x - 7, y - 16, SpriteType.ROCK)
         self.shadow = Sprite(self.x - 7 - 8, self.y - 16, SpriteType.ROCK_SHADOW)
+        self.dead = False
 
     def set_location(self, x, y):
         super(Rock, self).set_location(x, y)
         self.sprite.set_location(self.x - 7, self.y - 16)
         self.shadow.set_location(self.x - 7 - 8, self.y - 16)
-
 
     def update(self, delta_time, entities):
         self._calculate_scaled_speed(delta_time)
