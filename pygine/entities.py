@@ -529,11 +529,12 @@ class ItemType(IntEnum):
 
 
 class Item(Entity):
-    def __init__(self, x, y):
+    def __init__(self, x, y, value):
         super(Item, self).__init__(x, y, 16, 16)
         self._processed = False
         self._type = None
         self._sprite = None
+        self.value = value
 
     def set_location(self, x, y):
         super(Item, self).set_location(x, y)
@@ -547,31 +548,53 @@ class Item(Entity):
 
 
 class Coffee(Item):
-    def __init__(self, x, y):
-        super(Coffee, self).__init__(x, y)
+    def __init__(self, x, y, value):
+        super(Coffee, self).__init__(x, y, value)
         self._type = ItemType.COFFEE
         self._sprite = Sprite(x, y, SpriteType.COFFEE_RAW)
 
 
 class Fish(Item):
-    def __init__(self, x, y):
-        super(Fish, self).__init__(x, y)
+    def __init__(self, x, y, value):
+        super(Fish, self).__init__(x, y, value)
         self._type = ItemType.FISH
         self._sprite = Sprite(x, y, SpriteType.FISH_RAW)
 
 
 class Crop(Item):
-    def __init__(self, x, y):
-        super(Crop, self).__init__(x, y)
+    def __init__(self, x, y, value):
+        super(Crop, self).__init__(x, y, value)
         self._type = ItemType.CROP
         self._sprite = Sprite(x, y, SpriteType.CROP_RAW)
 
 
 class Eggs(Item):
-    def __init__(self, x, y):
-        super(Eggs, self).__init__(x, y)
+    def __init__(self, x, y, value):
+        super(Eggs, self).__init__(x, y, value)
         self._type = ItemType.EGGS
         self._sprite = Sprite(x, y, SpriteType.EGGS_RAW)
+
+
+class SellPad(Entity):
+    def __init__(self, x, y, width, height, direction=Direction.UP):
+        super(SellPad, self).__init__(x, y, width, height)
+        self.direction = direction
+
+    def __collision(self, entities):
+        for e in entities:
+            if e.bounds.colliderect(self.bounds):
+                if isinstance(e, Player) and e.item_carrying is not None:
+                    if e.input.pressing(InputType.A) and int(e.facing) == int(self.direction):
+                        pygine.globals.money += e.item_carrying.value
+                        e.item_carrying = None
+                        print(pygine.globals.money)
+
+    def update(self, delta_time, entities):
+        self.__collision(entities)
+
+    def draw(self, surface):
+        if pygine.globals.debug:
+            self._draw_bounds(surface, CameraType.DYNAMIC)
 
 
 ###################################################################

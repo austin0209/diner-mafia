@@ -584,6 +584,8 @@ class DinerScene(Scene):
             Wall(2, 9, 3, 1),
             Wall(7, 9, 11, 1),
             Wall(18, 4, 1, 5),
+            SellPad(6 * 16, 7 * 16 - 8, 16, 8),
+            NPC(6 * 16 + 3, 6 * 16 - 12, NPCType.FEMALE, can_move=False)
 
         ]
 
@@ -661,7 +663,7 @@ class CoffeeMinigame(Minigame):
         if self.__game_timer.done:
             # Game is over, change scene
             self._exit_game(12 * 16 + 11, 4 * 16,
-                            Coffee(0, 0), SceneType.OCEAN)
+                            Coffee(0, 0, self.player.beans), SceneType.OCEAN)
             self._reset()
             self.__game_timer.reset()
         else:
