@@ -120,6 +120,9 @@ class Player(Actor):
         self.arms.set_location(self.x - 3, self.y - 22)
         self.shadow.set_location(self.x - 3, self.y - 21)
 
+        if self.item_carrying != None:
+            self.item_carrying.set_location(self.x - 3, self.sprite.y - 8)
+
     def _move(self, direction=Direction.NONE):
         self.facing = direction
         self.walking = True
@@ -192,7 +195,6 @@ class Player(Actor):
 
     def _update_item(self):
         if self.item_carrying != None:
-            self.item_carrying.set_location(self.x - 3, self.sprite.y - 8)
             self.arms.increment_sprite_x(16 * 6)
 
     def update(self, delta_time, entities):
@@ -532,7 +534,7 @@ class Boat(Actor):
     def _collision(self, entities):
         for e in entities:
             if not self.damaged:
-                if isinstance(e, Bullet):
+                if isinstance(e, Bullet) or isinstance(e, Octopus):
                     if self.bounds.colliderect(e.bounds):
                         e.dead = True
                         self.__decrease_health(5)
@@ -546,6 +548,7 @@ class Boat(Actor):
         self.beans -= amount
         self.invis_timer.start()
         self.blink_timer.start()
+        self.sprite.set_sprite(SpriteType.BOAT_OWO)
 
     def _move(self, direction=Direction.NONE):
         self.facing = direction
@@ -585,6 +588,7 @@ class Boat(Actor):
                 self.damaged = False
                 self.flashing = False
                 self.invis_timer.reset()
+                self.sprite.set_sprite(SpriteType.BOAT)
 
     def __bounds_collision(self):
         if self.x < self.playbounds.x:

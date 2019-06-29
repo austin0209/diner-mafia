@@ -89,6 +89,7 @@ class SpriteType(IntEnum):
     ROCK_WALL_R = 75
     ROCK_WALL_L = 76
 
+    BOAT_OWO = 77
 
 
 
@@ -265,6 +266,9 @@ class Sprite(PygineObject):
             self._sprite_setup(176, 880, 16, 16)
         elif (self.type == SpriteType.ROCK):
             self._sprite_setup(176, 784, 16 * 3, 16 * 2)
+
+        elif (self.type == SpriteType.BOAT_OWO):
+            self._sprite_setup(240, 944, 16 * 7, 16 * 5)
 
         elif (self.type == SpriteType.SIDEWALK_LONG):
             self._sprite_setup(32, 0, 608, 32)
