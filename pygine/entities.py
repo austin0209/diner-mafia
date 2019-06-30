@@ -18,6 +18,7 @@ class Entity(PygineObject):
         self.color = Color.WHITE
         self.layer = 0
         self.remove = False
+        self.ignore = False
         self.__bounds_that_actually_draw_correctly = Rectangle(
             self.x, self.y, self.width, self.height, self.color, 2)
 
@@ -177,10 +178,13 @@ class Player(Actor):
     def _collision(self, entities):
         for e in entities:
             if (
-                    isinstance(e, Building) or
-                    isinstance(e, Furniture) or
-                    isinstance(e, Wall) or
-                    isinstance(e, Tree)
+                    not e.ignore and
+                    (
+                        isinstance(e, Building) or
+                        isinstance(e, Furniture) or
+                        isinstance(e, Wall) or
+                        isinstance(e, Tree)
+                    )
                     # isinstance(e, NPC)
             ):
                 self._rectangle_collision_logic(e)
@@ -391,13 +395,13 @@ class NPC(Kinetic):
 
     def update(self, delta_time, entities):
         self._update_conversation(entities)
-
         self._calculate_scaled_speed(delta_time)
         if self.can_move:
             self._walk(delta_time)
-        # update_MASTER_AI_SYSTEM
-        self._update_collision_rectangles()
-        self._collision(entities)
+
+        #self._update_collision_rectangles()
+        #self._collision(entities)
+
         if self.can_move:
             self._update_animation(delta_time)
 
@@ -481,7 +485,7 @@ class Diner(Building):
 
 class Tree(Entity):
     def __init__(self, x, y):
-        super(Tree, self).__init__(x, y, 10, 10)
+        super(Tree, self).__init__(x, y, 20, 20)
         self.sprite = Sprite(self.x - 11 - 16, self.y -
                              21, SpriteType.TREE_CLUSTER)
         # self.shadow = Sprite(self.x - 11 - 8, self.y - 21,
@@ -1046,10 +1050,20 @@ class Fishy(Kinetic):
         self.captured = True
 
     def _update_ai(self):
-        if self.velocity.x < 0:
-            self.set_location(self.x - self.move_speed, self.y)
+        self.set_location(self.x + self.move_speed * self.velocity.x, self.y)
+            
+    def flip_velocity(self):
+        self.velocity.x *= -1
+        if self.velocity.x > 0:
+            if self.type == 0:
+                self.sprite.set_sprite(SpriteType.FISH_SMALL_R)
+            elif self.type == 1:
+                self.sprite.set_sprite(SpriteType.FISH_LARGE_R)
         else:
-            self.set_location(self.x + self.move_speed, self.y)
+            if self.type == 0:
+                self.sprite.set_sprite(SpriteType.FISH_SMALL_L)
+            elif self.type == 1:
+                self.sprite.set_sprite(SpriteType.FISH_LARGE_L)
 
     def _collision(self, entities):
         if self.captured:
@@ -1061,24 +1075,17 @@ class Fishy(Kinetic):
                     else:
                         self.set_location(
                             e.x + 2 + randint(-3, 3), e.y + 10 + randint(-3, 3))
+
+                    if randint(1,10) <= 1:
+                        self.flip_velocity()
                     return
 
-        if self.x < -32 or self.x > Camera.BOUNDS.width + 32:
-            self.velocity.x *= -1
-            if self.velocity.x > 0:
-                if self.type == 0:
-                    self.sprite.set_sprite(SpriteType.FISH_SMALL_R)
-                elif self.type == 1:
-                    self.sprite.set_sprite(SpriteType.FISH_LARGE_R)
-            else:
-                if self.type == 0:
-                    self.sprite.set_sprite(SpriteType.FISH_SMALL_L)
-                elif self.type == 1:
-                    self.sprite.set_sprite(SpriteType.FISH_LARGE_L)
+        if (self.bounds.left < -32 and self.velocity.x < 0) or (self.bounds.right > Camera.BOUNDS.width + 32 and self.velocity.x > 0):
+            self.flip_velocity()
 
     def update(self, delta_time, entities):
         self._calculate_scaled_speed(delta_time)
-        self._update_collision_rectangles()
+        #self._update_collision_rectangles()
         self._update_ai()
         self._collision(entities)
 

@@ -73,8 +73,8 @@ class SceneManager:
         self.__current_scene = self.__all_scenes[int(starting_scene_type)]
         self.__current_scene.relay_player(
             Player(
-                16 * 4,
-                16 * 9
+                16 * 7,
+                16 * 5
             )
         )
 
@@ -141,12 +141,14 @@ class SceneManager:
 
 
 class Scene(object):
+    VIEWPORT_BUFFER = 32
+
     def __init__(self):
         self.camera = Camera()
         self.camera_location = Vector2(0, 0)
         self.bounds = Rect(0, 0, Camera.BOUNDS.width, Camera.BOUNDS.height)
         self.camera_viewport = Rectangle(
-            0, 0, Camera.BOUNDS.width, Camera.BOUNDS.height, Color.RED, 2)
+            -Scene.VIEWPORT_BUFFER, -Scene.VIEWPORT_BUFFER, Camera.BOUNDS.width + Scene.VIEWPORT_BUFFER * 2, Camera.BOUNDS.height + Scene.VIEWPORT_BUFFER * 2, Color.RED, 2)
         self.sprites = []
         self.entities = []
         self.shapes = []
@@ -186,12 +188,19 @@ class Scene(object):
 
     def __update_entities(self, delta_time):
         for i in range(len(self.entities) - 1, -1, -1):
-            self.entities[i].update(delta_time, self.entities)
+            if self.entities[i].bounds.colliderect(self.camera_viewport.bounds):
+                self.entities[i].ignore = False
+                self.entities[i].update(delta_time, self.entities)
+            else:
+                self.entities[i].ignore = True
+            if self.entities[i].remove:
+                del self.entities[i]
         self._sort_entities()
 
     def __update_triggers(self, delta_time, entities, manager):
         for t in self.triggers:
-            t.update(delta_time, entities, manager)
+            if t.bounds.colliderect(self.camera_viewport.bounds):
+                t.update(delta_time, entities, manager)
 
     def update_camera(self):
         self.camera_location = Vector2(
@@ -200,7 +209,7 @@ class Scene(object):
         )
         self.camera.update(self.camera_location, self.bounds)
         self.camera_viewport.set_location(
-            self.camera.get_viewport_top_left().x, self.camera.get_viewport_top_left().y)
+            self.camera.get_viewport_top_left().x - Scene.VIEWPORT_BUFFER, self.camera.get_viewport_top_left().y - Scene.VIEWPORT_BUFFER)
 
     def update(self, delta_time):
         self.__update_entities(delta_time)
@@ -211,9 +220,11 @@ class Scene(object):
         for s in self.shapes:
             s.draw(surface, CameraType.DYNAMIC)
         for s in self.sprites:
-            s.draw(surface, CameraType.DYNAMIC)
+            if s.bounds.colliderect(self.camera_viewport.bounds):
+                s.draw(surface, CameraType.DYNAMIC)
         for e in self.entities:
-            e.draw(surface)
+            if e.bounds.colliderect(self.camera_viewport.bounds):
+                e.draw(surface)
         if pygine.globals.debug:
             for t in self.triggers:
                 t.draw(surface, CameraType.DYNAMIC)
@@ -227,29 +238,33 @@ class Village(Scene):
         self._create_triggers()
         self.__load_trees()
         self.__load_bounds()
-
-    def __load_bounds(self):
-        file = open('pygine/assets/scenes/bounds_village.csv', "r")
-        for y in range(22):
-            row = file.readline().split(",")
-            for x in range(42):
-                column = row[x]
-                if column.strip() != "-1":
-                    self.entities.append(Wall(x - 1, y - 2, 1, 1))
-
-        for e in self.entities:
-            if isinstance(e, Wall):
-                e.apply_an_offset(0, 6)
-
         self._sort_entities()
 
+    def __load_bounds(self):
+        self.entities.append(Wall(-1,-2, 19, 1))
+        self.entities.append(Wall(20, -2, 21, 1))
+        self.entities.append(Wall(40,-1, 1, 15))
+        self.entities.append(Wall(40,14, 1, 2))
+        self.entities.append(Wall(40,16, 1, 4))
+        self.entities.append(Wall(-1,19, 42, 1))
+        self.entities.append(Wall(-1,7, 1, 12))
+        self.entities.append(Wall(-1,-1, 1, 6))
+
+        for e in self.entities:
+           if isinstance(e, Wall):
+                e.apply_an_offset(0, 6)
+
     def __load_trees(self):
-        file = open('pygine/assets/scenes/trees.csv', "r")
+        file = open(
+            '/home/cpi/games/Python/village-game/pygine/assets/scenes/trees.csv' if pygine.globals.on_cpi
+            else 'pygine/assets/scenes/trees.csv',
+            "r"
+        )
         for y in range(20):
             row = file.readline().split(",")
             for x in range(40):
                 column = row[x]
-                if column.strip() != "-1" and randint(1, 10) <= 8:
+                if column.strip() != "-1":
                     self.entities.append(Tree(x * 16, y * 16))
 
     def _reset(self):
@@ -361,7 +376,11 @@ class Forest(Scene):
         self.__load_bounds()
 
     def __load_bounds(self):
-        file = open('pygine/assets/scenes/bounds_forest.csv', "r")
+        file = open(
+            '/home/cpi/games/Python/village-game/pygine/assets/scenes/bounds_forest.csv' if pygine.globals.on_cpi
+            else 'pygine/assets/scenes/bounds_forest.csv',
+            "r"
+        )
         for y in range(13):
             row = file.readline().split(",")
             for x in range(22):
@@ -374,7 +393,11 @@ class Forest(Scene):
                 e.apply_an_offset(0, 8)
 
     def __load_trees(self):
-        file = open('pygine/assets/scenes/trees_forest.csv', "r")
+        file = open(
+            '/home/cpi/games/Python/village-game/pygine/assets/scenes/trees_forest.csv' if pygine.globals.on_cpi
+            else 'pygine/assets/scenes/trees_forest.csv',
+            "r"
+        )
         for y in range(11):
             row = file.readline().split(",")
             for x in range(20):
@@ -422,7 +445,11 @@ class Ocean(Scene):
         self.__load_bounds()
 
     def __load_bounds(self):
-        file = open('pygine/assets/scenes/bounds_ocean.csv', "r")
+        file = open(
+            '/home/cpi/games/Python/village-game/pygine/assets/scenes/bounds_ocean.csv' if pygine.globals.on_cpi
+            else 'pygine/assets/scenes/bounds_ocean.csv',
+            "r"
+        )
         for y in range(11):
             row = file.readline().split(",")
             for x in range(20):
@@ -626,7 +653,8 @@ class DinerScene(Scene):
             Wall(7, 9, 11, 1),
             Wall(18, 4, 1, 5),
             SellPad(6 * 16, 7 * 16 - 8, 16, 8),
-            Merchant(6 * 16 + 3, 6 * 16 - 12, NPCType.MALE, SpriteType.COFFEE_PRO)
+            Merchant(6 * 16 + 3, 6 * 16 - 12,
+                     NPCType.MALE, SpriteType.COFFEE_PRO)
 
         ]
 
@@ -797,9 +825,9 @@ class FishMinigame(Minigame):
 
         for e in self.entities:
             if isinstance(e, OceanWall):
-                if e.direction == 1 and e.bounds.bottom <= self.camera_viewport.bounds.top:
+                if e.direction == 1 and e.bounds.bottom <= self.camera_viewport.bounds.top + Scene.VIEWPORT_BUFFER:
                     e.set_location(e.x, e.y + self.total_walls * 64)
-                elif e.direction == -1 and e.bounds.top >= self.camera_viewport.bounds.bottom:
+                elif e.direction == -1 and e.bounds.top >= self.camera_viewport.bounds.bottom - Scene.VIEWPORT_BUFFER:
                     e.set_location(e.x, e.y - self.total_walls * 64)
 
         self.entities.sort(
