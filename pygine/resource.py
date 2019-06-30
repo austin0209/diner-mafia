@@ -6,12 +6,19 @@ from pygine.draw import draw_image
 from pygine.utilities import Timer
 
 SPRITE_SHEET = None
+TEXT_SHEET = None
+
 
 def load_content():
-    global SPRITE_SHEET 
+    global SPRITE_SHEET
+    global TEXT_SHEET
     SPRITE_SHEET = pygame.image.load(
         '/home/cpi/games/Python/village-game/pygine/assets/sprites/sprites.png' if pygine.globals.on_cpi
         else'pygine/assets/sprites/sprites.png'
+    )
+    TEXT_SHEET = pygame.image.load(
+        '/home/cpi/games/Python/village-game/pygine/assets/sprites/font.png' if pygine.globals.on_cpi
+        else'pygine/assets/sprites/font.png'
     )
 
 
@@ -107,6 +114,8 @@ class SpriteType(IntEnum):
     FACE_SURPRISED = 81
 
     SAND_WALL = 82
+
+    TEXT = 83
 
 
 class Sprite(PygineObject):
@@ -324,14 +333,22 @@ class Sprite(PygineObject):
             self._sprite_setup(144 + 16, 752 + 16, 16, 16)
 
         elif (self.type == SpriteType.SAND_WALL):
-            self._sprite_setup(432, 880, 64, 32)            
+            self._sprite_setup(432, 880, 64, 32)
+
+        elif (self.type == SpriteType.TEXT):
+            self._sprite_setup(0, 0, 19, 19)
 
         self.__apply_changes_to_sprite()
 
     def __apply_changes_to_sprite(self):
         self.image = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
-        self.image.blit(SPRITE_SHEET, (0, 0),
-                        (self.__sprite_x, self.__sprite_y, self.width, self.height))
+
+        if self.type == SpriteType.TEXT:
+            self.image.blit(TEXT_SHEET, (0, 0),
+                            (self.__sprite_x, self.__sprite_y, self.width, self.height))
+        else:
+            self.image.blit(SPRITE_SHEET, (0, 0),
+                            (self.__sprite_x, self.__sprite_y, self.width, self.height))
 
     def draw(self, surface, camera_type):
         draw_image(surface, self.image, self.bounds, camera_type)
@@ -353,3 +370,27 @@ class Animation:
                 1 if self.current_frame + 1 < self.total_frames else 0
             self.__timer.reset()
             self.__timer.start()
+
+
+class Text(PygineObject):
+    def __init__(self, x, y, value):
+        super(Text, self).__init__(x, y, 14, 14)
+        
+        self.value = value           
+        self.set_value(self.value)
+        
+    def set_value(self, value):
+        self.value = value   
+
+        self.sprites = []    
+        for i in range(len(self.value)):
+            self.sprites.append(Sprite(self.x + i * self.width, self.y, SpriteType.TEXT))
+
+        for i in range(len(self.value)):
+            self.sprites[i].set_frame(ord(list(self.value)[i]), 16)
+
+        self.sprites.sort(key=lambda e: -e.x)            
+
+    def draw(self, surface, camera_type):
+        for s in self.sprites:
+            s.draw(surface, camera_type)

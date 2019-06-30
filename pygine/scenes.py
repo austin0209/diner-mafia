@@ -3,6 +3,7 @@ from random import randint, random, seed
 from pygame import Rect
 from pygine.entities import *
 from pygine.maths import Vector2
+from pygine.resource import Text
 from pygine.transitions import Pinhole, TransitionType
 from pygine.triggers import *
 from pygine.utilities import Camera, Input, InputType
@@ -97,6 +98,7 @@ class SceneManager:
         self.__current_scene.player.set_location(
             self.__end_location.x, self.__end_location.y)
         self.__current_scene = self.__next_scene
+        self.__current_scene.update_ui()
 
     def __update_input(self, delta_time):
         self.input.update(delta_time)
@@ -161,6 +163,8 @@ class Scene(object):
         self.manager = None
         self.player = None
 
+        self.money_ui = Text(8,8, "$" + str(pygine.globals.money))
+
     def _reset(self):
         raise NotImplementedError(
             "A class that inherits Scene did not implement the reset() method")
@@ -211,10 +215,16 @@ class Scene(object):
         self.camera_viewport.set_location(
             self.camera.get_viewport_top_left().x - Scene.VIEWPORT_BUFFER, self.camera.get_viewport_top_left().y - Scene.VIEWPORT_BUFFER)
 
+    def update_ui(self):
+        if self.money_ui.value != "$" + str(pygine.globals.money):
+            self.money_ui.set_value("$" + str(pygine.globals.money))
+
     def update(self, delta_time):
         self.__update_entities(delta_time)
         self.__update_triggers(delta_time, self.entities, self.manager)
         self.update_camera()
+
+        self.update_ui()
 
     def draw(self, surface):
         for s in self.shapes:
@@ -229,6 +239,8 @@ class Scene(object):
             for t in self.triggers:
                 t.draw(surface, CameraType.DYNAMIC)
             self.camera_viewport.draw(surface, CameraType.DYNAMIC)
+
+        self.money_ui.draw(surface, CameraType.STATIC)
 
 
 class Village(Scene):
