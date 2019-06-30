@@ -399,8 +399,8 @@ class NPC(Kinetic):
         if self.can_move:
             self._walk(delta_time)
 
-        #self._update_collision_rectangles()
-        #self._collision(entities)
+        # self._update_collision_rectangles()
+        # self._collision(entities)
 
         if self.can_move:
             self._update_animation(delta_time)
@@ -552,7 +552,7 @@ class CounterShop(Furniture):
 
 class CounterDiner(Furniture):
     def __init__(self, x, y):
-        super(CounterDiner, self).__init__(x, y + 10 + 4, 240, 12)
+        super(CounterDiner, self).__init__(x, y + 10 + 2, 256, 12)
         self.sprite = Sprite(self.x, self.y - 80 + 12,
                              SpriteType.DINER_COUNTER)
 
@@ -678,7 +678,7 @@ class Boat(Actor):
         super(Boat, self).__init__(x, y, 83, 16, 50)
         self.beans = beans
         self.playbounds = Rectangle(
-            0, 16 * 3, Camera.BOUNDS.width, 16 * 6 + 20)
+            0, 16 * 3, Camera.BOUNDS.width, Camera.BOUNDS.height - 16 * 3)
         self.sprite = Sprite(x - 16, y - 48, SpriteType.BOAT)
         self.shadow = Sprite(x - 16 - 16, y - 16, SpriteType.BOAT_SHADOW)
         self.blinks = 4
@@ -687,6 +687,7 @@ class Boat(Actor):
         self.blink_timer = Timer(self.invis_duration / self.blinks / 2)
         self.damaged = False
         self.flashing = False
+        self.dead = False
 
     def set_location(self, x, y):
         super(Boat, self).set_location(x, y)
@@ -766,10 +767,16 @@ class Boat(Actor):
     def __check_death(self):
         if self.beans <= 0:
             # TODO: death logic here, maybe display transition and change scene?
-            exit(1)
+            self.dead = True
 
     def update(self, delta_time, entities):
         self._calculate_scaled_speed(delta_time)
+
+        if self.dead:
+            self.flashing = False
+            self.set_location(self.x - self.move_speed / 2 + randint(-2, 0), self.y + self.move_speed)
+            return
+
         self._update_input(delta_time)
         self._collision(entities)
         self.__update_health(delta_time)
@@ -787,7 +794,7 @@ class Boat(Actor):
 class Octopus(Kinetic):
     def __init__(self, x, y):
         super(Octopus, self).__init__(x, y, 16, 16, randint(10, 30))
-        self.timer = Timer(randint(1500, 3000), True)
+        self.timer = Timer(randint(1, 5) * 1000, True)
         self.sprite = Sprite(x - 16, y - 16, SpriteType.OCTOPUS)
         self.shadow = Sprite(x - 16 - 8, y - 16 + 16,
                              SpriteType.OCTOPUS_SHADOW)
@@ -799,27 +806,21 @@ class Octopus(Kinetic):
         self.shadow.set_location(self.x - 16 - 8, self.y - 16 + 16)
 
     def __shoot(self, entities):
-        entities.append(Bullet(self.x, self.y + self.height / 2))
+        entities.append(Bullet(self.x, self.y + self.height / 2, 200))
 
-    def __move(self, entities):
-        self.set_location(self.x - self.move_speed,
-                          self.y + math.sin(self.i) * 6)
-        # for e in entities:
-        #    if isinstance(e, Boat):
-        #        if e.x + e.width / 2 < self.x < Camera.BOUNDS.width * .75:
-        #            if abs(self.y - e.y) > self.move_speed:
-        #                if self.y < e.y:
-        #                    self.set_location(self.x, self.y + self.move_speed / 4)
-        #                elif self.y > e.y:
-        #                    self.set_location(self.x, self.y - self.move_speed / 4)
+    def __move(self, delta_time):
+        self.i += 1 * delta_time
+        self.set_location(
+            self.x - self.move_speed,
+            self.y + math.sin(self.i)
+        )
 
-    def update(self, delta_time, entities):
-        self.i += delta_time * 1
+    def update(self, delta_time, entities):        
         self._calculate_scaled_speed(delta_time)
-        self.__move(entities)
+        self.__move(delta_time)
         self.timer.update(delta_time)
         if self.timer.done:
-            if random() < 0.25:
+            if randint(1, 10) <= 7:
                 self.__shoot(entities)
             self.timer.reset()
             self.timer.start()
@@ -880,6 +881,43 @@ class Rock(Kinetic):
             self.shadow.draw(surface, CameraType.DYNAMIC)
             self.sprite.draw(surface, CameraType.DYNAMIC)
 
+class SandWall(Entity):
+    def __init__(self, x, y, layer, total_layers):
+        super(SandWall, self).__init__(x, y - layer * 10, 64, 32)
+        self.layer = layer
+        self.sprite = Sprite(
+            self.x, self.y, SpriteType.SAND_WALL)
+
+        self.direction = 1
+        self.parallax_layers = total_layers
+        self.parallax_variance = 10
+        self.parallax_speed = 0
+        self.calculate_parallax_speed()
+
+    def set_location(self, x, y):
+        super(SandWall, self).set_location(x, y)
+        self.sprite.set_location(self.x, self.y)
+
+    def set_direction(self, direction):
+        self.direction = direction
+        self.calculate_parallax_speed()
+
+    def calculate_parallax_speed(self):
+        assert (self.parallax_variance > 0), \
+            "Parallax Variance must be greater than zero!"
+        self.parallax_speed = self.parallax_variance * \
+            (self.parallax_layers - (self.layer + 1))**2 * self.direction * -1
+        if self.parallax_speed == 0:
+            self.parallax_speed = self.parallax_variance / 2 * self.direction * -1
+
+    def update_parallax(self, delta_time):        
+        self.set_location(self.x + self.parallax_speed * delta_time, self.y)
+
+    def update(self, delta_time, entities):
+        self.update_parallax(delta_time)
+
+    def draw(self, surface):
+        self.sprite.draw(surface, CameraType.DYNAMIC)
 
 ###################################################################
 #
@@ -1051,7 +1089,7 @@ class Fishy(Kinetic):
 
     def _update_ai(self):
         self.set_location(self.x + self.move_speed * self.velocity.x, self.y)
-            
+
     def flip_velocity(self):
         self.velocity.x *= -1
         if self.velocity.x > 0:
@@ -1076,7 +1114,7 @@ class Fishy(Kinetic):
                         self.set_location(
                             e.x + 2 + randint(-3, 3), e.y + 10 + randint(-3, 3))
 
-                    if randint(1,10) <= 1:
+                    if randint(1, 10) <= 1:
                         self.flip_velocity()
                     return
 
@@ -1085,7 +1123,7 @@ class Fishy(Kinetic):
 
     def update(self, delta_time, entities):
         self._calculate_scaled_speed(delta_time)
-        #self._update_collision_rectangles()
+        # self._update_collision_rectangles()
         self._update_ai()
         self._collision(entities)
 
