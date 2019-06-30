@@ -1,5 +1,6 @@
 import pygame
 import pygine.globals
+from pygine.resource import load_content
 from pygine.scenes import *
 from pygine.utilities import Color, Input, InputType, StaticCamera
 from enum import IntEnum
@@ -22,10 +23,17 @@ class Game:
     def __init__(self):
         self.__initialize_pygame()
 
-        self.__setup_window(1280, 720, 60, False,
-                          Orientaion.LANDSCAPE, "Village Game")
+        self.__setup_window(
+            1280, 720,
+            60,
+            False,
+            Orientaion.LANDSCAPE,
+            "Village Game"
+        )
         self.__setup_pixel_scene(320, 180)
         self.__setup_cameras()
+
+        load_content()
 
         Game.state = GameState.RUNNING
         self.clock = pygame.time.Clock()
@@ -45,6 +53,12 @@ class Game:
         self.target_fps = target_fps
         self.orientation = orientation
         self.fullscreen = fullscreen
+
+        if self.display_width == 320 and self.display_height == 240:
+            pygine.globals.on_cpi = True
+            self.window_width = 320
+            self.window_height = 240
+            self.target_fps = 60
 
         if self.fullscreen:
             self.window = pygame.display.set_mode(
