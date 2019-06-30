@@ -1,2 +1,4 @@
-# village-game
-GameShell game jam entrry
+
+# Diner Mafia
+
+ 2nd GameShell Game Jam (2019Q2) Entry
