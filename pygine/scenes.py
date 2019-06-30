@@ -795,7 +795,7 @@ class FishMinigame(Minigame):
                 if e.y < Camera.BOUNDS.height / 2:
                     self._exit_game(
                         7 * 16 + 11, 3 * 16,
-                        Fish(0, 0),
+                        Fish(0, 0, 100),
                         SceneType.OCEAN
                     )
 
