@@ -13,7 +13,7 @@ class Color:
     SKY_BLUE = (41, 173, 255)
 
     GRASS_GREEN = (0, 168, 68)
-    OCEAN_BLUE = (80, 188, 252)
+    OCEAN_BLUE = (60, 188, 252)
 
 
 class Timer:
@@ -225,6 +225,9 @@ class Camera:
 
         Camera.top_left.x = top_left.x * Camera.scale - StaticCamera.horizontal_letterbox
         Camera.top_left.y = top_left.y * Camera.scale - StaticCamera.vertical_letterbox
+
+    def get_viewport_top_left(self):
+        return Vector2((Camera.top_left.x + StaticCamera.horizontal_letterbox) / Camera.scale, (Camera.top_left.y + StaticCamera.vertical_letterbox) / Camera.scale)
 
     def update(self, top_left=Vector2(0, 0), world_bounds=pygame.Rect(0, 0, 0, 0)):
         Camera.scale = StaticCamera.scale
