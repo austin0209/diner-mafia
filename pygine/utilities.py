@@ -12,6 +12,9 @@ class Color:
     BLUE = (0, 0, 255)
     SKY_BLUE = (41, 173, 255)
 
+    GRASS_GREEN = (0, 168, 68)
+    OCEAN_BLUE = (60, 188, 252)
+
 
 class Timer:
     def __init__(self, length, started=False):
@@ -26,13 +29,12 @@ class Timer:
     def reset(self):
         self.started = False
         self.done = False
-        self.starting_ticks = 0
         self.ticks = 0
 
-    def update(self):
+    def update(self, delta_time):
         if self.started and not self.done:
-            self.ticks = pygame.time.get_ticks()
-            if self.ticks - self.starting_ticks >= self.length:
+            self.ticks += delta_time
+            if self.ticks * 1000 >= self.length:
                 self.done = True
 
 
@@ -90,7 +92,7 @@ class Input:
                 self.timer.start()
                 return True
         if type == InputType.TOGGLE_FULLSCREEN:
-            if self.key_state[pygame.K_F10] and self.no_spam:
+            if self.key_state[pygame.K_F11] and self.no_spam:
                 self.no_spam = False
                 self.timer.start()
                 return True
@@ -105,9 +107,9 @@ class Input:
 
         return False
 
-    def update(self):
+    def update(self, delta_time):
         self.key_state = pygame.key.get_pressed()
-        self.timer.update()
+        self.timer.update(delta_time)
         if not self.no_spam and self.timer.done:
             self.no_spam = True
             self.timer.reset()
@@ -223,6 +225,9 @@ class Camera:
 
         Camera.top_left.x = top_left.x * Camera.scale - StaticCamera.horizontal_letterbox
         Camera.top_left.y = top_left.y * Camera.scale - StaticCamera.vertical_letterbox
+
+    def get_viewport_top_left(self):
+        return Vector2((Camera.top_left.x + StaticCamera.horizontal_letterbox) / Camera.scale, (Camera.top_left.y + StaticCamera.vertical_letterbox) / Camera.scale)
 
     def update(self, top_left=Vector2(0, 0), world_bounds=pygame.Rect(0, 0, 0, 0)):
         Camera.scale = StaticCamera.scale

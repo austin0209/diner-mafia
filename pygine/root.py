@@ -1,5 +1,6 @@
 import pygame
 import pygine.globals
+from pygine.resource import load_content
 from pygine.scenes import *
 from pygine.utilities import Color, Input, InputType, StaticCamera
 from enum import IntEnum
@@ -22,12 +23,20 @@ class Game:
     def __init__(self):
         self.__initialize_pygame()
 
-        self.__setup_window(320, 240, 30, False,
-                          Orientaion.LANDSCAPE, "Village Game")
-        self.__setup_pixel_scene(320, 180)
+        self.__setup_window(
+            1280, 720,
+            60,
+            False,
+            Orientaion.LANDSCAPE,
+            "Village Game"
+        )
+        self.__setup_pixel_scene(320, 240)
         self.__setup_cameras()
 
+        load_content()
+
         Game.state = GameState.RUNNING
+        self.clock = pygame.time.Clock()
         self.delta_time = 0
         self.ticks = 0
         self.scene_manager = SceneManager()
@@ -44,6 +53,12 @@ class Game:
         self.target_fps = target_fps
         self.orientation = orientation
         self.fullscreen = fullscreen
+
+        if self.display_width == 320 and self.display_height == 240:
+            pygine.globals.on_cpi = True
+            self.window_width = 320
+            self.window_height = 240
+            self.target_fps = 60
 
         if self.fullscreen:
             self.window = pygame.display.set_mode(
@@ -112,12 +127,13 @@ class Game:
         self.__setup_cameras()
 
     def __calculate_delta_time(self):
-        pygame.time.Clock().tick(self.target_fps)
+        self.clock.tick(self.target_fps)
+        #print(math.ceil(self.clock.get_fps()))
         self.delta_time = (pygame.time.get_ticks() - self.ticks) / 1000.0
         self.ticks = pygame.time.get_ticks()
 
-    def __update_input(self):
-        self.input.update()
+    def __update_input(self, delta_time):
+        self.input.update(delta_time)
         if self.input.pressing(InputType.QUIT):
             self.__quit_game()
         if self.input.pressing(InputType.TOGGLE_FULLSCREEN):
@@ -136,7 +152,7 @@ class Game:
 
     def __update(self):
         self.__calculate_delta_time()
-        self.__update_input()
+        self.__update_input(self.delta_time)
         self.scene_manager.update(self.delta_time)
         self.__update_events()
 
