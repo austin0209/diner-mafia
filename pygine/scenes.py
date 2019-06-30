@@ -587,6 +587,7 @@ class ShopScene(Scene):
         ]
         self.entities = [
             Merchant(6 * 16, 8 * 16, NPCType.FEMALE, SpriteType.FISH_RAW),
+            SellPad(6 * 16, 10 * 16 - 8, 16, 8),
             NPC(3 * 16, 10 * 16, NPCType.MALE),
             NPC(16 * 16, 9 * 16, NPCType.FEMALE, True, True, -1, 2500),
             CounterShop(2 * 16, 8 * 16),
