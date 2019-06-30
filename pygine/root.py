@@ -4,6 +4,7 @@ from pygine.resource import load_content
 from pygine.scenes import *
 from pygine.utilities import Color, Input, InputType, StaticCamera
 from enum import IntEnum
+from pygine.sounds import song_1
 
 
 class GameState(IntEnum):
@@ -41,6 +42,9 @@ class Game:
         self.ticks = 0
         self.scene_manager = SceneManager()
         self.input = Input()
+
+
+        song_1.play(-1)
 
     def __initialize_pygame(self):
         pygame.init()
