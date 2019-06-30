@@ -44,7 +44,7 @@ class SceneManager:
         self.start_transition = False
 
         self.__initialize_scenes()
-        self.__set_starting_scene(SceneType.OCEAN)
+        self.__set_starting_scene(SceneType.VILLAGE)
 
     def __add_scene(self, scene):
         self.__all_scenes.append(scene)
@@ -747,6 +747,9 @@ class FishMinigame(Minigame):
     def start_game(self):
         self._reset()
 
+    def total_fish_caught(self):
+        return self.player.total_hooked_fish
+
     def _reset(self):
         self.ocean_depth = Camera.BOUNDS.height * 10
         self.bounds = Rect(0, 0, Camera.BOUNDS.width, self.ocean_depth)
@@ -784,20 +787,20 @@ class FishMinigame(Minigame):
     def update(self, delta_time):
         super(FishMinigame, self).update(delta_time)
 
+        if self.player.y < Camera.BOUNDS.height / 2:
+            self._exit_game(
+                7 * 16 + 11, 3 * 16,
+                Fish(0, 0, self.total_fish_caught()),
+                SceneType.OCEAN
+            )
+            return
+
         for e in self.entities:
             if isinstance(e, OceanWall):
                 if e.direction == 1 and e.bounds.bottom <= self.camera_viewport.bounds.top:
                     e.set_location(e.x, e.y + self.total_walls * 64)
                 elif e.direction == -1 and e.bounds.top >= self.camera_viewport.bounds.bottom:
                     e.set_location(e.x, e.y - self.total_walls * 64)
-
-            if isinstance(e, Hook):
-                if e.y < Camera.BOUNDS.height / 2:
-                    self._exit_game(
-                        7 * 16 + 11, 3 * 16,
-                        Fish(0, 0, 100),
-                        SceneType.OCEAN
-                    )
 
         self.entities.sort(
             key=lambda e: (

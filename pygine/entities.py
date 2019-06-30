@@ -903,6 +903,7 @@ class Hook(Actor):
         self.ocean_depth = ocean_depth
         self.sprite = Sprite(self.x, self.y, SpriteType.HOOK)
         self.direction = 1
+        self.total_hooked_fish = 0
 
     def set_location(self, x, y):
         super(Hook, self).set_location(x, y)
@@ -928,6 +929,7 @@ class Hook(Actor):
             elif isinstance(e, Fishy) and not e.captured:
                 if self.bounds.colliderect(e.bounds):
                     e.hook_fish()
+                    self.total_hooked_fish += 1
                     self.direction = -1
 
     def _move(self, direction=Direction.NONE):
