@@ -896,7 +896,7 @@ class Hook(Actor):
 class OceanWall(Entity):
     def __init__(self, y, left, layer, total_layers):
         super(OceanWall, self).__init__(0 + layer *
-                                        20 if left else Camera.BOUNDS.width - 31 - layer * 20, y, 32, 64)
+                                        20 if left else Camera.BOUNDS.width - 32 - layer * 20, y, 32, 64)
         self.layer = layer
         self.sprite = Sprite(
             self.x, self.y, SpriteType.ROCK_WALL_L if left else SpriteType.ROCK_WALL_R)

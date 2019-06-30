@@ -300,7 +300,7 @@ class Sprite(PygineObject):
         elif (self.type == SpriteType.FISH_LARGE_L):
             self._sprite_setup(352, 864, 32, 16)                       
         elif (self.type == SpriteType.ROCK_WALL_R):
-            self._sprite_setup(385, 880, 32, 64)                   
+            self._sprite_setup(384, 880, 32, 64)                   
         elif (self.type == SpriteType.ROCK_WALL_L):
             self._sprite_setup(352, 880, 32, 64)       
 
