@@ -12,8 +12,8 @@ def load_sound_paths():
     global MUSIC_PATH
     global SOUND_PATH
     if globals.on_cpi:
-        MUSIC_PATH = '/home/cpi/games/Python/village-game/pygine/assets/music/'
-        SOUND_PATH = '/home/cpi/games/Python/village-game/pygine/assets/sounds/'
+        MUSIC_PATH = '/home/cpi/games/Python/diner-mafia/pygine/assets/music/'
+        SOUND_PATH = '/home/cpi/games/Python/diner-mafia/pygine/assets/sounds/'
     else:
         MUSIC_PATH = 'pygine/assets/music/'
         SOUND_PATH = 'pygine/assets/sounds/'

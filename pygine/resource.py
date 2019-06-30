@@ -14,11 +14,11 @@ def load_content():
     global SPRITE_SHEET
     global TEXT_SHEET
     SPRITE_SHEET = pygame.image.load(
-        '/home/cpi/games/Python/village-game/pygine/assets/sprites/sprites.png' if pygine.globals.on_cpi
+        '/home/cpi/games/Python/diner-mafia/pygine/assets/sprites/sprites.png' if pygine.globals.on_cpi
         else 'pygine/assets/sprites/sprites.png'
     )
     TEXT_SHEET = pygame.image.load(
-        '/home/cpi/games/Python/village-game/pygine/assets/sprites/font.png' if pygine.globals.on_cpi
+        '/home/cpi/games/Python/diner-mafia/pygine/assets/sprites/font.png' if pygine.globals.on_cpi
         else 'pygine/assets/sprites/font.png'
     )
     load_sound_paths()

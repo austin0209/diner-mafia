@@ -279,7 +279,7 @@ class Village(Scene):
 
     def __load_trees(self):
         file = open(
-            '/home/cpi/games/Python/village-game/pygine/assets/scenes/trees_village.csv' if pygine.globals.on_cpi
+            '/home/cpi/games/Python/diner-mafia/pygine/assets/scenes/trees_village.csv' if pygine.globals.on_cpi
             else 'pygine/assets/scenes/trees_village.csv',
             "r"
         )
@@ -409,7 +409,7 @@ class Forest(Scene):
 
     def __load_trees(self):
         file = open(
-            '/home/cpi/games/Python/village-game/pygine/assets/scenes/trees_forest.csv' if pygine.globals.on_cpi
+            '/home/cpi/games/Python/diner-mafia/pygine/assets/scenes/trees_forest.csv' if pygine.globals.on_cpi
             else 'pygine/assets/scenes/trees_forest.csv',
             "r"
         )
@@ -462,7 +462,7 @@ class Ocean(Scene):
 
     def __load_bounds(self):
         file = open(
-            '/home/cpi/games/Python/village-game/pygine/assets/scenes/bounds_ocean.csv' if pygine.globals.on_cpi
+            '/home/cpi/games/Python/diner-mafia/pygine/assets/scenes/bounds_ocean.csv' if pygine.globals.on_cpi
             else 'pygine/assets/scenes/bounds_ocean.csv',
             "r"
         )
