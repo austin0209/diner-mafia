@@ -106,6 +106,8 @@ class SpriteType(IntEnum):
     FACE_MAD = 80
     FACE_SURPRISED = 81
 
+    SAND_WALL = 82
+
 
 class Sprite(PygineObject):
     def __init__(self, x, y, sprite_type=SpriteType.NONE):
@@ -281,7 +283,7 @@ class Sprite(PygineObject):
         elif (self.type == SpriteType.SIDEWALK_LONG):
             self._sprite_setup(32, 0, 608, 32)
         elif (self.type == SpriteType.SIDEWALK_TALL):
-            self._sprite_setup(976, 592, 32, 272)
+            self._sprite_setup(976, 736, 32, 272)
         elif (self.type == SpriteType.TREE_CLUSTER):
             self._sprite_setup(368, 80, 64, 48)
 
@@ -295,7 +297,7 @@ class Sprite(PygineObject):
             self._sprite_setup(176, 816, 48, 32)
 
         elif (self.type == SpriteType.BEACH):
-            self._sprite_setup(704, 400, 320, 180)
+            self._sprite_setup(656, 624, 320, 240)
 
         elif (self.type == SpriteType.HOOK):
             self._sprite_setup(352, 816, 16, 32)
@@ -320,6 +322,9 @@ class Sprite(PygineObject):
             self._sprite_setup(144, 752 + 16, 16, 16)
         elif (self.type == SpriteType.FACE_SURPRISED):
             self._sprite_setup(144 + 16, 752 + 16, 16, 16)
+
+        elif (self.type == SpriteType.SAND_WALL):
+            self._sprite_setup(432, 880, 64, 32)            
 
         self.__apply_changes_to_sprite()
 

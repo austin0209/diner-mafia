@@ -241,23 +241,23 @@ class Village(Scene):
         self._sort_entities()
 
     def __load_bounds(self):
-        self.entities.append(Wall(-1,-2, 19, 1))
+        self.entities.append(Wall(-1, -2, 19, 1))
         self.entities.append(Wall(20, -2, 21, 1))
-        self.entities.append(Wall(40,-1, 1, 15))
-        self.entities.append(Wall(40,14, 1, 2))
-        self.entities.append(Wall(40,16, 1, 4))
-        self.entities.append(Wall(-1,19, 42, 1))
-        self.entities.append(Wall(-1,7, 1, 12))
-        self.entities.append(Wall(-1,-1, 1, 6))
+        self.entities.append(Wall(40, -1, 1, 15))
+        self.entities.append(Wall(40, 14, 1, 2))
+        self.entities.append(Wall(40, 16, 1, 4))
+        self.entities.append(Wall(-1, 19, 42, 1))
+        self.entities.append(Wall(-1, 7, 1, 12))
+        self.entities.append(Wall(-1, -1, 1, 6))
 
         for e in self.entities:
-           if isinstance(e, Wall):
+            if isinstance(e, Wall):
                 e.apply_an_offset(0, 6)
 
     def __load_trees(self):
         file = open(
-            '/home/cpi/games/Python/village-game/pygine/assets/scenes/trees.csv' if pygine.globals.on_cpi
-            else 'pygine/assets/scenes/trees.csv',
+            '/home/cpi/games/Python/village-game/pygine/assets/scenes/trees_village.csv' if pygine.globals.on_cpi
+            else 'pygine/assets/scenes/trees_village.csv',
             "r"
         )
         for y in range(20):
@@ -327,7 +327,7 @@ class Village(Scene):
                             e.x + (40 - 16) / 2, e.y + 40,
                             16, 8,
                             Vector2(
-                                9 * 16 + 8 + 3, 8 * 16 + 10
+                                9 * 16 + 8 + 3, 10 * 16 + 10
                             ),
                             SceneType.ROOM_SIMPLE
                         )
@@ -338,7 +338,7 @@ class Village(Scene):
                             e.x + (40 - 16) / 2, e.y + 40,
                             16, 8,
                             Vector2(
-                                16 * 5 + 11, 16 * 8 + 10
+                                16 * 5 + 11, 16 * 10 + 10
                             ),
                             SceneType.ROOM_SPECIAL
                         )
@@ -349,7 +349,7 @@ class Village(Scene):
                             e.x, e.y + 32,
                             32, 8,
                             Vector2(
-                                16 * 5 + 11, 16 * 8 + 10
+                                16 * 5 + 11, 16 * 10 + 10
                             ),
                             SceneType.SHOP
                         )
@@ -360,7 +360,7 @@ class Village(Scene):
                             e.x + 16, e.y + 32,
                             16, 8,
                             Vector2(
-                                16 * 5 + 11, 16 * 8 + 10
+                                16 * 5 + 11, 16 * 10 + 10
                             ),
                             SceneType.DINER
                         )
@@ -376,21 +376,13 @@ class Forest(Scene):
         self.__load_bounds()
 
     def __load_bounds(self):
-        file = open(
-            '/home/cpi/games/Python/village-game/pygine/assets/scenes/bounds_forest.csv' if pygine.globals.on_cpi
-            else 'pygine/assets/scenes/bounds_forest.csv',
-            "r"
-        )
-        for y in range(13):
-            row = file.readline().split(",")
-            for x in range(22):
-                column = row[x]
-                if column.strip() != "-1":
-                    self.entities.append(Wall(x - 1, y - 1, 1, 1))
+        self.entities.append(Wall(-1, -1, 20, 1))
+        self.entities.append(Wall(-2, 0, 1, 15))
+        self.entities.append(Wall(-1, 15, 20, 1))
 
         for e in self.entities:
             if isinstance(e, Wall):
-                e.apply_an_offset(0, 8)
+                e.apply_an_offset(16, 16)
 
     def __load_trees(self):
         file = open(
@@ -398,7 +390,7 @@ class Forest(Scene):
             else 'pygine/assets/scenes/trees_forest.csv',
             "r"
         )
-        for y in range(11):
+        for y in range(15):
             row = file.readline().split(",")
             for x in range(20):
                 column = row[x]
@@ -450,7 +442,7 @@ class Ocean(Scene):
             else 'pygine/assets/scenes/bounds_ocean.csv',
             "r"
         )
-        for y in range(11):
+        for y in range(15):
             row = file.readline().split(",")
             for x in range(20):
                 column = row[x]
@@ -462,7 +454,7 @@ class Ocean(Scene):
                 e.apply_an_offset(0, -6)
 
     def _reset(self):
-        self.bounds = Rect(0, 0, 320, 180)
+        self.bounds = Rect(0, 0, Camera.BOUNDS.width, Camera.BOUNDS.height)
 
         self.shapes = [Rectangle(0, 0, 320, 180, Color.OCEAN_BLUE)]
         self.sprites = [
@@ -480,7 +472,7 @@ class Ocean(Scene):
     def _create_triggers(self):
         self.triggers = [
             MinigameTrigger(
-                12 * 16, 2 * 16 + 4,
+                12 * 16, 6 * 16 + 4,
                 32, 16,
                 Vector2(
                     16, Camera.BOUNDS.height / 2
@@ -517,15 +509,15 @@ class RoomSimple(Scene):
                    (Camera.BOUNDS.height - 160) / 2, SpriteType.SIMPLE_HOUSE_INSIDE)
         ]
         self.entities = [
-            FlowerPot(7 * 16, 5 * 16),
-            Shelf(8 * 16, 5 * 16),
-            Bed(11 * 16, 5 * 16),
-            Wall(6, 4, 8, 1),
-            Wall(5, 5, 1, 4),
-            Wall(6, 9, 3, 1),
-            Wall(11, 9, 3, 1),
-            Wall(14, 5, 1, 4),
-
+            FlowerPot(7 * 16, 7 * 16),
+            Shelf(8 * 16, 7 * 16),
+            Bed(11 * 16, 7 * 16),
+            NPC(10 * 16, 9 * 16, NPCType.MALE, True, True, -1, 1000),
+            Wall(6, 6, 8, 1),
+            Wall(5, 7, 1, 4),
+            Wall(6, 11, 3, 1),
+            Wall(11, 11, 3, 1),
+            Wall(14, 7, 1, 4),
         ]
 
         self._sort_entities()
@@ -533,7 +525,7 @@ class RoomSimple(Scene):
     def _create_triggers(self):
         self.triggers.append(
             CollisionTrigger(
-                9 * 16, 9 * 16 + 10,
+                9 * 16, 11 * 16 + 10,
                 32, 16,
                 Vector2(16 + 48 * 1 + 16 + 16, 16 + 64),
                 SceneType.VILLAGE
@@ -554,17 +546,17 @@ class RoomSpecial(Scene):
                    (Camera.BOUNDS.height - 160) / 2, SpriteType.SPECIAL_HOUSE_INSIDE)
         ]
         self.entities = [
-            Shelf(3 * 16, 5 * 16),
-            FlowerPot(5 * 16, 5 * 16),
-            Sofa(8 * 16, 6 * 16),
-            Bed(13 * 16, 5 * 16),
-            Bed(15 * 16, 5 * 16),
-
-            Wall(2, 4, 16, 1),
-            Wall(1, 5, 1, 4),
-            Wall(2, 9, 3, 1),
-            Wall(7, 9, 11, 1),
-            Wall(18, 5, 1, 4),
+            Shelf(3 * 16, 7 * 16),
+            FlowerPot(5 * 16, 7 * 16),
+            Sofa(8 * 16, 8 * 16),
+            Bed(13 * 16, 7 * 16),
+            Bed(15 * 16, 7 * 16),
+            NPC(3 * 16, 10 * 16, NPCType.FEMALE),
+            Wall(2, 6, 16, 1),
+            Wall(1, 7, 1, 4),
+            Wall(2, 11, 3, 1),
+            Wall(7, 11, 11, 1),
+            Wall(18, 7, 1, 4),
 
         ]
 
@@ -573,7 +565,7 @@ class RoomSpecial(Scene):
     def _create_triggers(self):
         self.triggers.append(
             CollisionTrigger(
-                5 * 16, 9 * 16 + 10,
+                5 * 16, 11 * 16 + 10,
                 32, 16,
                 Vector2(16 + 48 * 1 + 16 + 16, 16 + 64),
                 SceneType.VILLAGE
@@ -594,21 +586,22 @@ class ShopScene(Scene):
                    (Camera.BOUNDS.height - 160) / 2, SpriteType.SHOP_INSIDE)
         ]
         self.entities = [
-            Merchant(6 * 16, 6 * 16, NPCType.FEMALE, SpriteType.FISH_RAW),
-            NPC(3 * 16, 8 * 16, NPCType.MALE),
-            CounterShop(2 * 16, 6 * 16),
-            Shelf(10 * 16, 5 * 16, False),
-            Shelf(12 * 16, 5 * 16, False),
-            Shelf(14 * 16, 5 * 16),
-            Shelf(16 * 16, 5 * 16, False),
-            Shelf(14 * 16, 7 * 16, False),
-            Shelf(16 * 16, 7 * 16),
-            Wall(2, 4, 16, 1),
-            Wall(1, 5, 1, 4),
-            Wall(2, 9, 3, 1),
-            Wall(7, 9, 11, 1),
-            Wall(18, 5, 1, 4),
-
+            Merchant(6 * 16, 8 * 16, NPCType.FEMALE, SpriteType.FISH_RAW),
+            SellPad(6 * 16, 10 * 16 - 8, 16, 8),
+            NPC(3 * 16, 10 * 16, NPCType.MALE),
+            NPC(16 * 16, 9 * 16, NPCType.FEMALE, True, True, -1, 2500),
+            CounterShop(2 * 16, 8 * 16),
+            Shelf(10 * 16, 7 * 16, False),
+            Shelf(12 * 16, 7 * 16, False),
+            Shelf(14 * 16, 7 * 16),
+            Shelf(16 * 16, 7 * 16, False),
+            Shelf(14 * 16, 9 * 16, False),
+            Shelf(16 * 16, 9 * 16),
+            Wall(2, 6, 16, 1),
+            Wall(1, 7, 1, 4),
+            Wall(2, 11, 3, 1),
+            Wall(7, 11, 11, 1),
+            Wall(18, 7, 1, 4),
         ]
 
         self._sort_entities()
@@ -616,7 +609,7 @@ class ShopScene(Scene):
     def _create_triggers(self):
         self.triggers.append(
             CollisionTrigger(
-                5 * 16, 9 * 16 + 10,
+                5 * 16, 11 * 16 + 10,
                 32, 16,
                 Vector2(16 + 48 * 1 + 16 + 16, 16 + 64),
                 SceneType.VILLAGE
@@ -637,25 +630,24 @@ class DinerScene(Scene):
                    (Camera.BOUNDS.height - 160) / 2, SpriteType.DINER_INSIDE)
         ]
         self.entities = [
-            CounterDiner(2 * 16, 5 * 16),
-            StoolTall(2 * 16, 6 * 16),
-            StoolTall(3 * 16, 6 * 16),
-            StoolTall(4 * 16, 6 * 16),
-            StoolTall(5 * 16, 6 * 16),
-            StoolShort(12 * 16, 8 * 16),
-            StoolShort(14 * 16, 7 * 16),
-            Table(13 * 16, 8 * 16),
-            Table(15 * 16, 8 * 16),
-            Table(15 * 16, 7 * 16),
-            Wall(2, 3, 16, 1),
-            Wall(1, 4, 1, 5),
-            Wall(2, 9, 3, 1),
-            Wall(7, 9, 11, 1),
-            Wall(18, 4, 1, 5),
-            SellPad(6 * 16, 7 * 16 - 8, 16, 8),
-            Merchant(6 * 16 + 3, 6 * 16 - 12,
+            CounterDiner(2 * 16, 7 * 16),
+            StoolTall(2 * 16, 8 * 16),
+            StoolTall(3 * 16, 8 * 16),
+            StoolTall(4 * 16, 8 * 16),
+            StoolTall(5 * 16, 8 * 16),
+            StoolShort(12 * 16, 10 * 16),
+            StoolShort(14 * 16, 9 * 16),
+            Table(13 * 16, 10 * 16),
+            Table(15 * 16, 10 * 16),
+            Table(15 * 16, 9 * 16),
+            Wall(2, 5, 16, 1),
+            Wall(1, 6, 1, 5),
+            Wall(2, 11, 3, 1),
+            Wall(7, 11, 11, 1),
+            Wall(18, 6, 1, 5),
+            SellPad(6 * 16, 9 * 16 - 8, 16, 8),
+            Merchant(6 * 16 + 3, 8 * 16 - 14,
                      NPCType.MALE, SpriteType.COFFEE_PRO)
-
         ]
 
         self._sort_entities()
@@ -663,7 +655,7 @@ class DinerScene(Scene):
     def _create_triggers(self):
         self.triggers.append(
             CollisionTrigger(
-                5 * 16, 9 * 16 + 10,
+                5 * 16, 11 * 16 + 10,
                 32, 16,
                 Vector2(16 + 48 * 1 + 16 + 16, 16 + 64),
                 SceneType.VILLAGE
@@ -694,12 +686,16 @@ class CoffeeMinigame(Minigame):
         self._create_triggers()
 
     def start_game(self):
+        self._reset()
+        self.__game_timer.reset()
         self.__game_timer.start()
+        self.__spawn_timer.reset()
+        self.__spawn_timer.start()
 
     def _reset(self):
         self.shapes = [
-            Rectangle(0, 0, 320, 16 * 4, Color.BLUE),
-            Rectangle(0, 16 * 4, 320, 16 * 6 + 20, Color.SKY_BLUE)
+            Rectangle(0, 0, 320, 16 * 4, Color.OCEAN_BLUE),
+            Rectangle(0, 16 * 4, 320, 16 * 11, Color.OCEAN_BLUE)
         ]
         self.sprites = []
         self.entities = []
@@ -709,8 +705,17 @@ class CoffeeMinigame(Minigame):
                 16 * 9
             )
         )
-        self.__game_timer = Timer(35000)
-        self.__spawn_timer = Timer(1500, True)
+
+        self.total_walls = int(Camera.BOUNDS.width / 64) + 2
+        self.wall_layers = 6
+        for x in range(self.total_walls):
+            for i in range(0, self.wall_layers):
+                self.entities.append(
+                    SandWall(x * 64, 16 * 2, i, self.wall_layers)
+                    )
+
+        self.__game_timer = Timer(35 * 1000)
+        self.__spawn_timer = Timer(500)
 
         self._sort_entities()
 
@@ -718,16 +723,16 @@ class CoffeeMinigame(Minigame):
         pass
 
     def __spawn_random(self):
-        grid_unit_size = self.player.playbounds.height / 5
-        rand_x = randint(-2, 4) * grid_unit_size + Camera.BOUNDS.width
-        rand_y = randint(-2, 4) * grid_unit_size + self.player.playbounds.y
-        if random() < 0.40:
+        grid_unit_size = 16
+        rand_x = Camera.BOUNDS.width + 8
+        rand_y = randint(4, 14) * grid_unit_size
+        if randint(1, 10) <= 3:
             self.entities.append(Octopus(rand_x, rand_y))
         else:
             min_offset = 0
-            max_offset = 30
+            max_offset = 64
             self.entities.append(Rock(rand_x, rand_y))
-            for i in range(randint(0, 4)):
+            for i in range(randint(1, 5)):
                 self.entities.append(
                     Rock(rand_x + randint(min_offset, max_offset), rand_y + randint(min_offset, max_offset)))
 
@@ -735,23 +740,31 @@ class CoffeeMinigame(Minigame):
         self.__game_timer.update(delta_time)
         if self.__game_timer.done:
             # Game is over, change scene
-            self._exit_game(12 * 16 + 11, 4 * 16,
+            self._exit_game(12 * 16 + 11, 8 * 16,
                             Coffee(0, 0, self.player.beans), SceneType.OCEAN)
-            self._reset()
-            self.__game_timer.reset()
         else:
+            if self.player.bounds.top > Camera.BOUNDS.height + 8 or self.player.bounds.right < 0:
+                self._exit_game(12 * 16 + 11, 8 * 16, None, SceneType.OCEAN)
+                return
+
             self.__spawn_timer.update(delta_time)
             if self.__spawn_timer.done:
-                if randint(1, 10) <= 7:
+                if randint(1, 10) <= 5:
                     self.__spawn_random()
                 self.__spawn_timer.reset()
                 self.__spawn_timer.start()
+
             for e in self.entities:
-                if e.sprite.x + e.sprite.width < 0:
-                    self.entities.remove(e)
+                if isinstance(e, SandWall):
+                    if e.bounds.right - 32 <= self.camera_viewport.bounds.left:
+                        e.set_location(e.x + self.total_walls * 64 - 64, e.y)
                 if isinstance(e, Bullet):
                     if e.dead:
-                        self.entities.remove(e)
+                        e.remove = True
+                if e.sprite.x + e.sprite.width < 0:
+                    e.remove = True
+
+            # print(self.camera_viewport.bounds.left)
             super(CoffeeMinigame, self).update(delta_time)
 
     def draw(self, surface):
@@ -798,9 +811,9 @@ class FishMinigame(Minigame):
                 self.entities.append(
                     OceanWall(y * 64, False, i, self.wall_layers))
 
-        self.fish_spawm_frequency = 0.7
+        self.fish_spawn_frequency = 0.9
         for y in range(0, self.bounds.height, 16):
-            if randint(1, 10) <= int(self.fish_spawm_frequency * 10):
+            if randint(1, 10) <= int(self.fish_spawn_frequency * 10):
                 self.entities.append(
                     Fishy(y, True if randint(1, 10) <= 5 else False))
 

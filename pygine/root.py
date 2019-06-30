@@ -30,7 +30,7 @@ class Game:
             Orientaion.LANDSCAPE,
             "Village Game"
         )
-        self.__setup_pixel_scene(320, 180)
+        self.__setup_pixel_scene(320, 240)
         self.__setup_cameras()
 
         load_content()
