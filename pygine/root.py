@@ -22,12 +22,13 @@ class Game:
     def __init__(self):
         self.__initialize_pygame()
 
-        self.__setup_window(320, 240, 30, False,
+        self.__setup_window(1280, 720, 60, False,
                           Orientaion.LANDSCAPE, "Village Game")
         self.__setup_pixel_scene(320, 180)
         self.__setup_cameras()
 
         Game.state = GameState.RUNNING
+        self.clock = pygame.time.Clock()
         self.delta_time = 0
         self.ticks = 0
         self.scene_manager = SceneManager()
@@ -112,7 +113,8 @@ class Game:
         self.__setup_cameras()
 
     def __calculate_delta_time(self):
-        pygame.time.Clock().tick(self.target_fps)
+        self.clock.tick(self.target_fps)
+        #print(math.ceil(self.clock.get_fps()))
         self.delta_time = (pygame.time.get_ticks() - self.ticks) / 1000.0
         self.ticks = pygame.time.get_ticks()
 
