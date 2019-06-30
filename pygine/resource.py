@@ -105,7 +105,7 @@ SPRITE_SHEET = pygame.image.load(
 
 
 class Sprite(PygineObject):
-    def __init__(self, x=0.0, y=0.0, sprite_type=SpriteType.NONE):
+    def __init__(self, x, y, sprite_type=SpriteType.NONE):
         super(Sprite, self).__init__(x, y, 0, 0)
         self.set_sprite(sprite_type)
 
@@ -305,9 +305,9 @@ class Sprite(PygineObject):
         elif (self.type == SpriteType.FISH_LARGE_L):
             self._sprite_setup(352, 864, 32, 16)                       
         elif (self.type == SpriteType.ROCK_WALL_R):
-            self._sprite_setup(352, 880, 32, 64)                   
+            self._sprite_setup(384, 880, 32, 64)                   
         elif (self.type == SpriteType.ROCK_WALL_L):
-            self._sprite_setup(384, 880, 32, 64)
+            self._sprite_setup(352, 880, 32, 64) 
 
         elif (self.type == SpriteType.FACE_HAPPY):
             self._sprite_setup(144, 752, 16, 16)
@@ -323,7 +323,7 @@ class Sprite(PygineObject):
     def __apply_changes_to_sprite(self):
         self.image = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
         self.image.blit(SPRITE_SHEET, (0, 0),
-                        (self.__sprite_x, self.__sprite_y, self.width, self.height))
+                        (self.__sprite_x, self.__sprite_y, self.width, self.height))                              
 
     def draw(self, surface, camera_type):
         draw_image(surface, self.image, self.bounds, camera_type)

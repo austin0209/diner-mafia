@@ -3,7 +3,7 @@ import pygine.globals
 from enum import IntEnum
 from pygame import Rect
 from pygine.base import PygineObject
-from pygine.draw import draw_rectangle
+from pygine.draw import draw_rectangle, draw_line
 from pygine.geometry import Rectangle
 from pygine.maths import Vector2, distance_between
 from pygine.resource import Animation, Sprite, SpriteType
@@ -107,7 +107,8 @@ class Player(Actor):
     def __init__(self, x, y, width=10, height=10, speed=50):
         super(Player, self).__init__(x, y, width, height, speed)
         self.sprite = Sprite(self.x - 3, self.y - 22, SpriteType.PLAYER_F)
-        self.arms = Sprite(self.x - 3, self.y - 22, SpriteType.PLAYER_ARM_SIDE_F)
+        self.arms = Sprite(self.x - 3, self.y - 22,
+                           SpriteType.PLAYER_ARM_SIDE_F)
         self.shadow = Sprite(self.x - 3, self.y - 21, SpriteType.PLAYER_SHADOW)
         self.set_color(Color.RED)
         self.item_carrying = None
@@ -187,8 +188,10 @@ class Player(Actor):
     def _update_animation(self, delta_time):
         if self.walking:
             self.animation_walk.update(delta_time)
-            self.sprite.set_frame(self.animation_walk.current_frame, self.animation_walk.columns)
-            self.arms.set_frame(self.animation_walk.current_frame, self.animation_walk.columns)
+            self.sprite.set_frame(
+                self.animation_walk.current_frame, self.animation_walk.columns)
+            self.arms.set_frame(
+                self.animation_walk.current_frame, self.animation_walk.columns)
         else:
             self.sprite.set_frame(0, self.animation_walk.columns)
             self.arms.set_frame(0, self.animation_walk.columns)
@@ -303,9 +306,11 @@ class NPC(Kinetic):
             self._walk_timer.start()
         if self.walking:
             if self.horizontal:
-                self.set_location(self.x + self.move_speed * self.walk_direction, self.y)
+                self.set_location(self.x + self.move_speed *
+                                  self.walk_direction, self.y)
             else:
-                self.set_location(self.x, self.y + self.move_speed * self.walk_direction)
+                self.set_location(
+                    self.x, self.y + self.move_speed * self.walk_direction)
 
     def _set_walking_sprite(self):
         if self.can_move:
@@ -357,7 +362,8 @@ class NPC(Kinetic):
     def _update_animation(self, delta_time):
         if self.walking:
             self.animation_walk.update(delta_time)
-            self.sprite.set_frame(self.animation_walk.current_frame, self.animation_walk.columns)
+            self.sprite.set_frame(
+                self.animation_walk.current_frame, self.animation_walk.columns)
         else:
             self.sprite.set_frame(0, self.animation_walk.columns)
 
@@ -476,7 +482,8 @@ class Diner(Building):
 class Tree(Entity):
     def __init__(self, x, y):
         super(Tree, self).__init__(x, y, 10, 10)
-        self.sprite = Sprite(self.x - 11 - 16, self.y - 21, SpriteType.TREE_CLUSTER)
+        self.sprite = Sprite(self.x - 11 - 16, self.y -
+                             21, SpriteType.TREE_CLUSTER)
         # self.shadow = Sprite(self.x - 11 - 8, self.y - 21,
         #                     SpriteType.TREE_THING_SHADOW)
 
@@ -778,7 +785,8 @@ class Octopus(Kinetic):
         super(Octopus, self).__init__(x, y, 16, 16, randint(10, 30))
         self.timer = Timer(randint(1500, 3000), True)
         self.sprite = Sprite(x - 16, y - 16, SpriteType.OCTOPUS)
-        self.shadow = Sprite(x - 16 - 8, y - 16 + 16, SpriteType.OCTOPUS_SHADOW)
+        self.shadow = Sprite(x - 16 - 8, y - 16 + 16,
+                             SpriteType.OCTOPUS_SHADOW)
         self.i = 0
 
     def set_location(self, x, y):
@@ -790,7 +798,8 @@ class Octopus(Kinetic):
         entities.append(Bullet(self.x, self.y + self.height / 2))
 
     def __move(self, entities):
-        self.set_location(self.x - self.move_speed, self.y + math.sin(self.i) * 6)
+        self.set_location(self.x - self.move_speed,
+                          self.y + math.sin(self.i) * 6)
         # for e in entities:
         #    if isinstance(e, Boat):
         #        if e.x + e.width / 2 < self.x < Camera.BOUNDS.width * .75:
@@ -847,7 +856,8 @@ class Rock(Kinetic):
     def __init__(self, x, y, speed=75):
         super(Rock, self).__init__(x, y, 34, 14, speed)
         self.sprite = Sprite(x - 7, y - 16, SpriteType.ROCK)
-        self.shadow = Sprite(self.x - 7 - 8, self.y - 16, SpriteType.ROCK_SHADOW)
+        self.shadow = Sprite(self.x - 7 - 8, self.y -
+                             16, SpriteType.ROCK_SHADOW)
         self.dead = False
 
     def set_location(self, x, y):
@@ -879,3 +889,200 @@ class Mole(Entity):
 
 class Mallet(Entity):
     pass
+
+
+###################################################################
+#
+#   Fish minigame stuff starts here!
+#
+###################################################################
+
+class Hook(Actor):
+    def __init__(self, ocean_depth):
+        super(Hook, self).__init__(0, 0, 13, 20, 80)
+        self.ocean_depth = ocean_depth
+        self.sprite = Sprite(self.x, self.y, SpriteType.HOOK)
+        self.direction = 1
+
+    def set_location(self, x, y):
+        super(Hook, self).set_location(x, y)
+        self.sprite.set_location(self.x, self.y)
+
+    def __bounds_collision(self):
+        if self.x < 0:
+            self.x = 0
+        elif self.x + self.width > Camera.BOUNDS.width:
+            self.x = Camera.BOUNDS.width - self.width
+
+    def _collision(self, entities):
+        if self.y + Camera.BOUNDS.height / 2 > self.ocean_depth:
+            self.direction = -1
+            self.default_move_speed = 100
+
+        self.__bounds_collision()
+
+        for e in entities:
+            if isinstance(e, OceanWall):
+                if self.direction == -1:
+                    e.set_direction(-1)
+            elif isinstance(e, Fishy) and not e.captured:
+                if self.bounds.colliderect(e.bounds):
+                    e.hook_fish()
+                    self.direction = -1
+
+    def _move(self, direction=Direction.NONE):
+        self.facing = direction
+        if self.facing == Direction.LEFT:
+            self.set_location(self.x - self.move_speed, self.y)
+            self.velocity.x = -1
+        if self.facing == Direction.RIGHT:
+            self.set_location(self.x + self.move_speed, self.y)
+            self.velocity.x = 1
+
+    def _update_input(self, delta_time):
+        self.input.update(delta_time)
+        if self.input.pressing(InputType.LEFT):
+            self._move(Direction.LEFT)
+        if self.input.pressing(InputType.RIGHT):
+            self._move(Direction.RIGHT)
+
+    def update(self, delta_time, entities):
+        self._calculate_scaled_speed(delta_time)
+        self._update_input(delta_time)
+        self._collision(entities)
+        self.set_location(self.x, self.y + self.move_speed * self.direction)
+
+    def draw(self, surface):
+        if pygine.globals.debug:
+            self._draw_bounds(surface, CameraType.DYNAMIC)
+        else:
+            draw_line(
+                surface,
+                Camera.BOUNDS.width / 2 - 8, -8,
+                self.x + 7, self.y + 1,
+                CameraType.DYNAMIC,
+                Color.BLACK,
+                3
+            )
+            draw_line(
+                surface,
+                Camera.BOUNDS.width / 2 - 8, -8,
+                self.x + 7, self.y + 1,
+                CameraType.DYNAMIC,
+                Color.WHITE,
+                1
+            )
+            self.sprite.draw(surface, CameraType.DYNAMIC)
+
+
+class OceanWall(Entity):
+    def __init__(self, y, left, layer, total_layers):
+        super(OceanWall, self).__init__(0 + layer *
+                                        20 if left else Camera.BOUNDS.width - 32 - layer * 20, y, 32, 64)
+        self.layer = layer
+        self.sprite = Sprite(
+            self.x, self.y, SpriteType.ROCK_WALL_L if left else SpriteType.ROCK_WALL_R)
+
+        self.direction = 1
+        self.parallax_layers = total_layers
+        self.parallax_variance = 10
+        self.parallax_speed = 0
+        self.calculate_parallax_speed()
+
+    def set_location(self, x, y):
+        super(OceanWall, self).set_location(x, y)
+        self.sprite.set_location(self.x, self.y)
+
+    def set_direction(self, direction):
+        self.direction = direction
+        self.calculate_parallax_speed()
+
+    def calculate_parallax_speed(self):
+        assert (self.parallax_variance > 0), \
+            "Parallax Variance must be greater than zero!"
+        self.parallax_speed = self.parallax_variance * \
+            (self.parallax_layers - (self.layer + 1))**2 * self.direction * -1
+
+    def update_parallax(self, delta_time):
+        self.set_location(self.x, self.y + self.parallax_speed * delta_time)
+
+    def update(self, delta_time, entities):
+        self.update_parallax(delta_time)
+
+    def draw(self, surface):
+        self.sprite.draw(surface, CameraType.DYNAMIC)
+
+
+class Fishy(Kinetic):
+    def __init__(self, y, left):
+        super(Fishy, self).__init__(-32 if left else Camera.BOUNDS.width +
+                                    32, y, 16, 16, randint(1, 10) * 10)
+        self.type = randint(0, 1)
+        self.velocity.x = -1 if left else 1
+        if self.velocity.x > 0:
+            if self.type == 0:
+                self.sprite = Sprite(
+                    self.x, self.y, SpriteType.FISH_SMALL_L if left else SpriteType.FISH_SMALL_R)
+            elif self.type == 1:
+                self.sprite = Sprite(
+                    self.x, self.y, SpriteType.FISH_LARGE_L if left else SpriteType.FISH_LARGE_R)
+        else:
+            if self.type == 0:
+                self.sprite = Sprite(
+                    self.x, self.y, SpriteType.FISH_SMALL_L if left else SpriteType.FISH_SMALL_L)
+            elif self.type == 1:
+                self.sprite = Sprite(
+                    self.x, self.y, SpriteType.FISH_LARGE_L if left else SpriteType.FISH_LARGE_L)
+
+        self.captured = False
+
+    def set_location(self, x, y):
+        super(Fishy, self).set_location(x, y)
+        self.sprite.set_location(self.x, self.y)
+
+    def hook_fish(self):
+        self.captured = True
+
+    def _update_ai(self):
+        if self.velocity.x < 0:
+            self.set_location(self.x - self.move_speed, self.y)
+        else:
+            self.set_location(self.x + self.move_speed, self.y)
+
+    def _collision(self, entities):
+        if self.captured:
+            for e in entities:
+                if isinstance(e, Hook):
+                    if self.velocity.x > 0:
+                        self.set_location(
+                            e.x - 6 + randint(-3, 3), e.y + 10 + randint(-3, 3))
+                    else:
+                        self.set_location(
+                            e.x + 2 + randint(-3, 3), e.y + 10 + randint(-3, 3))
+                    return
+
+        if self.x < -32 or self.x > Camera.BOUNDS.width + 32:
+            self.velocity.x *= -1
+            if self.velocity.x > 0:
+                if self.type == 0:
+                    self.sprite.set_sprite(SpriteType.FISH_SMALL_R)
+                elif self.type == 1:
+                    self.sprite.set_sprite(SpriteType.FISH_LARGE_R)
+            else:
+                if self.type == 0:
+                    self.sprite.set_sprite(SpriteType.FISH_SMALL_L)
+                elif self.type == 1:
+                    self.sprite.set_sprite(SpriteType.FISH_LARGE_L)
+
+    def update(self, delta_time, entities):
+        self._calculate_scaled_speed(delta_time)
+        self._update_collision_rectangles()
+        self._update_ai()
+        self._collision(entities)
+
+    def draw(self, surface):
+        if pygine.globals.debug:
+            self._draw_bounds(surface, CameraType.DYNAMIC)
+            self._draw_collision_rectangles(surface)
+        else:
+            self.sprite.draw(surface, CameraType.DYNAMIC)
