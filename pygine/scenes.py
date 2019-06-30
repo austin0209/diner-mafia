@@ -44,7 +44,7 @@ class SceneManager:
         self.start_transition = False
 
         self.__initialize_scenes()
-        self.__set_starting_scene(SceneType.VILLAGE)
+        self.__set_starting_scene(SceneType.OCEAN)
 
     def __add_scene(self, scene):
         self.__all_scenes.append(scene)
@@ -145,6 +145,8 @@ class Scene(object):
         self.camera = Camera()
         self.camera_location = Vector2(0, 0)
         self.bounds = Rect(0, 0, Camera.BOUNDS.width, Camera.BOUNDS.height)
+        self.camera_viewport = Rectangle(
+            0, 0, Camera.BOUNDS.width, Camera.BOUNDS.height, Color.RED, 2)
         self.sprites = []
         self.entities = []
         self.shapes = []
@@ -176,7 +178,10 @@ class Scene(object):
     def __update_entities(self, delta_time):
         for i in range(len(self.entities) - 1, -1, -1):
             self.entities[i].update(delta_time, self.entities)
-        self.entities.sort(key=lambda e: (e.sprite.y + e.sprite.height) * 1000 - e.sprite.x)
+            if self.entities[i].remove:
+                del self.entities[i]
+        self.entities.sort(key=lambda e: (
+            e.sprite.y + e.sprite.height) * 1000 - e.sprite.x)
 
     def __update_triggers(self, delta_time, entities, manager):
         for t in self.triggers:
@@ -188,6 +193,8 @@ class Scene(object):
             self.player.y + self.player.height / 2 - self.camera.BOUNDS.height / 2
         )
         self.camera.update(self.camera_location, self.bounds)
+        self.camera_viewport.set_location(
+            self.camera.get_viewport_top_left().x, self.camera.get_viewport_top_left().y)
 
     def update(self, delta_time):
         self.__update_entities(delta_time)
@@ -204,6 +211,7 @@ class Scene(object):
         if pygine.globals.debug:
             for t in self.triggers:
                 t.draw(surface, CameraType.DYNAMIC)
+            self.camera_viewport.draw(surface, CameraType.DYNAMIC)
 
 
 class Village(Scene):
@@ -251,7 +259,8 @@ class Village(Scene):
             NPC(19 * 16, 4 * 16, NPCType.FEMALE, horizontal=False),
             NPC(10 * 16, 15 * 16, NPCType.FEMALE),
             NPC(32 * 16, 16 * 16, NPCType.MALE),
-            NPC(18 * 16, 9 * 16, NPCType.MALE, horizontal=False, walk_duration=3000),
+            NPC(18 * 16, 9 * 16, NPCType.MALE,
+                horizontal=False, walk_duration=3000),
             NPC(24 * 16, 15 * 16, NPCType.FEMALE),
             SimpleHouse(1 * 16, 1 * 16),
             SimpleHouse(9 * 16, 10 * 16),
@@ -361,7 +370,7 @@ class Forest(Scene):
             for x in range(20):
                 column = row[x]
                 if column.strip() != "-1":
-                    self.entities.append(Tree(x * 16, y * 16))        
+                    self.entities.append(Tree(x * 16, y * 16))
 
     def _reset(self):
         self.shapes = []
@@ -371,7 +380,7 @@ class Forest(Scene):
                 self.sprites.append(Sprite(x * 32, y * 32, SpriteType.GRASS))
 
         self.entities = [
-           
+
         ]
 
     def _create_triggers(self):
@@ -409,6 +418,10 @@ class Ocean(Scene):
                 if column.strip() != "-1":
                     self.entities.append(Wall(x, y, 1, 1))
 
+        for e in self.entities:
+            if isinstance(e, Wall):
+                e.apply_an_offset(0, -6)
+
     def _reset(self):
         self.bounds = Rect(0, 0, 320, 180)
 
@@ -432,6 +445,14 @@ class Ocean(Scene):
                     16, Camera.BOUNDS.height / 2
                 ),
                 SceneType.COFFEE_MINIGAME
+            ),
+            MinigameTrigger(
+                7 * 16, 1 * 16 + 4,
+                32, 16,
+                Vector2(
+                    Camera.BOUNDS.width / 2, Camera.BOUNDS.height / 2 + 16
+                ),
+                SceneType.FISH_MINIGAME
             ),
             CollisionTrigger(
                 0, Camera.BOUNDS.height,
@@ -693,12 +714,74 @@ class CropMinigame(Scene):
         pass
 
 
-class FishMinigame(Scene):
+class FishMinigame(Minigame):
     def __init__(self):
         super(FishMinigame, self).__init__()
 
+    def start_game(self):
+        self._reset()
+
     def _reset(self):
+        self.ocean_depth = Camera.BOUNDS.height * 10
+        self.bounds = Rect(0, 0, Camera.BOUNDS.width, self.ocean_depth)
+        self.shapes = [
+            Rectangle(0, 0, Camera.BOUNDS.width,
+                      self.ocean_depth, Color.OCEAN_BLUE),
+            Rectangle(0, self.ocean_depth - 64,
+                      Camera.BOUNDS.width, 64, Color.BLACK),
+        ]
+        self.sprites = []
+        self.entities = []
+        self.total_walls = int(Camera.BOUNDS.height / 64) + 2
+        self.wall_layers = 3
+        for y in range(self.total_walls):
+            for i in range(0, self.wall_layers):
+                self.entities.append(
+                    OceanWall(y * 64, True, i, self.wall_layers))
+                self.entities.append(
+                    OceanWall(y * 64, False, i, self.wall_layers))
+
+        self.fish_spawm_frequency = 0.7
+        for y in range(0, self.bounds.height, 16):
+            if randint(1, 10) <= int(self.fish_spawm_frequency * 10):
+                self.entities.append(
+                    Fishy(y, True if randint(1, 10) <= 5 else False))
+
+        self.relay_player(Hook(self.ocean_depth))
+
+        self.entities.sort(key=lambda e: (-(e.layer + 1)
+                                          if isinstance(e, OceanWall) else 100))
+
+    def _create_triggers(self):
         pass
+
+    def update(self, delta_time):
+        super(FishMinigame, self).update(delta_time)
+
+        for e in self.entities:
+            if isinstance(e, OceanWall):
+                if e.direction == 1 and e.bounds.bottom <= self.camera_viewport.bounds.top:
+                    e.set_location(e.x, e.y + self.total_walls * 64)
+                elif e.direction == -1 and e.bounds.top >= self.camera_viewport.bounds.bottom:
+                    e.set_location(e.x, e.y - self.total_walls * 64)
+
+            if isinstance(e, Hook):
+                if e.y < Camera.BOUNDS.height / 2:
+                    self._exit_game(
+                        7 * 16 + 11, 3 * 16,
+                        Fish(0, 0),
+                        SceneType.OCEAN
+                    )
+
+        self.entities.sort(
+            key=lambda e: (
+                -(e.layer + 1) if isinstance(e, OceanWall)
+                else (100 if isinstance(e, Hook) else 200)
+            )
+        )
+
+    def draw(self, surface):
+        super(FishMinigame, self).draw(surface)
 
 
 class EggsMinigame(Scene):
