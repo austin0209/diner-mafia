@@ -4,7 +4,6 @@ from pygine.resource import load_content
 from pygine.scenes import *
 from pygine.utilities import Color, Input, InputType, StaticCamera
 from enum import IntEnum
-from pygine.sounds import song_1
 
 
 class GameState(IntEnum):
@@ -43,13 +42,11 @@ class Game:
         self.scene_manager = SceneManager()
         self.input = Input()
 
-
-        song_1.play(-1)
-
     def __initialize_pygame(self):
         pygame.init()
 
-    def __setup_window(self, window_width=1280, window_height=720, target_fps=60, fullscreen=False, orientation=Orientaion.LANDSCAPE, title="Game"):
+    def __setup_window(self, window_width=1280, window_height=720, target_fps=60, fullscreen=False,
+                       orientation=Orientaion.LANDSCAPE, title="Game"):
         self.display_width = pygame.display.Info().current_w
         self.display_height = pygame.display.Info().current_h
         self.window_width = window_width
@@ -132,7 +129,7 @@ class Game:
 
     def __calculate_delta_time(self):
         self.clock.tick(self.target_fps)
-        #print(math.ceil(self.clock.get_fps()))
+        # print(math.ceil(self.clock.get_fps()))
         self.delta_time = (pygame.time.get_ticks() - self.ticks) / 1000.0
         self.ticks = pygame.time.get_ticks()
 
