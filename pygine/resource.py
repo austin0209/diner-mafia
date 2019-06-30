@@ -1,8 +1,18 @@
 import pygame
+import pygine.globals
 from enum import IntEnum
 from pygine.base import PygineObject
 from pygine.draw import draw_image
 from pygine.utilities import Timer
+
+SPRITE_SHEET = None
+
+def load_content():
+    global SPRITE_SHEET 
+    SPRITE_SHEET = pygame.image.load(
+        '/home/cpi/games/Python/village-game/pygine/assets/sprites/sprites.png' if pygine.globals.on_cpi
+        else'pygine/assets/sprites/sprites.png'
+    )
 
 
 class SpriteType(IntEnum):
@@ -97,13 +107,6 @@ class SpriteType(IntEnum):
     FACE_SURPRISED = 81
 
 
-
-SPRITE_SHEET = pygame.image.load(
-    # '/home/cpi/games/Python/village-game/pygine/assets/sprites/sprites.png'
-    'pygine/assets/sprites/sprites.png'
-)
-
-
 class Sprite(PygineObject):
     def __init__(self, x, y, sprite_type=SpriteType.NONE):
         super(Sprite, self).__init__(x, y, 0, 0)
@@ -116,7 +119,7 @@ class Sprite(PygineObject):
     def set_frame(self, frame, columns):
         self.__sprite_x = self.__original_sprite_x + frame % columns * self.width
         self.__sprite_y = self.__original_sprite_y + \
-                          int(frame / columns) * self.height
+            int(frame / columns) * self.height
         self.__apply_changes_to_sprite()
 
     def increment_sprite_x(self, increment):
@@ -278,36 +281,36 @@ class Sprite(PygineObject):
         elif (self.type == SpriteType.SIDEWALK_LONG):
             self._sprite_setup(32, 0, 608, 32)
         elif (self.type == SpriteType.SIDEWALK_TALL):
-            self._sprite_setup(976, 592, 32, 272)            
+            self._sprite_setup(976, 592, 32, 272)
         elif (self.type == SpriteType.TREE_CLUSTER):
-            self._sprite_setup(368, 80, 64, 48)   
+            self._sprite_setup(368, 80, 64, 48)
 
         elif (self.type == SpriteType.OCTOPUS_SHADOW):
-            self._sprite_setup(112, 832, 48, 48)   
+            self._sprite_setup(112, 832, 48, 48)
         elif (self.type == SpriteType.INK_BULLET_SHADOW):
-            self._sprite_setup(160, 816, 16, 16)               
+            self._sprite_setup(160, 816, 16, 16)
         elif (self.type == SpriteType.BOAT_SHADOW):
-            self._sprite_setup(112, 960, 112, 48)   
+            self._sprite_setup(112, 960, 112, 48)
         elif (self.type == SpriteType.ROCK_SHADOW):
-            self._sprite_setup(176, 816, 48, 32)         
+            self._sprite_setup(176, 816, 48, 32)
 
         elif (self.type == SpriteType.BEACH):
-            self._sprite_setup(704, 400, 320, 180)                
+            self._sprite_setup(704, 400, 320, 180)
 
         elif (self.type == SpriteType.HOOK):
-            self._sprite_setup(352, 816, 16, 32)                  
+            self._sprite_setup(352, 816, 16, 32)
         elif (self.type == SpriteType.FISH_SMALL_R):
-            self._sprite_setup(384, 848, 32, 16)                   
+            self._sprite_setup(384, 848, 32, 16)
         elif (self.type == SpriteType.FISH_SMALL_L):
-            self._sprite_setup(352, 848, 32, 16)               
+            self._sprite_setup(352, 848, 32, 16)
         elif (self.type == SpriteType.FISH_LARGE_R):
-            self._sprite_setup(384, 864, 32, 16)                   
+            self._sprite_setup(384, 864, 32, 16)
         elif (self.type == SpriteType.FISH_LARGE_L):
-            self._sprite_setup(352, 864, 32, 16)                       
+            self._sprite_setup(352, 864, 32, 16)
         elif (self.type == SpriteType.ROCK_WALL_R):
-            self._sprite_setup(384, 880, 32, 64)                   
+            self._sprite_setup(384, 880, 32, 64)
         elif (self.type == SpriteType.ROCK_WALL_L):
-            self._sprite_setup(352, 880, 32, 64) 
+            self._sprite_setup(352, 880, 32, 64)
 
         elif (self.type == SpriteType.FACE_HAPPY):
             self._sprite_setup(144, 752, 16, 16)
@@ -323,7 +326,7 @@ class Sprite(PygineObject):
     def __apply_changes_to_sprite(self):
         self.image = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
         self.image.blit(SPRITE_SHEET, (0, 0),
-                        (self.__sprite_x, self.__sprite_y, self.width, self.height))                              
+                        (self.__sprite_x, self.__sprite_y, self.width, self.height))
 
     def draw(self, surface, camera_type):
         draw_image(surface, self.image, self.bounds, camera_type)
@@ -342,6 +345,6 @@ class Animation:
         self.__timer.update(delta_time)
         if self.__timer.done:
             self.current_frame = self.current_frame + \
-                                 1 if self.current_frame + 1 < self.total_frames else 0
+                1 if self.current_frame + 1 < self.total_frames else 0
             self.__timer.reset()
             self.__timer.start()
