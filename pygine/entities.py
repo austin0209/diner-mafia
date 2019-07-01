@@ -681,8 +681,8 @@ class Boat(Actor):
             0, 16 * 3, Camera.BOUNDS.width, Camera.BOUNDS.height - 16 * 3)
         self.sprite = Sprite(x - 16, y - 48, SpriteType.BOAT)
         self.shadow = Sprite(x - 16 - 16, y - 16, SpriteType.BOAT_SHADOW)
-        self.blinks = 4
-        self.invis_duration = 1280
+        self.blinks = 5
+        self.invis_duration = 1600
         self.invis_timer = Timer(self.invis_duration)
         self.blink_timer = Timer(self.invis_duration / self.blinks / 2)
         self.damaged = False
@@ -941,15 +941,15 @@ class Mallet(Entity):
 
 class Hook(Actor):
     def __init__(self, ocean_depth):
-        super(Hook, self).__init__(0, 0, 13, 20, 80)
+        super(Hook, self).__init__(0, 0, 13, 13, 80)
         self.ocean_depth = ocean_depth
-        self.sprite = Sprite(self.x, self.y, SpriteType.HOOK)
+        self.sprite = Sprite(self.x, self.y - 7, SpriteType.HOOK)
         self.direction = 1
         self.total_hooked_fish = 0
 
     def set_location(self, x, y):
         super(Hook, self).set_location(x, y)
-        self.sprite.set_location(self.x, self.y)
+        self.sprite.set_location(self.x, self.y - 7)
 
     def __bounds_collision(self):
         if self.x < 0:
@@ -996,27 +996,27 @@ class Hook(Actor):
         self._collision(entities)
         self.set_location(self.x, self.y + self.move_speed * self.direction)
 
-    def draw(self, surface):
+    def draw(self, surface):        
+        draw_line(
+            surface,
+            Camera.BOUNDS.width / 2 - 8, -8,
+            self.x + 7, self.y - 6,
+            CameraType.DYNAMIC,
+            Color.BLACK,
+            3
+        )
+        draw_line(
+            surface,
+            Camera.BOUNDS.width / 2 - 8, -8,
+            self.x + 7, self.y - 6,
+            CameraType.DYNAMIC,
+            Color.WHITE,
+            1
+        )
+        self.sprite.draw(surface, CameraType.DYNAMIC)
+
         if pygine.globals.debug:
             self._draw_bounds(surface, CameraType.DYNAMIC)
-        else:
-            draw_line(
-                surface,
-                Camera.BOUNDS.width / 2 - 8, -8,
-                self.x + 7, self.y + 1,
-                CameraType.DYNAMIC,
-                Color.BLACK,
-                3
-            )
-            draw_line(
-                surface,
-                Camera.BOUNDS.width / 2 - 8, -8,
-                self.x + 7, self.y + 1,
-                CameraType.DYNAMIC,
-                Color.WHITE,
-                1
-            )
-            self.sprite.draw(surface, CameraType.DYNAMIC)
 
 
 class OceanWall(Entity):
@@ -1060,7 +1060,7 @@ class OceanWall(Entity):
 class Fishy(Kinetic):
     def __init__(self, y, left):
         super(Fishy, self).__init__(-32 if left else Camera.BOUNDS.width +
-                                    32, y, 16, 16, randint(1, 10) * 10)
+                                    16, y, 16, 16, randint(1, 10) * 10)
         self.type = randint(0, 1)
         self.velocity.x = -1 if left else 1
         if self.velocity.x > 0:
@@ -1109,10 +1109,10 @@ class Fishy(Kinetic):
                 if isinstance(e, Hook):
                     if self.velocity.x > 0:
                         self.set_location(
-                            e.x - 6 + randint(-3, 3), e.y + 10 + randint(-3, 3))
+                            e.x - 6 + randint(-3, 3), e.y + 4 + randint(-3, 3))
                     else:
                         self.set_location(
-                            e.x + 2 + randint(-3, 3), e.y + 10 + randint(-3, 3))
+                            e.x + 2 + randint(-3, 3), e.y + 4 + randint(-3, 3))
 
                     if randint(1, 10) <= 1:
                         self.flip_velocity()

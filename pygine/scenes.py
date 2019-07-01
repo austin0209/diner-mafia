@@ -4,6 +4,7 @@ from pygame import Rect
 from pygine.entities import *
 from pygine.maths import Vector2
 from pygine.resource import Text
+from pygine.sounds import play_song
 from pygine.transitions import Pinhole, TransitionType
 from pygine.triggers import *
 from pygine.utilities import Camera, Input, InputType
@@ -72,6 +73,7 @@ class SceneManager:
             "It looks like you never initialized all the scenes! Make sure to setup and call __initialize_scenes()"
 
         self.__current_scene = self.__all_scenes[int(starting_scene_type)]
+        play_song(self.__current_scene.song)
         self.__current_scene.relay_player(
             Player(
                 16 * 7,
@@ -98,6 +100,8 @@ class SceneManager:
         self.__current_scene.player.set_location(
             self.__end_location.x, self.__end_location.y)
         self.__current_scene = self.__next_scene
+        if self.__current_scene.song != "":
+            play_song(self.__current_scene.song)
         self.__current_scene.update_ui()
 
     def __update_input(self, delta_time):
@@ -150,7 +154,9 @@ class Scene(object):
         self.camera_location = Vector2(0, 0)
         self.bounds = Rect(0, 0, Camera.BOUNDS.width, Camera.BOUNDS.height)
         self.camera_viewport = Rectangle(
-            -Scene.VIEWPORT_BUFFER, -Scene.VIEWPORT_BUFFER, Camera.BOUNDS.width + Scene.VIEWPORT_BUFFER * 2, Camera.BOUNDS.height + Scene.VIEWPORT_BUFFER * 2, Color.RED, 2)
+            -Scene.VIEWPORT_BUFFER, -Scene.VIEWPORT_BUFFER, Camera.BOUNDS.width + Scene.VIEWPORT_BUFFER * 2,
+                                                            Camera.BOUNDS.height + Scene.VIEWPORT_BUFFER * 2, Color.RED,
+            2)
         self.sprites = []
         self.entities = []
         self.shapes = []
@@ -163,7 +169,11 @@ class Scene(object):
         self.manager = None
         self.player = None
 
-        self.money_ui = Text(8,8, "$" + str(pygine.globals.money))
+        # to be set by respective classes
+        self.song = ""
+
+        self.money_ui = Text(8 + 16 + 4, 8, str(pygine.globals.money))
+        self.dollar_sign = Text(8, 8, "$")
 
     def _reset(self):
         raise NotImplementedError(
@@ -213,11 +223,12 @@ class Scene(object):
         )
         self.camera.update(self.camera_location, self.bounds)
         self.camera_viewport.set_location(
-            self.camera.get_viewport_top_left().x - Scene.VIEWPORT_BUFFER, self.camera.get_viewport_top_left().y - Scene.VIEWPORT_BUFFER)
+            self.camera.get_viewport_top_left().x - Scene.VIEWPORT_BUFFER,
+            self.camera.get_viewport_top_left().y - Scene.VIEWPORT_BUFFER)
 
     def update_ui(self):
-        if self.money_ui.value != "$" + str(pygine.globals.money):
-            self.money_ui.set_value("$" + str(pygine.globals.money))
+        if self.money_ui.value != str(pygine.globals.money):
+            self.money_ui.set_value(str(pygine.globals.money))
 
     def update(self, delta_time):
         self.__update_entities(delta_time)
@@ -240,7 +251,9 @@ class Scene(object):
                 t.draw(surface, CameraType.DYNAMIC)
             self.camera_viewport.draw(surface, CameraType.DYNAMIC)
 
-        self.money_ui.draw(surface, CameraType.STATIC)
+        if not isinstance(self, Minigame):
+            self.dollar_sign.draw(surface, CameraType.STATIC)
+            self.money_ui.draw(surface, CameraType.STATIC)
 
 
 class Village(Scene):
@@ -251,6 +264,7 @@ class Village(Scene):
         self.__load_trees()
         self.__load_bounds()
         self._sort_entities()
+        self.song = "song_village.wav"
 
     def __load_bounds(self):
         self.entities.append(Wall(-1, -2, 19, 1))
@@ -268,7 +282,7 @@ class Village(Scene):
 
     def __load_trees(self):
         file = open(
-            '/home/cpi/games/Python/village-game/pygine/assets/scenes/trees_village.csv' if pygine.globals.on_cpi
+            '/home/cpi/games/Python/diner-mafia/pygine/assets/scenes/trees_village.csv' if pygine.globals.on_cpi
             else 'pygine/assets/scenes/trees_village.csv',
             "r"
         )
@@ -398,7 +412,7 @@ class Forest(Scene):
 
     def __load_trees(self):
         file = open(
-            '/home/cpi/games/Python/village-game/pygine/assets/scenes/trees_forest.csv' if pygine.globals.on_cpi
+            '/home/cpi/games/Python/diner-mafia/pygine/assets/scenes/trees_forest.csv' if pygine.globals.on_cpi
             else 'pygine/assets/scenes/trees_forest.csv',
             "r"
         )
@@ -447,10 +461,11 @@ class Ocean(Scene):
         self._reset()
         self._create_triggers()
         self.__load_bounds()
+        self.song = "song_village.wav"
 
     def __load_bounds(self):
         file = open(
-            '/home/cpi/games/Python/village-game/pygine/assets/scenes/bounds_ocean.csv' if pygine.globals.on_cpi
+            '/home/cpi/games/Python/diner-mafia/pygine/assets/scenes/bounds_ocean.csv' if pygine.globals.on_cpi
             else 'pygine/assets/scenes/bounds_ocean.csv',
             "r"
         )
@@ -684,11 +699,11 @@ class Minigame(Scene):
             "A class that inherits Minigame did not implement the start_game() method")
 
     def _exit_game(self, end_x, end_y, item, new_scene):
-        # TODO: should take you to dock scene later
         self.manager.queue_next_scene(new_scene, Vector2(end_x, end_y))
-        new_player = Player(end_x, end_y)
+        new_player = self.manager.get_scene(new_scene).player
+        new_player.set_location(end_x, end_y)
         new_player.item_carrying = item
-        self.manager.get_scene(new_scene).relay_player(new_player)
+        new_player.sprite.set_sprite(SpriteType.PLAYER_F)
 
 
 class CoffeeMinigame(Minigame):
@@ -696,6 +711,7 @@ class CoffeeMinigame(Minigame):
         super(CoffeeMinigame, self).__init__()
         self._reset()
         self._create_triggers()
+        self.song = "song_coffee.wav"
 
     def start_game(self):
         self._reset()
@@ -724,7 +740,7 @@ class CoffeeMinigame(Minigame):
             for i in range(0, self.wall_layers):
                 self.entities.append(
                     SandWall(x * 64, 16 * 2, i, self.wall_layers)
-                    )
+                )
 
         self.__game_timer = Timer(35 * 1000)
         self.__spawn_timer = Timer(500)
@@ -796,6 +812,7 @@ class CropMinigame(Scene):
 class FishMinigame(Minigame):
     def __init__(self):
         super(FishMinigame, self).__init__()
+        self.song = "song_coffee.wav"
 
     def start_game(self):
         self._reset()
@@ -823,12 +840,13 @@ class FishMinigame(Minigame):
                 self.entities.append(
                     OceanWall(y * 64, False, i, self.wall_layers))
 
-        self.fish_spawn_frequency = 0.9
+        self.fish_spawn_frequency = 1
         for y in range(0, self.bounds.height, 16):
-            if randint(1, 10) <= int(self.fish_spawn_frequency * 10):
+            if randint(1, 10) <= int(self.fish_spawn_frequency):
                 self.entities.append(
                     Fishy(y, True if randint(1, 10) <= 5 else False))
-
+            self.fish_spawn_frequency = y * 1.0 / self.ocean_depth * 10 + 1
+                
         self.relay_player(Hook(self.ocean_depth))
 
         self.entities.sort(key=lambda e: (-(e.layer + 1)

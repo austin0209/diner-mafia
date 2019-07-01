@@ -24,11 +24,11 @@ class Game:
         self.__initialize_pygame()
 
         self.__setup_window(
-            1280, 720,
+            320 * 2, 240 * 2,
             60,
             False,
             Orientaion.LANDSCAPE,
-            "Village Game"
+            "Diner Mafia"
         )
         self.__setup_pixel_scene(320, 240)
         self.__setup_cameras()
@@ -45,7 +45,8 @@ class Game:
     def __initialize_pygame(self):
         pygame.init()
 
-    def __setup_window(self, window_width=1280, window_height=720, target_fps=60, fullscreen=False, orientation=Orientaion.LANDSCAPE, title="Game"):
+    def __setup_window(self, window_width=1280, window_height=720, target_fps=60, fullscreen=False,
+                       orientation=Orientaion.LANDSCAPE, title="Game"):
         self.display_width = pygame.display.Info().current_w
         self.display_height = pygame.display.Info().current_h
         self.window_width = window_width
@@ -128,7 +129,7 @@ class Game:
 
     def __calculate_delta_time(self):
         self.clock.tick(self.target_fps)
-        #print(math.ceil(self.clock.get_fps()))
+        # print(math.ceil(self.clock.get_fps()))
         self.delta_time = (pygame.time.get_ticks() - self.ticks) / 1000.0
         self.ticks = pygame.time.get_ticks()
 

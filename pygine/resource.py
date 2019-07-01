@@ -3,6 +3,7 @@ import pygine.globals
 from enum import IntEnum
 from pygine.base import PygineObject
 from pygine.draw import draw_image
+from pygine.sounds import load_sound_paths
 from pygine.utilities import Timer
 
 SPRITE_SHEET = None
@@ -13,13 +14,14 @@ def load_content():
     global SPRITE_SHEET
     global TEXT_SHEET
     SPRITE_SHEET = pygame.image.load(
-        '/home/cpi/games/Python/village-game/pygine/assets/sprites/sprites.png' if pygine.globals.on_cpi
-        else'pygine/assets/sprites/sprites.png'
+        '/home/cpi/games/Python/diner-mafia/pygine/assets/sprites/sprites.png' if pygine.globals.on_cpi
+        else 'pygine/assets/sprites/sprites.png'
     )
     TEXT_SHEET = pygame.image.load(
-        '/home/cpi/games/Python/village-game/pygine/assets/sprites/font.png' if pygine.globals.on_cpi
-        else'pygine/assets/sprites/font.png'
+        '/home/cpi/games/Python/diner-mafia/pygine/assets/sprites/font.png' if pygine.globals.on_cpi
+        else 'pygine/assets/sprites/font.png'
     )
+    load_sound_paths()
 
 
 class SpriteType(IntEnum):
@@ -374,22 +376,23 @@ class Animation:
 
 class Text(PygineObject):
     def __init__(self, x, y, value):
-        super(Text, self).__init__(x, y, 14, 14)
-        
-        self.value = value           
-        self.set_value(self.value)
-        
-    def set_value(self, value):
-        self.value = value   
+        super(Text, self).__init__(x, y, 15, 15)
 
-        self.sprites = []    
+        self.value = value
+        self.set_value(self.value)
+
+    def set_value(self, value):
+        self.value = value
+
+        self.sprites = []
         for i in range(len(self.value)):
-            self.sprites.append(Sprite(self.x + i * self.width, self.y, SpriteType.TEXT))
+            self.sprites.append(
+                Sprite(self.x + i * self.width, self.y, SpriteType.TEXT))
 
         for i in range(len(self.value)):
             self.sprites[i].set_frame(ord(list(self.value)[i]), 16)
 
-        self.sprites.sort(key=lambda e: -e.x)            
+        self.sprites.sort(key=lambda e: -e.x)
 
     def draw(self, surface, camera_type):
         for s in self.sprites:
