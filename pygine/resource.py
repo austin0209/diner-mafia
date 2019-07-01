@@ -132,7 +132,7 @@ class Sprite(PygineObject):
     def set_frame(self, frame, columns):
         self.__sprite_x = self.__original_sprite_x + frame % columns * self.width
         self.__sprite_y = self.__original_sprite_y + \
-                          int(frame / columns) * self.height
+            int(frame / columns) * self.height
         self.__apply_changes_to_sprite()
 
     def increment_sprite_x(self, increment):
@@ -369,7 +369,7 @@ class Animation:
         self.__timer.update(delta_time)
         if self.__timer.done:
             self.current_frame = self.current_frame + \
-                                 1 if self.current_frame + 1 < self.total_frames else 0
+                1 if self.current_frame + 1 < self.total_frames else 0
             self.__timer.reset()
             self.__timer.start()
 
@@ -386,7 +386,8 @@ class Text(PygineObject):
 
         self.sprites = []
         for i in range(len(self.value)):
-            self.sprites.append(Sprite(self.x + i * self.width, self.y, SpriteType.TEXT))
+            self.sprites.append(
+                Sprite(self.x + i * self.width, self.y, SpriteType.TEXT))
 
         for i in range(len(self.value)):
             self.sprites[i].set_frame(ord(list(self.value)[i]), 16)
