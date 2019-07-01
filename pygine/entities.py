@@ -681,8 +681,8 @@ class Boat(Actor):
             0, 16 * 3, Camera.BOUNDS.width, Camera.BOUNDS.height - 16 * 3)
         self.sprite = Sprite(x - 16, y - 48, SpriteType.BOAT)
         self.shadow = Sprite(x - 16 - 16, y - 16, SpriteType.BOAT_SHADOW)
-        self.blinks = 4
-        self.invis_duration = 1280
+        self.blinks = 5
+        self.invis_duration = 1600
         self.invis_timer = Timer(self.invis_duration)
         self.blink_timer = Timer(self.invis_duration / self.blinks / 2)
         self.damaged = False
