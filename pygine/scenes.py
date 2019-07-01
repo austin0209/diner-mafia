@@ -837,11 +837,14 @@ class FishMinigame(Minigame):
                 self.entities.append(
                     OceanWall(y * 64, False, i, self.wall_layers))
 
-        self.fish_spawn_frequency = 0.9
+        self.fish_spawn_frequency = 1
         for y in range(0, self.bounds.height, 16):
-            if randint(1, 10) <= int(self.fish_spawn_frequency * 10):
+            if randint(1, 10) <= int(self.fish_spawn_frequency):
                 self.entities.append(
                     Fishy(y, True if randint(1, 10) <= 5 else False))
+            self.fish_spawn_frequency = int(y / self.ocean_depth * 10) + 1
+            print(self.fish_spawn_frequency)
+                
 
         self.relay_player(Hook(self.ocean_depth))
 
