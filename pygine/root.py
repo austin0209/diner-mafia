@@ -24,11 +24,11 @@ class Game:
         self.__initialize_pygame()
 
         self.__setup_window(
-            1280, 720,
+            320 * 2, 240 * 2,
             60,
             False,
             Orientaion.LANDSCAPE,
-            "Village Game"
+            "Diner Mafia"
         )
         self.__setup_pixel_scene(320, 240)
         self.__setup_cameras()
