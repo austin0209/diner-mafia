@@ -1,0 +1,1 @@
+python /home/cpi/games/Python/diner-mafia/main.py
