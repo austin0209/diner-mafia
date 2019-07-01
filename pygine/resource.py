@@ -376,7 +376,7 @@ class Animation:
 
 class Text(PygineObject):
     def __init__(self, x, y, value):
-        super(Text, self).__init__(x, y, 14, 14)
+        super(Text, self).__init__(x, y, 15, 15)
 
         self.value = value
         self.set_value(self.value)
