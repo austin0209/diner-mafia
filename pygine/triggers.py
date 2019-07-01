@@ -27,8 +27,8 @@ class Trigger(PygineObject):
         current_scene.entities.remove(entity)
 
     def _valid_entity(self, entity):
-        return isinstance(entity, Player) or isinstance(entity, NPC)
-
+        return isinstance(entity, Player)
+        
     def update(self, delta_time, entities, manager):
         raise NotImplementedError(
             "A class that inherits Trigger did not implement the update(delta_time, entities) method")
