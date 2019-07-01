@@ -68,9 +68,7 @@ class MinigameTrigger(Trigger):
 
     def _move_entity_to_next_scene(self, entity, manager):
         assert (isinstance(entity, Actor)), "Should only relay actors!"
-        current_scene = manager.get_current_scene()
         manager.queue_next_scene(self.next_scene, self.end_location)
-        current_scene.entities.remove(entity)
 
     def __collision(self, entities, manager):
         for e in entities:

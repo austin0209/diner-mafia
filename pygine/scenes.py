@@ -699,11 +699,11 @@ class Minigame(Scene):
             "A class that inherits Minigame did not implement the start_game() method")
 
     def _exit_game(self, end_x, end_y, item, new_scene):
-        # TODO: should take you to dock scene later
         self.manager.queue_next_scene(new_scene, Vector2(end_x, end_y))
-        new_player = Player(end_x, end_y)
+        new_player = self.manager.get_scene(new_scene).player
+        new_player.set_location(end_x, end_y)
         new_player.item_carrying = item
-        self.manager.get_scene(new_scene).relay_player(new_player)
+        new_player.sprite.set_sprite(SpriteType.PLAYER_F)
 
 
 class CoffeeMinigame(Minigame):
