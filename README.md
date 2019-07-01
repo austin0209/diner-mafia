@@ -2,7 +2,7 @@
 
 a 2D RPG written in Python using the [Pygame](https://www.pygame.org/wiki/about) library for the [GameShell Game Jam (2019Q2)](https://itch.io/jam/gameshell-19q2)
 
-![Village Preview](https://user-images.githubusercontent.com/43303199/60409412-1fed9700-9b89-11e9-8d5f-710882a2e7e4.gif)
+![Village Preview](https://user-images.githubusercontent.com/43303199/60416017-6c919c00-9ba2-11e9-96c0-0d37d28611da.gif)
 
 ## Background
 
