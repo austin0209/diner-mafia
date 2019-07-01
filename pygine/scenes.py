@@ -172,7 +172,8 @@ class Scene(object):
         # to be set by respective classes
         self.song = ""
 
-        self.money_ui = Text(8, 8, "$" + str(pygine.globals.money))
+        self.money_ui = Text(8 + 16 + 4, 8, str(pygine.globals.money))
+        self.dollar_sign = Text(8, 8, "$")
 
     def _reset(self):
         raise NotImplementedError(
@@ -226,8 +227,8 @@ class Scene(object):
             self.camera.get_viewport_top_left().y - Scene.VIEWPORT_BUFFER)
 
     def update_ui(self):
-        if self.money_ui.value != "$" + str(pygine.globals.money):
-            self.money_ui.set_value("$" + str(pygine.globals.money))
+        if self.money_ui.value != str(pygine.globals.money):
+            self.money_ui.set_value(str(pygine.globals.money))
 
     def update(self, delta_time):
         self.__update_entities(delta_time)
@@ -250,7 +251,9 @@ class Scene(object):
                 t.draw(surface, CameraType.DYNAMIC)
             self.camera_viewport.draw(surface, CameraType.DYNAMIC)
 
-        self.money_ui.draw(surface, CameraType.STATIC)
+        if not isinstance(self, Minigame):
+            self.dollar_sign.draw(surface, CameraType.STATIC)
+            self.money_ui.draw(surface, CameraType.STATIC)
 
 
 class Village(Scene):
@@ -458,7 +461,7 @@ class Ocean(Scene):
         self._reset()
         self._create_triggers()
         self.__load_bounds()
-        self.song = "song_ocean.wav"
+        self.song = "song_village.wav"
 
     def __load_bounds(self):
         file = open(
@@ -809,7 +812,7 @@ class CropMinigame(Scene):
 class FishMinigame(Minigame):
     def __init__(self):
         super(FishMinigame, self).__init__()
-        self.song = "song_fish.wav"
+        self.song = "song_coffee.wav"
 
     def start_game(self):
         self._reset()
@@ -842,10 +845,8 @@ class FishMinigame(Minigame):
             if randint(1, 10) <= int(self.fish_spawn_frequency):
                 self.entities.append(
                     Fishy(y, True if randint(1, 10) <= 5 else False))
-            self.fish_spawn_frequency = int(y / self.ocean_depth * 10) + 1
-            print(self.fish_spawn_frequency)
+            self.fish_spawn_frequency = y * 1.0 / self.ocean_depth * 10 + 1
                 
-
         self.relay_player(Hook(self.ocean_depth))
 
         self.entities.sort(key=lambda e: (-(e.layer + 1)
