@@ -441,7 +441,7 @@ class Forest(Scene):
             CollisionTrigger(
                 Camera.BOUNDS.width - 8, 0,
                 8, Camera.BOUNDS.height,
-                Vector2(16, Camera.BOUNDS.height / 2),
+                Vector2(16, Camera.BOUNDS.height / 2 - 16),
                 SceneType.VILLAGE
             )
         )
