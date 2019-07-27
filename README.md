@@ -22,7 +22,7 @@ To install *Diner Mafia* you need to ssh into your GameShell from your desktop o
 
 - If you logged in successfully you should see the CPI ASCII logo pop up, and your terminal should start with `cpi@clockworkpi:-$`. To copy the game onto your GameShell type the command
 
-  - `git clone https://github.com/austin0209/diner-mafia /home/cpi/games/Python/diner-mafia/`
+  - `git clone https://github.com/austin0209/diner-mafia.git /home/cpi/games/Python/diner-mafia/`
 
 - Once the repository has been cloned type the command
 
