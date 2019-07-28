@@ -26,7 +26,7 @@ To install *Diner Mafia* you need to ssh into your GameShell from your desktop o
 
 - Once the repository has been cloned type the command
 
-  - `mv /home/cpi/games/Python/diner-mafia/33_DinerMafia/ /home/cpi/launcher/Menu/GameShell`
+  - `mv /home/cpi/games/Python/diner-mafia/33_DinerMafia/ /home/cpi/apps/Menu/21_Indie\ Games/`
 
 - This will create a shortcut in your GameShell's Menu. If you have not ran into any errors then you are done with the terminal. Type `exit` to end the ssh connection to your GameShell.
 
